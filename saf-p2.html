@@ -758,6 +758,10 @@
                             <label for="editAccidents">จำนวนอุบัติเหตุในเดือนนี้</label>
                             <input type="number" id="editAccidents" min="0" max="100" value="0">
                         </div>
+                         <div class="form-group">
+                            <label for="editAccidents">จำนวนอุบัติเหตุในปีนี้</label>
+                            <input type="number" id="editAccidentsyears" min="0" max="100" value="0">
+                        </div>
                         <div class="form-group">
                             <label for="editTraining">พนักงานผ่านการฝึกอบรม (%)</label>
                             <input type="number" id="editTraining" min="0" max="100" value="94">
@@ -787,7 +791,7 @@
                         </div>
                          <div class="stat-box">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <div class="stat-value" id="accidentsCount">0</div>
+                            <div class="stat-value" id="accidentsyearsCount">0</div>
                             <div class="stat-label">จำนวนอุบัติเหตุในปีนี้</div>
                             <div class="stat-trend trend-down">ประจำปี 2569</div>
                         </div>
@@ -1094,6 +1098,10 @@
             // 4. ดึงค่าการตรวจสอบความปลอดภัยจาก localStorage
             const inspectionPercent = localStorage.getItem('inspectionPercent') || 87;
             document.getElementById('inspectionPercent').textContent = `${inspectionPercent}%`;
+
+            // 5. ดึงค่าอุบัติเหตุประจำปีจาก localStorage 
+            const accidents = localStorage.getItem('accidentsyearsCount') || 0;
+            document.getElementById('accidentsyearsCount').textContent = accidents;
         }
         
         // ฟังก์ชันจัดการแบบฟอร์มแก้ไขสถิติ
