@@ -758,9 +758,9 @@
                             <label for="editAccidents">จำนวนอุบัติเหตุในเดือนนี้</label>
                             <input type="number" id="editAccidents" min="0" max="100" value="0">
                         </div>
-                         <div class="form-group">
-                            <label for="editAccidents">จำนวนอุบัติเหตุในปีนี้</label>
-                            <input type="number" id="editAccidentsyears" min="0" max="100" value="0">
+                        <div class="form-group">
+                            <label for="editAccidentsYearly">จำนวนอุบัติเหตุประจำปี 2569</label>
+                            <input type="number" id="editAccidentsYearly" min="0" max="1000" value="0">
                         </div>
                         <div class="form-group">
                             <label for="editTraining">พนักงานผ่านการฝึกอบรม (%)</label>
@@ -789,10 +789,10 @@
                             <div class="stat-label">จำนวนอุบัติเหตุในเดือนนี้</div>
                             <div class="stat-trend trend-down">ประจำปี 2569</div>
                         </div>
-                         <div class="stat-box">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <div class="stat-value" id="accidentsyearsCount">0</div>
-                            <div class="stat-label">จำนวนอุบัติเหตุในปีนี้</div>
+                        <div class="stat-box">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div class="stat-value" id="accidentsYearly">0</div>
+                            <div class="stat-label">จำนวนอุบัติเหตุประจำปี</div>
                             <div class="stat-trend trend-down">ประจำปี 2569</div>
                         </div>
                         <div class="stat-box">
@@ -1087,21 +1087,21 @@
             const safeDays = calculateSafeDays();
             document.getElementById('safeDays').textContent = safeDays;
             
-            // 2. ดึงค่าอุบัติเหตุจาก localStorage (ถ้ามี) หรือใช้ค่าเริ่มต้น
+            // 2. ดึงค่าอุบัติเหตุในเดือนนี้จาก localStorage (ถ้ามี) หรือใช้ค่าเริ่มต้น
             const accidents = localStorage.getItem('accidentsCount') || 0;
             document.getElementById('accidentsCount').textContent = accidents;
             
-            // 3. ดึงค่าพนักงานผ่านการฝึกอบรมจาก localStorage
+            // 3. ดึงค่าอุบัติเหตุประจำปีจาก localStorage (ถ้ามี) หรือใช้ค่าเริ่มต้น
+            const accidentsYearly = localStorage.getItem('accidentsYearly') || 0;
+            document.getElementById('accidentsYearly').textContent = accidentsYearly;
+            
+            // 4. ดึงค่าพนักงานผ่านการฝึกอบรมจาก localStorage
             const trainingPercent = localStorage.getItem('trainingPercent') || 94;
             document.getElementById('trainingPercent').textContent = `${trainingPercent}%`;
             
-            // 4. ดึงค่าการตรวจสอบความปลอดภัยจาก localStorage
+            // 5. ดึงค่าการตรวจสอบความปลอดภัยจาก localStorage
             const inspectionPercent = localStorage.getItem('inspectionPercent') || 87;
             document.getElementById('inspectionPercent').textContent = `${inspectionPercent}%`;
-
-            // 5. ดึงค่าอุบัติเหตุประจำปีจาก localStorage 
-            const accidents = localStorage.getItem('accidentsyearsCount') || 0;
-            document.getElementById('accidentsyearsCount').textContent = accidents;
         }
         
         // ฟังก์ชันจัดการแบบฟอร์มแก้ไขสถิติ
@@ -1122,10 +1122,12 @@
                 
                 // เติมค่าปัจจุบันลงในฟอร์ม
                 const accidentsCount = document.getElementById('accidentsCount').textContent;
+                const accidentsYearly = document.getElementById('accidentsYearly').textContent;
                 const trainingPercent = document.getElementById('trainingPercent').textContent.replace('%', '');
                 const inspectionPercent = document.getElementById('inspectionPercent').textContent.replace('%', '');
                 
                 document.getElementById('editAccidents').value = accidentsCount;
+                document.getElementById('editAccidentsYearly').value = accidentsYearly;
                 document.getElementById('editTraining').value = trainingPercent;
                 document.getElementById('editInspection').value = inspectionPercent;
             });
@@ -1145,17 +1147,19 @@
                 
                 // ดึงค่าจากฟอร์ม
                 const newAccidents = document.getElementById('editAccidents').value;
+                const newAccidentsYearly = document.getElementById('editAccidentsYearly').value;
                 const newTraining = document.getElementById('editTraining').value;
                 const newInspection = document.getElementById('editInspection').value;
                 
                 // ตรวจสอบความถูกต้อง
-                if (newAccidents < 0 || newTraining < 0 || newTraining > 100 || newInspection < 0 || newInspection > 100) {
+                if (newAccidents < 0 || newAccidentsYearly < 0 || newTraining < 0 || newTraining > 100 || newInspection < 0 || newInspection > 100) {
                     showNotification('กรุณากรอกข้อมูลให้ถูกต้อง', 'error');
                     return;
                 }
                 
                 // บันทึกลง localStorage
                 localStorage.setItem('accidentsCount', newAccidents);
+                localStorage.setItem('accidentsYearly', newAccidentsYearly);
                 localStorage.setItem('trainingPercent', newTraining);
                 localStorage.setItem('inspectionPercent', newInspection);
                 
@@ -1169,7 +1173,7 @@
                 showNotification('บันทึกสถิติเรียบร้อยแล้ว', 'success');
                 
                 // ในระบบจริงควรส่งข้อมูลไปบันทึกในฐานข้อมูล
-                console.log(`บันทึกสถิติโดย ${currentUser.name} (${currentUser.username}): อุบัติเหตุ=${newAccidents}, การฝึกอบรม=${newTraining}%, การตรวจสอบ=${newInspection}%`);
+                console.log(`บันทึกสถิติโดย ${currentUser.name} (${currentUser.username}): อุบัติเหตุเดือนนี้=${newAccidents}, อุบัติเหตุประจำปี=${newAccidentsYearly}, การฝึกอบรม=${newTraining}%, การตรวจสอบ=${newInspection}%`);
             });
         }
 
