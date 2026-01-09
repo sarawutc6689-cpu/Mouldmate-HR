@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบบริหารความปลอดภัย | แผนกความปลอดภัย</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans Thai', 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a6b3c 0%, #2c8c5c 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-text h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header-text p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .date-display {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 25px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-title-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title i {
+            margin-right: 12px;
+            color: #1a6b3c;
+            font-size: 1.5rem;
+        }
+
+        .card-title h2 {
+            font-size: 1.5rem;
+            color: #1a6b3c;
+            font-weight: 600;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 5px solid #1a6b3c;
+            position: relative;
+        }
+
+        .stat-box i {
+            font-size: 2.2rem;
+            color: #1a6b3c;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #1a6b3c;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .stat-trend {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .trend-up {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .trend-down {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .edit-btn {
+            background-color: #1a6b3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .edit-btn:hover {
+            background-color: #155730;
+        }
+
+        .edit-form {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid #e0e0e0;
+            display: none;
+        }
+
+        .edit-form.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-save {
+            background-color: #1a6b3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-save:hover {
+            background-color: #155730;
+        }
+
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+
+        .news-item {
+            padding: 18px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-date {
+            background: #f0f7f3;
+            color: #1a6b3c;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+            min-width: 80px;
+            font-weight: 600;
+        }
+
+        .news-date .day {
+            font-size: 1.5rem;
+            display: block;
+        }
+
+        .news-date .month {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .news-content h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .news-content p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .knowledge-category {
+            margin-bottom: 25px;
+        }
+
+        .knowledge-category:last-child {
+            margin-bottom: 0;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #1a6b3c;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .category-title i {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+
+        .knowledge-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #2c8c5c;
+            transition: all 0.2s ease;
+        }
+
+        .knowledge-item:hover {
+            background: #f0f7f3;
+            transform: translateX(5px);
+        }
+
+        .knowledge-item h4 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .knowledge-item p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .btn-detail {
+            display: inline-block;
+            background: #1a6b3c;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .btn-detail:hover {
+            background: #155730;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .safety-message {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 500;
+            color: #1565c0;
+            border: 1px solid #90caf9;
+        }
+
+        @media (max-width: 1100px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .date-display {
+                align-self: stretch;
+                text-align: center;
+            }
+            
+            .card-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 20px;
+            }
+            
+            .header-text h1 {
+                font-size: 1.8rem;
+            }
+            
+            .stat-value {
+                font-size: 2.2rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo-area">
+                    <div class="logo-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="header-text">
+                        <h1>แผนกความปลอดภัย</h1>
+                        <p>ระบบบริหารจัดการด้านความปลอดภัยและการป้องกันอุบัติเหตุ</p>
+                    </div>
+                </div>
+                <div class="date-display">
+                    <i class="far fa-calendar-alt"></i> 
+                    <span id="current-date">กำลังโหลด...</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="left-column">
+                <!-- สถิติความปลอดภัย -->
+                <section class="card">
+                    <div class="card-title">
+                        <div class="card-title-left">
+                            <i class="fas fa-chart-line"></i>
+                            <h2>สถิติความปลอดภัย</h2>
+                        </div>
+                        <button id="editStatsBtn" class="edit-btn">
+                            <i class="fas fa-edit"></i> แก้ไขสถิติ
+                        </button>
+                    </div>
+                    
+                    <!-- แบบฟอร์มแก้ไขสถิติ -->
+                    <div id="editStatsForm" class="edit-form">
+                        <h3>แก้ไขสถิติความปลอดภัย</h3>
+                        <div class="form-group">
+                            <label for="editAccidents">จำนวนอุบัติเหตุในเดือนนี้</label>
+                            <input type="number" id="editAccidents" min="0" max="100" value="3">
+                        </div>
+                        <div class="form-group">
+                            <label for="editTraining">พนักงานผ่านการฝึกอบรม (%)</label>
+                            <input type="number" id="editTraining" min="0" max="100" value="94">
+                        </div>
+                        <div class="form-group">
+                            <label for="editInspection">การตรวจสอบความปลอดภัยผ่าน (%)</label>
+                            <input type="number" id="editInspection" min="0" max="100" value="87">
+                        </div>
+                        <div class="form-actions">
+                            <button id="saveStatsBtn" class="btn-save">บันทึกการเปลี่ยนแปลง</button>
+                            <button id="cancelEditBtn" class="btn-cancel">ยกเลิก</button>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-box">
+                            <i class="fas fa-calendar-day"></i>
+                            <div class="stat-value" id="safeDays">287</div>
+                            <div class="stat-label">วันทำงานปลอดอุบัติเหตุ</div>
+                            <div class="stat-trend trend-up" id="safeDaysTrend">+15 วันจากเดือนก่อน</div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div class="stat-value" id="accidentsCount">3</div>
+                            <div class="stat-label">อุบัติเหตุในเดือนนี้</div>
+                            <div class="stat-trend trend-down" id="accidentsTrend">-2 จากเดือนก่อน</div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-user-shield"></i>
+                            <div class="stat-value" id="trainingPercent">94%</div>
+                            <div class="stat-label">พนักงานผ่านการฝึกอบรม</div>
+                            <div class="stat-trend trend-up" id="trainingTrend">+3% จากไตรมาสก่อน</div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-clipboard-check"></i>
+                            <div class="stat-value" id="inspectionPercent">87%</div>
+                            <div class="stat-label">การตรวจสอบความปลอดภัยผ่าน</div>
+                            <div class="stat-trend trend-up" id="inspectionTrend">+5% จากเดือนก่อน</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ความรู้เกี่ยวกับความปลอดภัย -->
+                <section class="card">
+                    <div class="card-title">
+                        <div class="card-title-left">
+                            <i class="fas fa-book-open"></i>
+                            <h2>ความรู้เกี่ยวกับความปลอดภัย</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="knowledge-category">
+                        <div class="category-title">
+                            <i class="fas fa-hard-hat"></i>
+                            อุปกรณ์ป้องกันส่วนบุคคล (PPE)
+                        </div>
+                        <div class="knowledge-item">
+                            <h4>การสวมใส่และบำรุงรักษาหน้ากากกันสารเคมี</h4>
+                            <p>ขั้นตอนการสวมใส่ที่ถูกต้องและการทำความสะอาดหน้ากากกันสารเคมีเพื่อประสิทธิภาพสูงสุด</p>
+                            <a href="#" class="btn-detail">อ่านเพิ่มเติม</a>
+                        </div>
+                        <div class="knowledge-item">
+                            <h4>การเลือกใช้ถุงมือป้องกันสารเคมี</h4>
+                            <p>คู่มือการเลือกถุงมือป้องกันสารเคมีตามประเภทของสารและระยะเวลาการสัมผัส</p>
+                            <a href="#" class="btn-detail">อ่านเพิ่มเติม</a>
+                        </div>
+                    </div>
+                    
+                    <div class="knowledge-category">
+                        <div class="category-title">
+                            <i class="fas fa-fire-extinguisher"></i>
+                            การป้องกันอัคคีภัย
+                        </div>
+                        <div class="knowledge-item">
+                            <h4>การใช้ถังดับเพลิงประเภทต่างๆ</h4>
+                            <p>เรียนรู้วิธีการใช้ถังดับเพลิงประเภท A, B, C และ D สำหรับไฟประเภทต่าง ๆ</p>
+                            <a href="#" class="btn-detail">อ่านเพิ่มเติม</a>
+                        </div>
+                        <div class="knowledge-item">
+                            <h4>แผนการอพยพหนีไฟในสถานประกอบการ</h4>
+                            <p>ขั้นตอนการอพยพเมื่อเกิดเพลิงไหม้และจุดรวมพลที่ปลอดภัย</p>
+                            <a href="#" class="btn-detail">อ่านเพิ่มเติม</a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="right-column">
+                <!-- กระดานข่าวสาร -->
+                <section class="card">
+                    <div class="card-title">
+                        <div class="card-title-left">
+                            <i class="fas fa-bullhorn"></i>
+                            <h2>กระดานข่าวสารความปลอดภัย</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-date">
+                            <span class="day">15</span>
+                            <span class="month">มิ.ย.</span>
+                        </div>
+                        <div class="news-content">
+                            <h3>การฝึกซ้อมอพยพหนีไฟประจำปี 2567</h3>
+                            <p>แผนกความปลอดภัยจะจัดฝึกซ้อมอพยพหนีไฟในวันที่ 25 มิถุนายน 2567 เวลา 14:00 น.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-date">
+                            <span class="day">10</span>
+                            <span class="month">มิ.ย.</span>
+                        </div>
+                        <div class="news-content">
+                            <h3>กำหนดการอบรมความปลอดภัยในการทำงานที่สูง</h3>
+                            <p>อบรมวันที่ 20-21 มิถุนายน สำหรับพนักงานที่ทำงานบนที่สูงและใกล้แหล่งไฟฟ้าแรงสูง</p>
+                        </div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-date">
+                            <span class="day">05</span>
+                            <span class="month">มิ.ย.</span>
+                        </div>
+                        <div class="news-content">
+                            <h3>ประกาศผลการตรวจความปลอดภัยประจำเดือนพฤษภาคม</h3>
+                            <p>แผนกทั้งหมดผ่านเกณฑ์การตรวจสอบร้อยละ 95 ซึ่งเพิ่มขึ้นจากเดือนก่อน</p>
+                        </div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-date">
+                            <span class="day">01</span>
+                            <span class="month">มิ.ย.</span>
+                        </div>
+                        <div class="news-content">
+                            <h3>เปิดรับข้อเสนอเพื่อเพิ่มความปลอดภัยในที่ทำงาน</h3>
+                            <p>แผนกความปลอดภัยเปิดรับข้อเสนอแนะจากพนักงานเพื่อปรับปรุงสภาพแวดล้อมการทำงาน</p>
+                        </div>
+                    </div>
+                    
+                    <div class="safety-message">
+                        <i class="fas fa-info-circle"></i> "ความปลอดภัยเป็นหน้าที่ของทุกคน"
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <footer>
+            <p>แผนกความปลอดภัย | บริษัท ตัวอย่าง จำกัด</p>
+            <p>โทรศัพท์: 02-345-6789 | อีเมล: safety@example.com</p>
+            <p>© 2023 ระบบบริหารความปลอดภัย. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // ตั้งค่าวันที่ปัจจุบัน
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            const thaiDate = now.toLocaleDateString('th-TH', options);
+            document.getElementById('current-date').textContent = thaiDate;
+        }
+        
+        // ฟังก์ชันคำนวณวันทำงานปลอดเหตุแบบ real-time
+        function calculateSafeDays() {
+            // วันที่เริ่มต้นปลอดอุบัติเหตุ (ตั้งค่าเป็นวันที่เริ่มต้นนับ)
+            // ในระบบจริงควรดึงจากฐานข้อมูล
+            const startDate = new Date('2023-01-01');
+            const today = new Date();
+            
+            // คำนวณจำนวนวันระหว่างวันที่เริ่มต้นถึงวันนี้
+            const timeDiff = today.getTime() - startDate.getTime();
+            const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+            
+            // ลบวันหยุดสุดสัปดาห์ (เสาร์-อาทิตย์)
+            let workDays = 0;
+            let currentDate = new Date(startDate);
+            
+            while (currentDate <= today) {
+                const dayOfWeek = currentDate.getDay();
+                // ไม่นับวันเสาร์ (6) และอาทิตย์ (0)
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    workDays++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return workDays;
+        }
+        
+        // อัปเดตสถิติแบบไดนามิก
+        function updateStats() {
+            // 1. คำนวณวันทำงานปลอดเหตุ
+            const safeDays = calculateSafeDays();
+            document.getElementById('safeDays').textContent = safeDays;
+            
+            // 2. ดึงค่าอุบัติเหตุจาก localStorage (ถ้ามี) หรือใช้ค่าเริ่มต้น
+            const accidents = localStorage.getItem('accidentsCount') || 3;
+            document.getElementById('accidentsCount').textContent = accidents;
+            
+            // 3. ดึงค่าพนักงานผ่านการฝึกอบรมจาก localStorage
+            const trainingPercent = localStorage.getItem('trainingPercent') || 94;
+            document.getElementById('trainingPercent').textContent = `${trainingPercent}%`;
+            
+            // 4. ดึงค่าการตรวจสอบความปลอดภัยจาก localStorage
+            const inspectionPercent = localStorage.getItem('inspectionPercent') || 87;
+            document.getElementById('inspectionPercent').textContent = `${inspectionPercent}%`;
+            
+            // 5. คำนวณแนวโน้มวันปลอดอุบัติเหตุ (เดือนก่อนมี 272 วัน)
+            const prevMonthSafeDays = 272;
+            const safeDaysDiff = safeDays - prevMonthSafeDays;
+            const safeDaysTrend = document.getElementById('safeDaysTrend');
+            safeDaysTrend.textContent = `${safeDaysDiff > 0 ? '+' : ''}${safeDaysDiff} วันจากเดือนก่อน`;
+            safeDaysTrend.className = `stat-trend ${safeDaysDiff >= 0 ? 'trend-up' : 'trend-down'}`;
+            
+            console.log("อัปเดตสถิติความปลอดภัยเรียบร้อยแล้ว");
+        }
+        
+        // ฟังก์ชันจัดการแบบฟอร์มแก้ไขสถิติ
+        function initEditForm() {
+            const editBtn = document.getElementById('editStatsBtn');
+            const editForm = document.getElementById('editStatsForm');
+            const cancelBtn = document.getElementById('cancelEditBtn');
+            const saveBtn = document.getElementById('saveStatsBtn');
+            
+            // ปุ่มแก้ไขสถิติ
+            editBtn.addEventListener('click', () => {
+                editForm.classList.add('show');
+                
+                // เติมค่าปัจจุบันลงในฟอร์ม
+                const accidentsCount = document.getElementById('accidentsCount').textContent;
+                const trainingPercent = document.getElementById('trainingPercent').textContent.replace('%', '');
+                const inspectionPercent = document.getElementById('inspectionPercent').textContent.replace('%', '');
+                
+                document.getElementById('editAccidents').value = accidentsCount;
+                document.getElementById('editTraining').value = trainingPercent;
+                document.getElementById('editInspection').value = inspectionPercent;
+            });
+            
+            // ปุ่มยกเลิก
+            cancelBtn.addEventListener('click', () => {
+                editForm.classList.remove('show');
+            });
+            
+            // ปุ่มบันทึก
+            saveBtn.addEventListener('click', () => {
+                // ดึงค่าจากฟอร์ม
+                const newAccidents = document.getElementById('editAccidents').value;
+                const newTraining = document.getElementById('editTraining').value;
+                const newInspection = document.getElementById('editInspection').value;
+                
+                // ตรวจสอบความถูกต้อง
+                if (newAccidents < 0 || newTraining < 0 || newTraining > 100 || newInspection < 0 || newInspection > 100) {
+                    alert('กรุณากรอกข้อมูลให้ถูกต้อง');
+                    return;
+                }
+                
+                // บันทึกลง localStorage
+                localStorage.setItem('accidentsCount', newAccidents);
+                localStorage.setItem('trainingPercent', newTraining);
+                localStorage.setItem('inspectionPercent', newInspection);
+                
+                // อัปเดตสถิติบนหน้า
+                updateStats();
+                
+                // ซ่อนฟอร์ม
+                editForm.classList.remove('show');
+                
+                // แจ้งเตือนสำเร็จ
+                alert('บันทึกสถิติเรียบร้อยแล้ว');
+            });
+        }
+        
+        // เพิ่มเอฟเฟกต์เมื่อโหลดหน้า
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDate();
+            updateStats();
+            initEditForm();
+            
+            // เพิ่มเอฟเฟกต์ให้กับการ์ดเมื่อโหลด
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        });
+        
+        // จำลองการอัปเดตสถิติทุก 30 วินาที (สำหรับวันทำงานปลอดเหตุ)
+        setInterval(updateStats, 30000);
+    </script>
+</body>
+</html>
