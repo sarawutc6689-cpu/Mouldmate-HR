@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบริหารความปลอดภัย | แผนกความปลอดภัย</title>
+    <title>แผนกความปลอดภัย</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -34,7 +34,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -172,6 +172,41 @@
         .header-text p {
             opacity: 0.9;
             font-size: 1.1rem;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .date-display {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            text-align: center;
+        }
+
+        .btn-login-small {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-login-small:hover {
+            background: rgba(255, 255, 255, 0.4);
         }
 
         .user-info {
@@ -587,13 +622,19 @@
                 gap: 20px;
             }
             
+            .header-right {
+                align-items: flex-start;
+                width: 100%;
+            }
+            
             .stats-container {
                 grid-template-columns: 1fr;
             }
             
             .user-info {
-                align-self: stretch;
-                justify-content: space-between;
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
             }
             
             .card-title {
@@ -632,7 +673,7 @@
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <h2><i class="fas fa-shield-alt"></i> เข้าสู่ระบบ</h2>
-            <p>กรุณาเข้าสู่ระบบเพื่อใช้งานระบบความปลอดภัย</p>
+            <p>กรุณาเข้าสู่ระบบเพื่อแก้ไขสถิติความปลอดภัย</p>
             
             <form id="loginForm" class="login-form">
                 <div class="form-group">
@@ -656,9 +697,9 @@
                 <!-- ข้อมูลสำหรับทดสอบ -->
                 <div style="margin-top: 20px; font-size: 0.85rem; color: #888; text-align: left; border-top: 1px solid #eee; padding-top: 15px;">
                     <strong>ข้อมูลสำหรับทดสอบ:</strong><br>
-                    • ผู้ดูแลระบบ: admin / password123 (สิทธิ์แก้ไขได้)<br>
-                    • ผู้ใช้งานทั่วไป: user / password123 (ดูได้อย่างเดียว)<br>
-                    • เจ้าหน้าที่ความปลอดภัย: safety / safety456 (สิทธิ์แก้ไขได้)
+                    • ผู้ดูแลระบบ: admin / admin123 (สิทธิ์แก้ไขได้)<br>
+                    • เจ้าหน้าที่ความปลอดภัย: safety / safety456 (สิทธิ์แก้ไขได้)<br>
+                    • ผู้ใช้งานทั่วไป: user / user123 (ดูได้อย่างเดียว)
                 </div>
             </form>
         </div>
@@ -667,8 +708,8 @@
     <!-- การแจ้งเตือน -->
     <div id="notification" class="notification"></div>
 
-    <!-- เนื้อหาหลัก (จะแสดงหลังล็อกอิน) -->
-    <div id="mainContent" class="container" style="display: none;">
+    <!-- เนื้อหาหลัก -->
+    <div class="container">
         <header>
             <div class="header-content">
                 <div class="logo-area">
@@ -680,12 +721,26 @@
                         <p>ระบบบริหารจัดการด้านความปลอดภัยและการป้องกันอุบัติเหตุ</p>
                     </div>
                 </div>
-                <div class="user-info">
-                    <span>สวัสดี, <span id="loggedInUser">ผู้ใช้งาน</span></span>
-                    <span class="user-role" id="userRole">ผู้ใช้งานทั่วไป</span>
-                    <button id="logoutBtn" class="btn-logout">
-                        <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                
+                <div class="header-right">
+                    <div class="date-display">
+                        <i class="far fa-calendar-alt"></i> 
+                        <span id="current-date">กำลังโหลด...</span>
+                    </div>
+                    
+                    <!-- ปุ่มล็อกอิน (แสดงเมื่อยังไม่ได้ล็อกอิน) -->
+                    <button id="loginBtn" class="btn-login-small">
+                        <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบเพื่อแก้ไข
                     </button>
+                    
+                    <!-- ข้อมูลผู้ใช้ (แสดงเมื่อล็อกอินแล้ว) -->
+                    <div id="userInfo" class="user-info" style="display: none;">
+                        <span>สวัสดี, <span id="loggedInUser">ผู้ใช้งาน</span></span>
+                        <span class="user-role" id="userRole">ผู้ใช้งานทั่วไป</span>
+                        <button id="logoutBtn" class="btn-logout">
+                            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -709,7 +764,7 @@
                         <h3>แก้ไขสถิติความปลอดภัย</h3>
                         <div class="form-group">
                             <label for="editAccidents">จำนวนอุบัติเหตุในเดือนนี้</label>
-                            <input type="number" id="editAccidents" min="0" max="100" value="3">
+                            <input type="number" id="editAccidents" min="0" max="100" value="0">
                         </div>
                         <div class="form-group">
                             <label for="editTraining">พนักงานผ่านการฝึกอบรม (%)</label>
@@ -728,27 +783,27 @@
                     <div class="stats-container">
                         <div class="stat-box">
                             <i class="fas fa-calendar-day"></i>
-                            <div class="stat-value" id="safeDays">287</div>
+                            <div class="stat-value" id="safeDays">4</div>
                             <div class="stat-label">วันทำงานปลอดอุบัติเหตุ</div>
-                            <div class="stat-trend trend-up" id="safeDaysTrend">+15 วันจากเดือนก่อน</div>
+                            <div class="stat-trend trend-up">ประจำปี 2569</div>
                         </div>
                         <div class="stat-box">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <div class="stat-value" id="accidentsCount">3</div>
-                            <div class="stat-label">อุบัติเหตุในเดือนนี้</div>
-                            <div class="stat-trend trend-down" id="accidentsTrend">-2 จากเดือนก่อน</div>
+                            <div class="stat-value" id="accidentsCount">0</div>
+                            <div class="stat-label">จำนวนอุบัติเหตุในเดือนนี้</div>
+                            <div class="stat-trend trend-down">ประจำปี 2569</div>
                         </div>
                         <div class="stat-box">
                             <i class="fas fa-user-shield"></i>
                             <div class="stat-value" id="trainingPercent">94%</div>
                             <div class="stat-label">พนักงานผ่านการฝึกอบรม</div>
-                            <div class="stat-trend trend-up" id="trainingTrend">+3% จากไตรมาสก่อน</div>
+                            <div class="stat-trend trend-up">+3% จากไตรมาสก่อน</div>
                         </div>
                         <div class="stat-box">
                             <i class="fas fa-clipboard-check"></i>
                             <div class="stat-value" id="inspectionPercent">87%</div>
                             <div class="stat-label">การตรวจสอบความปลอดภัยผ่าน</div>
-                            <div class="stat-trend trend-up" id="inspectionTrend">+5% จากเดือนก่อน</div>
+                            <div class="stat-trend trend-up">+5% จากเดือนก่อน</div>
                         </div>
                     </div>
                 </section>
@@ -756,10 +811,8 @@
                 <!-- ความรู้เกี่ยวกับความปลอดภัย -->
                 <section class="card">
                     <div class="card-title">
-                        <div class="card-title-left">
-                            <i class="fas fa-book-open"></i>
-                            <h2>ความรู้เกี่ยวกับความปลอดภัย</h2>
-                        </div>
+                        <i class="fas fa-book-open"></i>
+                        <h2>ความรู้เกี่ยวกับความปลอดภัย</h2>
                     </div>
                     
                     <div class="knowledge-category">
@@ -802,10 +855,8 @@
                 <!-- กระดานข่าวสาร -->
                 <section class="card">
                     <div class="card-title">
-                        <div class="card-title-left">
-                            <i class="fas fa-bullhorn"></i>
-                            <h2>กระดานข่าวสารความปลอดภัย</h2>
-                        </div>
+                        <i class="fas fa-bullhorn"></i>
+                        <h2>กระดานข่าวสารความปลอดภัย</h2>
                     </div>
                     
                     <div class="news-item">
@@ -814,8 +865,8 @@
                             <span class="month">มิ.ย.</span>
                         </div>
                         <div class="news-content">
-                            <h3>การฝึกซ้อมอพยพหนีไฟประจำปี 2567</h3>
-                            <p>แผนกความปลอดภัยจะจัดฝึกซ้อมอพยพหนีไฟในวันที่ 25 มิถุนายน 2567 เวลา 14:00 น.</p>
+                            <h3>การฝึกซ้อมอพยพหนีไฟประจำปี 2568</h3>
+                            <p>แผนกความปลอดภัยจะจัดฝึกซ้อมอพยพหนีไฟในวันที่ 25 มิถุนายน 2568 เวลา 10:00 น.</p>
                         </div>
                     </div>
                     
@@ -826,14 +877,14 @@
                         </div>
                         <div class="news-content">
                             <h3>กำหนดการอบรมความปลอดภัยในการทำงานที่สูง</h3>
-                            <p>อบรมวันที่ 20-21 มิถุนายน สำหรับพนักงานที่ทำงานบนที่สูงและใกล้แหล่งไฟฟ้าแรงสูง</p>
+                            <p>อบรมวันที่ 20-21 สิงหาคม สำหรับพนักงานที่ทำงานบนที่สูงและใกล้แหล่งไฟฟ้าแรงสูง</p>
                         </div>
                     </div>
                     
                     <div class="news-item">
                         <div class="news-date">
                             <span class="day">05</span>
-                            <span class="month">มิ.ย.</span>
+                            <span class="month">กันยายน</span>
                         </div>
                         <div class="news-content">
                             <h3>ประกาศผลการตรวจความปลอดภัยประจำเดือนพฤษภาคม</h3>
@@ -860,9 +911,9 @@
         </div>
 
         <footer>
-            <p>แผนกความปลอดภัย | บริษัท ตัวอย่าง จำกัด</p>
-            <p>โทรศัพท์: 02-345-6789 | อีเมล: safety@example.com</p>
-            <p>© 2023 ระบบบริหารความปลอดภัย. All rights reserved.</p>
+            <p>แผนกความปลอดภัย | TokaiSolidtire co,.Ltd.</p>
+            <p>โทรศัพท์: 036-281-300 | อีเมล: safety@tokaisollidtire.com</p>
+            <p>© 2026 ระบบบริหารแผนกความปลอดภัย. All rights reserved.</p>
         </footer>
     </div>
 
@@ -870,13 +921,13 @@
         // ข้อมูลผู้ใช้สำหรับทดสอบ
         const users = {
             'admin': {
-                password: 'password123',
+                password: 'admin123',
                 name: 'ผู้ดูแลระบบ',
                 role: 'admin',
                 canEdit: true
             },
             'user': {
-                password: 'password123',
+                password: 'user123',
                 name: 'พนักงานทั่วไป',
                 role: 'user',
                 canEdit: false
@@ -917,14 +968,8 @@
                 // บันทึกข้อมูลการล็อกอินใน localStorage
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
-                // ซ่อนหน้าล็อกอิน
-                document.getElementById('loginOverlay').style.display = 'none';
-                
-                // แสดงเนื้อหาหลัก
-                document.getElementById('mainContent').style.display = 'block';
-                
-                // อัปเดตข้อมูลผู้ใช้
-                updateUserInfo();
+                // อัปเดต UI
+                updateUIAfterLogin();
                 
                 // แจ้งเตือน
                 showNotification(`เข้าสู่ระบบสำเร็จ ยินดีต้อนรับ ${currentUser.name}`, 'success');
@@ -939,30 +984,53 @@
             currentUser = null;
             localStorage.removeItem('currentUser');
             
-            // แสดงหน้าล็อกอิน
-            document.getElementById('loginOverlay').style.display = 'flex';
+            // อัปเดต UI
+            updateUIAfterLogout();
             
-            // ซ่อนเนื้อหาหลัก
-            document.getElementById('mainContent').style.display = 'none';
+            // แจ้งเตือน
+            showNotification('ออกจากระบบสำเร็จ', 'success');
+        }
+
+        // อัปเดต UI หลังล็อกอิน
+        function updateUIAfterLogin() {
+            // ซ่อนปุ่มล็อกอิน
+            document.getElementById('loginBtn').style.display = 'none';
+            
+            // แสดงข้อมูลผู้ใช้
+            const userInfo = document.getElementById('userInfo');
+            userInfo.style.display = 'flex';
+            
+            // อัปเดตข้อมูลผู้ใช้
+            document.getElementById('loggedInUser').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = getRoleName(currentUser.role);
+            
+            // เปิด/ปิดปุ่มแก้ไขตามสิทธิ์
+            const editBtn = document.getElementById('editStatsBtn');
+            editBtn.disabled = !currentUser.canEdit;
+            editBtn.title = currentUser.canEdit ? 'คลิกเพื่อแก้ไขสถิติ' : 'ไม่มีสิทธิ์แก้ไขข้อมูล';
+            
+            // ซ่อนหน้าล็อกอิน
+            document.getElementById('loginOverlay').style.display = 'none';
+        }
+
+        // อัปเดต UI หลังออกจากระบบ
+        function updateUIAfterLogout() {
+            // แสดงปุ่มล็อกอิน
+            document.getElementById('loginBtn').style.display = 'flex';
+            
+            // ซ่อนข้อมูลผู้ใช้
+            document.getElementById('userInfo').style.display = 'none';
+            
+            // ปิดปุ่มแก้ไข
+            const editBtn = document.getElementById('editStatsBtn');
+            editBtn.disabled = true;
+            
+            // ซ่อนฟอร์มแก้ไขถ้าเปิดอยู่
+            document.getElementById('editStatsForm').classList.remove('show');
             
             // รีเซ็ตฟอร์มล็อกอิน
             document.getElementById('loginForm').reset();
             document.getElementById('loginError').style.display = 'none';
-            
-            showNotification('ออกจากระบบสำเร็จ', 'success');
-        }
-
-        // อัปเดตข้อมูลผู้ใช้ที่แสดง
-        function updateUserInfo() {
-            if (currentUser) {
-                document.getElementById('loggedInUser').textContent = currentUser.name;
-                document.getElementById('userRole').textContent = getRoleName(currentUser.role);
-                
-                // เปิด/ปิดปุ่มแก้ไขตามสิทธิ์
-                const editBtn = document.getElementById('editStatsBtn');
-                editBtn.disabled = !currentUser.canEdit;
-                editBtn.title = currentUser.canEdit ? 'คลิกเพื่อแก้ไขสถิติ' : 'ไม่มีสิทธิ์แก้ไขข้อมูล';
-            }
         }
 
         // แปลงรหัสบทบาทเป็นชื่อภาษาไทย
@@ -981,11 +1049,7 @@
             if (savedUser) {
                 try {
                     currentUser = JSON.parse(savedUser);
-                    // ในระบบจริงควรตรวจสอบกับเซิร์ฟเวอร์อีกครั้ง
-                    
-                    document.getElementById('loginOverlay').style.display = 'none';
-                    document.getElementById('mainContent').style.display = 'block';
-                    updateUserInfo();
+                    updateUIAfterLogin();
                 } catch (e) {
                     console.error('Error parsing saved user:', e);
                     logout();
@@ -1003,12 +1067,13 @@
                 day: 'numeric' 
             };
             const thaiDate = now.toLocaleDateString('th-TH', options);
-            // สามารถเพิ่มแสดงวันที่ในส่วนหัวได้ถ้าต้องการ
+            document.getElementById('current-date').textContent = thaiDate;
         }
         
         // ฟังก์ชันคำนวณวันทำงานปลอดเหตุแบบ real-time
         function calculateSafeDays() {
-            const startDate = new Date('2023-01-01');
+            // ตั้งค่าวันที่เริ่มต้นปี 2026 (2569)
+            const startDate = new Date('2026-01-01');
             const today = new Date();
             
             let workDays = 0;
@@ -1016,6 +1081,7 @@
             
             while (currentDate <= today) {
                 const dayOfWeek = currentDate.getDay();
+                // ไม่นับวันเสาร์ (6) และอาทิตย์ (0)
                 if (dayOfWeek !== 0 && dayOfWeek !== 6) {
                     workDays++;
                 }
@@ -1032,7 +1098,7 @@
             document.getElementById('safeDays').textContent = safeDays;
             
             // 2. ดึงค่าอุบัติเหตุจาก localStorage (ถ้ามี) หรือใช้ค่าเริ่มต้น
-            const accidents = localStorage.getItem('accidentsCount') || 3;
+            const accidents = localStorage.getItem('accidentsCount') || 0;
             document.getElementById('accidentsCount').textContent = accidents;
             
             // 3. ดึงค่าพนักงานผ่านการฝึกอบรมจาก localStorage
@@ -1042,13 +1108,6 @@
             // 4. ดึงค่าการตรวจสอบความปลอดภัยจาก localStorage
             const inspectionPercent = localStorage.getItem('inspectionPercent') || 87;
             document.getElementById('inspectionPercent').textContent = `${inspectionPercent}%`;
-            
-            // 5. คำนวณแนวโน้มวันปลอดอุบัติเหตุ
-            const prevMonthSafeDays = 272;
-            const safeDaysDiff = safeDays - prevMonthSafeDays;
-            const safeDaysTrend = document.getElementById('safeDaysTrend');
-            safeDaysTrend.textContent = `${safeDaysDiff > 0 ? '+' : ''}${safeDaysDiff} วันจากเดือนก่อน`;
-            safeDaysTrend.className = `stat-trend ${safeDaysDiff >= 0 ? 'trend-up' : 'trend-down'}`;
         }
         
         // ฟังก์ชันจัดการแบบฟอร์มแก้ไขสถิติ
@@ -1116,7 +1175,7 @@
                 showNotification('บันทึกสถิติเรียบร้อยแล้ว', 'success');
                 
                 // ในระบบจริงควรส่งข้อมูลไปบันทึกในฐานข้อมูล
-                console.log(`บันทึกสถิติโดย ${currentUser.name}: อุบัติเหตุ=${newAccidents}, การฝึกอบรม=${newTraining}%, การตรวจสอบ=${newInspection}%`);
+                console.log(`บันทึกสถิติโดย ${currentUser.name} (${currentUser.username}): อุบัติเหตุ=${newAccidents}, การฝึกอบรม=${newTraining}%, การตรวจสอบ=${newInspection}%`);
             });
         }
 
@@ -1124,6 +1183,11 @@
         function init() {
             // ตรวจสอบสถานะล็อกอิน
             checkLoginStatus();
+            
+            // ปุ่มล็อกอินใน header
+            document.getElementById('loginBtn').addEventListener('click', () => {
+                document.getElementById('loginOverlay').style.display = 'flex';
+            });
             
             // ตั้งค่าฟอร์มล็อกอิน
             document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -1165,7 +1229,7 @@
         // เริ่มทำงานเมื่อโหลดหน้าเว็บ
         document.addEventListener('DOMContentLoaded', init);
         
-        // จำลองการอัปเดตสถิติทุก 30 วินาที
+        // จำลองการอัปเดตสถิติทุก 30 วินาที (สำหรับวันทำงานปลอดเหตุ)
         setInterval(updateStats, 30000);
     </script>
 </body>
