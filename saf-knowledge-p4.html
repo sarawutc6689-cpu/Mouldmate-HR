@@ -953,43 +953,6 @@
             });
         });
         
-        // เพิ่มฟังก์ชันสำหรับจำลองการแจ้งเตือนอพยพ
-        function simulateEvacuation() {
-            if (confirm('ต้องการจำลองการแจ้งเตือนอพยพหนีไฟหรือไม่? (การจำลองนี้ไม่มีผลต่อระบบจริง)')) {
-                alert('🚨 สัญญาณอพยพหนีไฟกำลังดัง! 🚨\n\nกรุณาอพยพไปยังจุดรวมพลตามแผนที่กำหนด\nห้ามใช้ลิฟต์\nช่วยเหลือผู้ที่ต้องการความช่วยเหลือ\nรายงานตัวที่หัวหน้าแผนก');
-                
-                // เพิ่มเอฟเฟกต์การเตือน
-                document.body.style.backgroundColor = '#fff9e6';
-                setTimeout(() => {
-                    document.body.style.backgroundColor = '';
-                }, 2000);
-            }
-        }
-        
-        // เพิ่มปุ่มจำลองการอพยพ
-        window.addEventListener('load', function() {
-            const simulateBtn = document.createElement('button');
-            simulateBtn.innerHTML = '<i class="fas fa-bell"></i> จำลองการแจ้งเตือนอพยพ';
-            simulateBtn.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background-color: var(--danger-color);
-                color: white;
-                border: none;
-                padding: 12px 20px;
-                border-radius: 30px;
-                font-weight: bold;
-                cursor: pointer;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                z-index: 1000;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            `;
-            simulateBtn.onclick = simulateEvacuation;
-            document.body.appendChild(simulateBtn);
-        });
     </script>
 </body>
 </html>
