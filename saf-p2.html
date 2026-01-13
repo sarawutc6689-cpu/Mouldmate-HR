@@ -1068,7 +1068,7 @@
     
     // คำนวณจำนวนวันระหว่างสองวันที่ (รวมวันเริ่มต้นและวันปัจจุบัน)
     const timeDiff = Math.abs(today.getTime() - startDate.getTime());
-    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
     
     return daysDiff;
 }
