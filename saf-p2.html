@@ -1062,24 +1062,16 @@
         
         // ฟังก์ชันคำนวณวันทำงานปลอดเหตุแบบ real-time
         function calculateSafeDays() {
-            // ตั้งค่าวันที่เริ่มต้นปี 2026 (2569)
-            const startDate = new Date('2026-01-01');
-            const today = new Date();
-            
-            let workDays = 0;
-            let currentDate = new Date(startDate);
-            
-            while (currentDate <= today) {
-                const dayOfWeek = currentDate.getDay();
-                // ไม่นับวันอาทิตย์ (0)
-                if (dayOfWeek !== 0 ) {
-                    workDays++;
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            
-            return workDays;
-        }
+    // ตั้งค่าวันที่เริ่มต้นปี 2026 (2569)
+    const startDate = new Date('2026-01-01');
+    const today = new Date();
+    
+    // คำนวณจำนวนวันระหว่างสองวันที่ (รวมวันเริ่มต้นและวันปัจจุบัน)
+    const timeDiff = Math.abs(today.getTime() - startDate.getTime());
+    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    
+    return daysDiff;
+}
         
         // อัปเดตสถิติแบบไดนามิก
         function updateStats() {
