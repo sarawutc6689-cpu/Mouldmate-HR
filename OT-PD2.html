@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบล็อกอิน | โอที-ผลิตยางตัน</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      padding: 40px 35px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(to right, #F70E02, #ff6b6b);
+    }
+
+    /* ส่วนหัวบริษัท */
+    .company-header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .company-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .logo-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #F70E02, #ff9a9e);
+      border-radius: 50%;
+      color: white;
+      font-size: 32px;
+      box-shadow: 0 5px 15px rgba(247, 14, 2, 0.2);
+      margin-right: 15px;
+    }
+
+    .company-name {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .company-name-thai {
+      font-size: 24px;
+      font-weight: 700;
+      color: #333;
+      line-height: 1.2;
+    }
+
+    .company-name-english {
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+      margin-top: 3px;
+    }
+
+    .system-title {
+      color: #333;
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .system-subtitle {
+      color: #666;
+      font-size: 15px;
+      font-weight: 500;
+      margin-top: 5px;
+    }
+
+    /* ส่วนฟอร์ม */
+    .form-container {
+      margin-top: 25px;
+    }
+
+    .input-group {
+      margin-bottom: 22px;
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #777;
+      font-size: 18px;
+      z-index: 1;
+    }
+
+    .inputtext {
+      width: 100%;
+      padding: 16px 20px 16px 52px;
+      font-size: 16px;
+      border: 2px solid #e1e5eb;
+      border-radius: 14px;
+      background-color: #f8f9fa;
+      transition: all 0.3s ease;
+      color: #333;
+    }
+
+    .inputtext:focus {
+      outline: none;
+      border-color: #F70E02;
+      background-color: white;
+      box-shadow: 0 0 0 4px rgba(247, 14, 2, 0.1);
+    }
+
+    .inputtext::placeholder {
+      color: #999;
+    }
+
+    #msg {
+      text-align: center;
+      font-size: 14px;
+      min-height: 22px;
+      margin: 8px 0 15px;
+      color: #F70E02;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .button {
+      width: 100%;
+      padding: 17px;
+      font-size: 17px;
+      font-weight: 700;
+      background: linear-gradient(to right, #F70E02, #ff5252);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+      box-shadow: 0 5px 15px rgba(247, 14, 2, 0.3);
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(247, 14, 2, 0.4);
+      background: linear-gradient(to right, #e50c01, #ff4343);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 25px;
+      color: #888;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .footer-note a {
+      color: #F70E02;
+      text-decoration: none;
+    }
+
+    .footer-note a:hover {
+      text-decoration: underline;
+    }
+
+    .password-note {
+      font-size: 12px;
+      color: #777;
+      margin-top: 5px;
+      margin-left: 10px;
+      font-weight: normal;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 30px 25px;
+      }
+      
+      .company-name-thai {
+        font-size: 20px;
+      }
+      
+      .system-title {
+        font-size: 20px;
+      }
+      
+      .logo-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
+        margin-right: 12px;
+      }
+    }
+
+    /* เอฟเฟกต์สำหรับชื่อบริษัท */
+    .company-name-thai {
+      position: relative;
+      display: inline-block;
+    }
+
+    .company-name-thai::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to right, #F70E02, transparent);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="login-card">
+      <!-- ส่วนหัวบริษัท -->
+      <div class="company-header">
+        <div class="company-logo">
+          <div class="logo-icon">
+            <i class="fas fa-tire"></i>
+          </div>
+          <div class="company-name">
+            <div class="company-name-thai">โอที-ผลิตยางตัน</div>
+          </div>
+        </div>
+        <div class="system-title">ระบบล็อกอินพนักงาน</div>
+        <div class="system-subtitle">สำหรับการเข้าใช้งานระบบข้อมูลภายใน</div>
+      </div>
+
+      <!-- ส่วนฟอร์มล็อกอิน -->
+      <div class="form-container">
+        <form name="myform" method="post">
+          <div class="input-group">
+            <div class="input-icon">
+              <i class="fas fa-id-card"></i>
+            </div>
+            <input type="text" name="uname" class="inputtext" autocomplete="off" placeholder="กรุณากรอกรหัสพนักงาน" required>
+          </div>
+
+          <div class="input-group">
+            <div class="input-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <input type="password" name="pass" class="inputtext" autocomplete="off" placeholder="กรุณากรอกวันที่เริ่มงาน (รูปแบบ: DDMMYYYY)" required>
+          </div>
+          <p class="password-note">หมายเหตุ: รหัสผ่านคือวันที่เริ่มงาน (รูปแบบ: DDMMYYYY)</p>
+
+          <div id="msg"></div>
+
+          <button type="button" class="button" name="log" id="logbutton" onclick="myfunction()">
+            <i class="fas fa-sign-in-alt"></i>
+            เข้าสู่ระบบ
+          </button>
+        </form>
+      </div>
+
+      <div class="footer-note">
+        <p>หากมีปัญหาในการเข้าสู่ระบบ โปรดติดต่อฝ่ายทรัพยากรบุคคล © 2026 โอที-ผลิตยางตัน </p>
+        <p>พัฒนาระบบโดย Sarawut.C</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function myfunction() {
+      var user = document.forms["myform"]["uname"].value;
+      var pass = document.forms["myform"]["pass"].value;
+      var msgElement = document.getElementById("msg");
+      
+      // ล้างข้อความเก่าก่อน
+      msgElement.innerHTML = "";
+      
+      // เพิ่มเอฟเฟกต์การโหลดชั่วคราว
+      var logButton = document.getElementById("logbutton");
+      var originalText = logButton.innerHTML;
+      logButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังตรวจสอบ...';
+      logButton.disabled = true;
+      
+      // สร้างดีเลย์เล็กน้อยเพื่อให้เห็นเอฟเฟกต์การโหลด
+      setTimeout(function() {
+        if ((user=="103599" && pass=="17072560")||(user=="104390" && pass=="19012565")) {
+          // เปลี่ยนปุ่มเป็นสำเร็จก่อนเปิดหน้าต่างใหม่
+          logButton.innerHTML = '<i class="fas fa-check"></i> ล็อกอินสำเร็จ!';
+          logButton.style.background = "linear-gradient(to right, #4CAF50, #45a049)";
+          
+          // รอสักครู่แล้วเปิดหน้าต่างใหม่
+          setTimeout(function() {
+            window.open('https://docs.google.com/spreadsheets/d/1hBiVc2kRd6QrGy6owPdQzxqb0UbBwzsCOSdlzELG5uc/edit?usp=sharing', '_blank');
+            // รีเซ็ตปุ่ม
+            logButton.innerHTML = originalText;
+            logButton.style.background = "linear-gradient(to right, #F70E02, #ff5252)";
+            logButton.disabled = false;
+          }, 800);
+        } else {
+          // รีเซ็ตปุ่มและแสดงข้อความผิดพลาด
+          logButton.innerHTML = originalText;
+          logButton.disabled = false;
+          msgElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง';
+          msgElement.style.color = "#F70E02";
+          
+          // เพิ่มเอฟเฟกต์สั่นให้กับฟิลด์ที่ผิดพลาด
+          document.forms["myform"]["uname"].style.borderColor = "#F70E02";
+          document.forms["myform"]["pass"].style.borderColor = "#F70E02";
+          
+          // รีเซ็ตสีบอร์ดหลังจาก 1.5 วินาที
+          setTimeout(function() {
+            document.forms["myform"]["uname"].style.borderColor = "#e1e5eb";
+            document.forms["myform"]["pass"].style.borderColor = "#e1e5eb";
+          }, 1500);
+        }
+      }, 800);
+    }
+    
+    // เพิ่มฟังก์ชันสำหรับกด Enter เพื่อล็อกอิน
+    document.addEventListener('DOMContentLoaded', function() {
+      var inputs = document.querySelectorAll('.inputtext');
+      inputs.forEach(function(input) {
+        input.addEventListener('keypress', function(event) {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            myfunction();
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
