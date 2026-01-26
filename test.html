@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบล็อกอิน</title>
+  <title>ระบบล็อกอิน - โอที-ยางตีนตะขาบ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -24,7 +24,7 @@
 
     .container {
       width: 100%;
-      max-width: 420px;
+      max-width: 450px;
     }
 
     .login-card {
@@ -46,9 +46,19 @@
       background: linear-gradient(to right, #F70E02, #ff6b6b);
     }
 
-    .logo-container {
+    /* ส่วนหัวบริษัท */
+    .company-header {
       text-align: center;
       margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .company-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
     }
 
     .logo-icon {
@@ -59,23 +69,49 @@
       height: 70px;
       background: linear-gradient(135deg, #F70E02, #ff9a9e);
       border-radius: 50%;
-      margin-bottom: 15px;
       color: white;
       font-size: 32px;
       box-shadow: 0 5px 15px rgba(247, 14, 2, 0.2);
+      margin-right: 15px;
     }
 
-    h1 {
-      color: #333;
-      font-size: 28px;
+    .company-name {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .company-name-thai {
+      font-size: 24px;
       font-weight: 700;
-      margin-bottom: 8px;
+      color: #333;
+      line-height: 1.2;
     }
 
-    .subtitle {
+    .company-name-english {
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+      margin-top: 3px;
+    }
+
+    .system-title {
+      color: #333;
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .system-subtitle {
       color: #666;
       font-size: 15px;
       font-weight: 500;
+      margin-top: 5px;
+    }
+
+    /* ส่วนฟอร์ม */
+    .form-container {
+      margin-top: 25px;
     }
 
     .input-group {
@@ -172,16 +208,6 @@
       text-decoration: underline;
     }
 
-    @media (max-width: 480px) {
-      .login-card {
-        padding: 30px 25px;
-      }
-      
-      h1 {
-        font-size: 24px;
-      }
-    }
-
     .password-note {
       font-size: 12px;
       color: #777;
@@ -189,45 +215,94 @@
       margin-left: 10px;
       font-weight: normal;
     }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 30px 25px;
+      }
+      
+      .company-name-thai {
+        font-size: 20px;
+      }
+      
+      .system-title {
+        font-size: 20px;
+      }
+      
+      .logo-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
+        margin-right: 12px;
+      }
+    }
+
+    /* เอฟเฟกต์สำหรับชื่อบริษัท */
+    .company-name-thai {
+      position: relative;
+      display: inline-block;
+    }
+
+    .company-name-thai::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to right, #F70E02, transparent);
+      border-radius: 2px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="login-card">
-      <div class="logo-container">
-        <div class="logo-icon">
-          <i class="fas fa-user-shield"></i>
+      <!-- ส่วนหัวบริษัท -->
+      <div class="company-header">
+        <div class="company-logo">
+          <div class="logo-icon">
+            <i class="fas fa-tire"></i>
+          </div>
+          <div class="company-name">
+            <div class="company-name-thai">โอที-ยางตีนตะขาบ</div>
+            <div class="company-name-english">OT - Tire Centipede Co., Ltd.</div>
+          </div>
         </div>
-        <h1>ระบบล็อกอิน</h1>
-        <p class="subtitle">สำหรับพนักงาน</p>
+        <div class="system-title">ระบบล็อกอินพนักงาน</div>
+        <div class="system-subtitle">สำหรับการเข้าใช้งานระบบข้อมูลภายใน</div>
       </div>
 
-      <form name="myform" method="post">
-        <div class="input-group">
-          <div class="input-icon">
-            <i class="fas fa-id-card"></i>
+      <!-- ส่วนฟอร์มล็อกอิน -->
+      <div class="form-container">
+        <form name="myform" method="post">
+          <div class="input-group">
+            <div class="input-icon">
+              <i class="fas fa-id-card"></i>
+            </div>
+            <input type="text" name="uname" class="inputtext" autocomplete="off" placeholder="กรุณากรอกรหัสพนักงาน" required>
           </div>
-          <input type="text" name="uname" class="inputtext" autocomplete="off" placeholder="กรุณากรอกรหัสพนักงาน" required>
-        </div>
 
-        <div class="input-group">
-          <div class="input-icon">
-            <i class="fas fa-calendar-alt"></i>
+          <div class="input-group">
+            <div class="input-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <input type="password" name="pass" class="inputtext" autocomplete="off" placeholder="กรุณากรอกวันที่เริ่มงาน (รูปแบบ: DDMMYYYY)" required>
           </div>
-          <input type="password" name="pass" class="inputtext" autocomplete="off" placeholder="กรุณากรอกวันที่เริ่มงาน (รูปแบบ: DDMMYYYY)" required>
-        </div>
-        <p class="password-note">หมายเหตุ: รหัสผ่านคือวันที่เริ่มงาน (รูปแบบ: DDMMYYYY)</p>
+          <p class="password-note">หมายเหตุ: รหัสผ่านคือวันที่เริ่มงาน (รูปแบบ: DDMMYYYY)</p>
 
-        <div id="msg"></div>
+          <div id="msg"></div>
 
-        <button type="button" class="button" name="log" id="logbutton" onclick="myfunction()">
-          <i class="fas fa-sign-in-alt"></i>
-          เข้าสู่ระบบ
-        </button>
-      </form>
+          <button type="button" class="button" name="log" id="logbutton" onclick="myfunction()">
+            <i class="fas fa-sign-in-alt"></i>
+            เข้าสู่ระบบ
+          </button>
+        </form>
+      </div>
 
       <div class="footer-note">
-        <p>หากมีปัญหาในการเข้าสู่ระบบ โปรดติดต่อฝ่ายทรัพยากรบุคคล</p>
+        <p>© 2023 โอที-ยางตีนตะขาบ | หากมีปัญหาในการเข้าสู่ระบบ โปรดติดต่อฝ่ายทรัพยากรบุคคล</p>
       </div>
     </div>
   </div>
