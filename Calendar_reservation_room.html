@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ปฏิทินการจองห้องประชุม</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .sidebar-header i {
+            font-size: 40px;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 25px;
+            color: #4a5568;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f7fafc;
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: #f0f4ff;
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+
+        .nav-item i {
+            width: 24px;
+            font-size: 18px;
+        }
+
+        .nav-item span {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 15px 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .date-display {
+            background: #f7fafc;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 500;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: 48px;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Calendar Section */
+        .calendar-section {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .booking-detail-item {
+            display: flex;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .booking-detail-label {
+            width: 100px;
+            font-weight: 500;
+            color: #718096;
+        }
+
+        .booking-detail-value {
+            flex: 1;
+            color: #2d3748;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar-header h2,
+            .nav-item span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .nav-item {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .nav-item i {
+                width: auto;
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+            }
+            
+            .filter-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading -->
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <div>กำลังโหลดข้อมูล...</div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-calendar-alt"></i>
+                <h2>Room Booking</h2>
+            </div>
+            
+             <div class="nav-menu">
+                <a href="https://script.google.com/macros/s/AKfycbyssnSgcTl1CHb55lQhyo6_pU8_8_3RSGKfkkPoa5Vh6G5qQ41b2le_i2m3IFlfFvi5ow/exec?page=dashboard" class="nav-item" id="nav-dashboard">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="https://script.google.com/macros/s/AKfycbyssnSgcTl1CHb55lQhyo6_pU8_8_3RSGKfkkPoa5Vh6G5qQ41b2le_i2m3IFlfFvi5ow/exec" class="nav-item" id="nav-index">
+                    <i class="fas fa-door-open"></i>
+                    <span>จองห้องประชุม</span>
+                </a>
+                <a href="https://script.google.com/macros/s/AKfycbyssnSgcTl1CHb55lQhyo6_pU8_8_3RSGKfkkPoa5Vh6G5qQ41b2le_i2m3IFlfFvi5ow/exec?page=calendar" class="nav-item" id="nav-calendar">
+                    <i class="fas fa-calendar"></i>
+                    <span>ปฏิทิน</span>
+                </a>
+                
+                <div class="nav-divider"></div>
+                
+                <a href="https://script.google.com/macros/s/AKfycbyssnSgcTl1CHb55lQhyo6_pU8_8_3RSGKfkkPoa5Vh6G5qQ41b2le_i2m3IFlfFvi5ow/exec?page=reports" class="nav-item" id="nav-reports">
+                    <i class="fas fa-file-alt"></i>
+                    <span>รายงาน</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>
+                    <i class="fas fa-calendar-alt" style="margin-right: 10px;"></i>
+                    ปฏิทินการจองห้องประชุม
+                </h1>
+                <div class="date-display" id="currentDate"></div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label><i class="fas fa-door-open"></i> เลือกห้องประชุม</label>
+                    <select id="roomFilter">
+                        <option value="all">ทั้งหมด</option>
+                        <!-- Rooms will be loaded here -->
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label><i class="fas fa-calendar"></i> มุมมองปฏิทิน</label>
+                    <select id="viewFilter">
+                        <option value="dayGridMonth">รายเดือน</option>
+                        <option value="timeGridWeek">รายสัปดาห์</option>
+                        <option value="timeGridDay">รายวัน</option>
+                    </select>
+                </div>
+                <button class="filter-btn" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i>
+                    กรองข้อมูล
+                </button>
+                <button class="filter-btn" onclick="refreshCalendar()" style="background: #48bb78;">
+                    <i class="fas fa-sync-alt"></i>
+                    รีเฟรช
+                </button>
+            </div>
+
+            <!-- Calendar -->
+            <div class="calendar-section">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="bookingModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-info-circle"></i> รายละเอียดการจอง</h3>
+            <div id="bookingDetails">
+                <!-- Details will be loaded here -->
+            </div>
+            <button class="modal-btn" onclick="closeModal()">ปิด</button>
+        </div>
+    </div>
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    
+    <script>
+        let calendar = null;
+        let currentRooms = [];
+        let allBookings = [];
+
+        // Set active menu based on URL
+        function setActiveMenu() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const page = urlParams.get('page');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (page === 'dashboard') {
+                document.getElementById('nav-dashboard').classList.add('active');
+            } else if (page === 'calendar') {
+                document.getElementById('nav-calendar').classList.add('active');
+            } else if (page === 'reports') {
+                document.getElementById('nav-reports').classList.add('active');
+            } else {
+                document.getElementById('nav-index').classList.add('active');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setActiveMenu();
+            
+            // Format Thai date
+            const thaiDate = new Date().toLocaleDateString('th-TH', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('currentDate').textContent = thaiDate;
+            
+            console.log('Calendar page loaded');
+            loadRoomsAndBookings();
+        });
+
+        // Debug function
+        function debugData() {
+            console.log('=== DEBUG INFO ===');
+            console.log('currentRooms:', currentRooms);
+            console.log('allBookings:', allBookings);
+            
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    console.log('Server test result:', result);
+                    alert('ข้อมูลที่ได้จาก server: ' + JSON.stringify(result).substring(0, 200));
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Server test error:', error);
+                    alert('Error: ' + error);
+                })
+                .getAllBookings();
+        }
+
+        // Loading functions
+        function showLoading() {
+            document.getElementById('loading').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('active');
+        }
+
+        // Load both rooms and bookings
+        function loadRoomsAndBookings() {
+            showLoading();
+            console.log('Loading rooms and bookings...');
+            
+            google.script.run
+                .withSuccessHandler(function(rooms) {
+                    console.log('Rooms loaded:', rooms);
+                    currentRooms = rooms || [];
+                    
+                    const select = document.getElementById('roomFilter');
+                    select.innerHTML = '<option value="all">ทั้งหมด</option>';
+                    
+                    if (rooms && rooms.length > 0) {
+                        rooms.forEach(room => {
+                            const option = document.createElement('option');
+                            option.value = room.id;
+                            option.textContent = room.name;
+                            select.appendChild(option);
+                        });
+                    }
+                    
+                    loadAllBookings();
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error loading rooms:', error);
+                    currentRooms = [];
+                    loadAllBookings();
+                })
+                .getRooms();
+        }
+
+        // Load all bookings
+        function loadAllBookings() {
+            console.log('Loading all bookings...');
+            
+            google.script.run
+                .withSuccessHandler(function(bookings) {
+                    console.log('Bookings loaded:', bookings);
+                    allBookings = bookings || [];
+                    checkData();
+                    initCalendar();
+                    hideLoading();
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error loading bookings:', error);
+                    allBookings = [];
+                    initCalendar();
+                    hideLoading();
+                })
+                .getAllBookings();
+        }
+
+        // Initialize calendar
+        function initCalendar() {
+            console.log('Initializing calendar...');
+            const calendarEl = document.getElementById('calendar');
+            
+            if (!calendarEl) {
+                console.error('Calendar element not found');
+                return;
+            }
+
+            if (calendar) {
+                calendar.destroy();
+            }
+
+            const roomFilter = document.getElementById('roomFilter').value;
+            const viewFilter = document.getElementById('viewFilter').value;
+
+            let filteredBookings = allBookings || [];
+            if (roomFilter !== 'all' && filteredBookings.length > 0) {
+                filteredBookings = filteredBookings.filter(b => b.roomId === roomFilter);
+            }
+
+            const events = filteredBookings.map(booking => {
+                let startDateTime = '';
+                let endDateTime = '';
+                
+                try {
+                    if (booking.date && booking.startTime && booking.endTime) {
+                        startDateTime = booking.date + 'T' + booking.startTime + ':00';
+                        endDateTime = booking.date + 'T' + booking.endTime + ':00';
+                        
+                        const testDate = new Date(startDateTime);
+                        if (isNaN(testDate.getTime())) {
+                            return null;
+                        }
+                    } else {
+                        return null;
+                    }
+                } catch (e) {
+                    return null;
+                }
+                
+                let color = '#667eea';
+                if (currentRooms && currentRooms.length > 0) {
+                    const roomIndex = currentRooms.findIndex(r => r.id === booking.roomId);
+                    const colors = ['#667eea', '#48bb78', '#ed8936', '#9f7aea', '#f56565'];
+                    color = colors[roomIndex % colors.length] || '#667eea';
+                }
+
+                return {
+                    id: booking.id,
+                    title: `${booking.roomName} - ${booking.bookerName}`,
+                    start: startDateTime,
+                    end: endDateTime,
+                    backgroundColor: color,
+                    borderColor: color,
+                    textColor: 'white',
+                    extendedProps: {
+                        roomName: booking.roomName,
+                        bookerName: booking.bookerName,
+                        department: booking.department || '-',
+                        agenda: booking.agenda || '-',
+                        startTime: booking.startTime,
+                        endTime: booking.endTime
+                    }
+                };
+            }).filter(event => event !== null);
+
+            try {
+                calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: viewFilter,
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    locale: 'th',
+                    events: events,
+                    eventClick: function(info) {
+                        showBookingDetails(info.event.extendedProps);
+                    },
+                    height: 650,
+                    slotMinTime: '08:00:00',
+                    slotMaxTime: '18:00:00',
+                    allDaySlot: false,
+                    slotLabelFormat: {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    },
+                    eventTimeFormat: {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    },
+                    noEventsContent: 'ไม่พบการจองในช่วงเวลาที่เลือก'
+                });
+
+                calendar.render();
+                console.log('Calendar rendered successfully');
+                
+            } catch (error) {
+                console.error('Error rendering calendar:', error);
+            }
+        }
+
+        // Apply filters
+        function applyFilters() {
+            initCalendar();
+        }
+
+        // Refresh calendar
+        function refreshCalendar() {
+            loadRoomsAndBookings();
+        }
+
+        // Show booking details
+        function showBookingDetails(props) {
+            const modal = document.getElementById('bookingModal');
+            const details = document.getElementById('bookingDetails');
+            
+            details.innerHTML = `
+                <div class="booking-detail-item">
+                    <div class="booking-detail-label">ห้องประชุม:</div>
+                    <div class="booking-detail-value">${props.roomName}</div>
+                </div>
+                <div class="booking-detail-item">
+                    <div class="booking-detail-label">ผู้จอง:</div>
+                    <div class="booking-detail-value">${props.bookerName}</div>
+                </div>
+                <div class="booking-detail-item">
+                    <div class="booking-detail-label">แผนก:</div>
+                    <div class="booking-detail-value">${props.department}</div>
+                </div>
+                <div class="booking-detail-item">
+                    <div class="booking-detail-label">เวลา:</div>
+                    <div class="booking-detail-value">${props.startTime} - ${props.endTime} น.</div>
+                </div>
+                <div class="booking-detail-item">
+                    <div class="booking-detail-label">วัตถุประสงค์:</div>
+                    <div class="booking-detail-value">${props.agenda}</div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('bookingModal').classList.remove('active');
+        }
+
+        // Add event listeners for filters
+        document.getElementById('roomFilter').addEventListener('change', applyFilters);
+        document.getElementById('viewFilter').addEventListener('change', applyFilters);
+
+        function checkData() {
+            console.log('=== DATA CHECK ===');
+            console.log('allBookings:', allBookings);
+            
+            if (allBookings && allBookings.length > 0) {
+                allBookings.forEach((booking, index) => {
+                    console.log(`Booking ${index + 1}:`, {
+                        id: booking.id,
+                        roomName: booking.roomName,
+                        date: booking.date,
+                        startTime: booking.startTime,
+                        endTime: booking.endTime
+                    });
+                });
+            }
+        }
+    </script>
+</body>
+</html>
