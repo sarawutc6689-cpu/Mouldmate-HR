@@ -537,10 +537,10 @@
     </div>
     <div class="filter-group">
       <div class="filter-label">มุมมอง</div>
-      <select class="filter-select">
-        <option>รายวัน</option>
-        <option>รายสัปดาห์</option>
-        <option>รายเดือน</option>
+      <select class="filter-select" id="viewSelect">
+        <option value="daily">รายวัน</option>
+        <option value="weekly">รายสัปดาห์</option>
+        <option value="monthly">รายเดือน</option>
       </select>
     </div>
   </div>
@@ -698,7 +698,7 @@
     <div class="ai-card">
       <div class="ai-header">
         <div class="ai-badge">AI Insights</div>
-        <div style="font-size:11px; color:var(--gray);">สรุปโดย Claude AI · มี.ค. 2569</div>
+        <div style="font-size:11px; color:var(--gray);">สรุปแนวโน้มประจำเดือน · มีนาคม 2569</div>
       </div>
       <div class="ai-insights">
         <div class="insight-item alert">
@@ -1092,11 +1092,136 @@ function renderTargetTable(depts) {
   }); // end depts.forEach
 } // end renderTargetTable
 
+
 // ════════════════════════════════════════════════════
-//  🚀  INIT — โหลดข้อมูลและตั้ง auto-refresh
+//  📋  FALLBACK DATA — แสดงชื่อแผนกทันทีก่อน Sheet โหลด
 // ════════════════════════════════════════════════════
+const FALLBACK_DEPTS = [
+  { name: 'AMS',           shortName: 'AMS',      ot: 0, emp: 0, color: '#2563eb' },
+  { name: 'FG',            shortName: 'FG',        ot: 0, emp: 0, color: '#0284c7' },
+  { name: 'FST',           shortName: 'FST',       ot: 0, emp: 0, color: '#7c3aed' },
+  { name: 'HQ',            shortName: 'HQ',        ot: 0, emp: 0, color: '#0e7490' },
+  { name: 'MA',            shortName: 'MA',        ot: 0, emp: 0, color: '#b45309' },
+  { name: 'MAT & ST',      shortName: 'MAT&ST',    ot: 0, emp: 0, color: '#c2410c' },
+  { name: 'MOULD',         shortName: 'MOULD',     ot: 0, emp: 0, color: '#9d174d' },
+  { name: 'PD1',           shortName: 'PD1',       ot: 0, emp: 0, color: '#dc2626' },
+  { name: 'PD2',           shortName: 'PD2',       ot: 0, emp: 0, color: '#ef4444' },
+  { name: 'PLACE',         shortName: 'PLACE',     ot: 0, emp: 0, color: '#047857' },
+  { name: 'PN',            shortName: 'PN',        ot: 0, emp: 0, color: '#15803d' },
+  { name: 'QUALITY',       shortName: 'QUALITY',   ot: 0, emp: 0, color: '#c2410c' },
+  { name: 'RD Compound',   shortName: 'RD Cmpd',   ot: 0, emp: 0, color: '#0284c7' },
+  { name: 'RD Product',    shortName: 'RD Prod',   ot: 0, emp: 0, color: '#7c3aed' },
+];
+
+// Pre-render sidebar ทันทีด้วย fallback
+function initSidebarFallback() {
+  const deptList = document.getElementById('deptList');
+  deptList.innerHTML = '';
+  FALLBACK_DEPTS.forEach(d => {
+    const chip = document.createElement('div');
+    chip.className = 'dept-chip active';
+    chip.innerHTML = `<div class="dot" style="background:${d.color}"></div><span>${d.name}</span><span class="hrs" id="hrs-${d.shortName.replace(/[^a-zA-Z0-9]/g,'_')}">—</span>`;
+    chip.addEventListener('click', () => chip.classList.toggle('active'));
+    deptList.appendChild(chip);
+  });
+}
+
+
+// ════════════════════════════════════════════════════
+//  📅  VIEW MODE — รายวัน / รายสัปดาห์ / รายเดือน
+// ════════════════════════════════════════════════════
+let _rawDaily = [], _rawDept = [], _rawSummary = {};
+
+// ดักจับข้อมูลดิบทุกครั้งที่ renderDashboard ถูกเรียก
+const _origRender = renderDashboard;
+function renderDashboard(dailyData, deptData, summaryData) {
+  _rawDaily   = dailyData;
+  _rawDept    = deptData;
+  _rawSummary = summaryData;
+  const mode  = document.getElementById('viewSelect')?.value || 'daily';
+  applyViewMode(mode, dailyData, deptData, summaryData);
+}
+
+function applyViewMode(mode, dailyData, deptData, summaryData) {
+  let labels, otHrsAgg, otPctAgg, otEmpAgg;
+
+  if (mode === 'daily') {
+    labels   = dailyData.map(r => 'วัน ' + (r.day || ''));
+    otHrsAgg = dailyData.map(r => parseFloat(r.ot_hours) || 0);
+    otPctAgg = dailyData.map(r => (parseFloat(r.ot_pct) || 0) * 100);
+    otEmpAgg = dailyData.map(r => parseFloat(r.ot_emp) || 0);
+
+  } else if (mode === 'weekly') {
+    const weeks = [
+      { label: 'สัปดาห์ 1 (1-7)',   days: [1,2,3,4,5,6,7] },
+      { label: 'สัปดาห์ 2 (8-14)',  days: [8,9,10,11,12,13,14] },
+      { label: 'สัปดาห์ 3 (15-21)', days: [15,16,17,18,19,20,21] },
+      { label: 'สัปดาห์ 4 (22-28)', days: [22,23,24,25,26,27,28] },
+      { label: 'สัปดาห์ 5 (29-31)', days: [29,30,31] },
+    ];
+    labels = []; otHrsAgg = []; otPctAgg = []; otEmpAgg = [];
+    weeks.forEach(w => {
+      const rows = dailyData.filter(r => w.days.includes(parseInt(r.day)));
+      if (!rows.length) return;
+      const hrs = rows.reduce((s,r) => s + (parseFloat(r.ot_hours)||0), 0);
+      const nrm = rows.reduce((s,r) => s + (parseFloat(r.normal_hours)||0), 0);
+      const emp = rows.reduce((s,r) => s + (parseFloat(r.ot_emp)||0), 0);
+      labels.push(w.label);
+      otHrsAgg.push(parseFloat(hrs.toFixed(1)));
+      otPctAgg.push(nrm > 0 ? parseFloat((hrs/nrm*100).toFixed(2)) : 0);
+      otEmpAgg.push(parseFloat((emp/rows.length).toFixed(0)));
+    });
+
+  } else if (mode === 'monthly') {
+    const monthName = summaryData.month_name || 'เดือนนี้';
+    const totalOT   = parseFloat(summaryData.total_ot_hours) || otHrsAgg;
+    const totalNrm  = parseFloat(summaryData.total_normal_hours) || 1;
+    const tot       = dailyData.reduce((s,r)=>s+(parseFloat(r.ot_hours)||0),0);
+    const nrm       = dailyData.reduce((s,r)=>s+(parseFloat(r.normal_hours)||0),0);
+    labels   = [monthName];
+    otHrsAgg = [parseFloat(tot.toFixed(1))];
+    otPctAgg = [nrm > 0 ? parseFloat((tot/nrm*100).toFixed(2)) : 0];
+    otEmpAgg = [parseFloat(summaryData.max_ot_emp) || Math.max(...dailyData.map(r=>parseFloat(r.ot_emp)||0))];
+  }
+
+  // อัปเดต title แผนภูมิแรก
+  const titles = { daily:'แนวโน้ม OT รายวัน', weekly:'สรุป OT รายสัปดาห์', monthly:'สรุป OT รายเดือน' };
+  const firstTitle = document.querySelector('.card-title');
+  if (firstTitle) firstTitle.textContent = titles[mode] || titles.daily;
+
+  // re-render charts
+  renderCharts(labels, otHrsAgg, otPctAgg, otEmpAgg, deptData);
+
+  // อัปเดต KPI cards
+  const kpiVals = document.querySelectorAll('.kpi-value');
+  const totalOTKpi = otHrsAgg.reduce((s,v)=>s+v,0);
+  const maxEmp     = Math.max(...otEmpAgg, 0);
+  const pctVals    = otPctAgg.filter(v=>v>0);
+  const avgPct     = pctVals.length ? pctVals.reduce((s,v)=>s+v,0)/pctVals.length : 0;
+  if (kpiVals[0]) kpiVals[0].innerHTML = `${totalOTKpi.toLocaleString('th',{maximumFractionDigits:1})}<span style="font-size:16px;color:var(--gray);"> ชม.</span>`;
+  if (kpiVals[1]) kpiVals[1].innerHTML = `${maxEmp}<span style="font-size:16px;color:var(--gray);"> คน</span>`;
+  if (kpiVals[2]) kpiVals[2].innerHTML = `${avgPct.toFixed(2)}<span style="font-size:16px;color:var(--gray);">%</span>`;
+
+  // อัปเดต sparklines
+  ['spark1','spark2','spark3'].forEach(id => { const e = document.getElementById(id); if(e) e.innerHTML=''; });
+  buildSpark('spark1', otHrsAgg);
+  buildSpark('spark2', otEmpAgg);
+  buildSpark('spark3', otPctAgg);
+}
+
+// ผูก event กับ dropdown มุมมอง
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('viewSelect');
+  if (sel) sel.addEventListener('change', function() {
+    if (_rawDaily.length) applyViewMode(this.value, _rawDaily, _rawDept, _rawSummary);
+  });
+});
+
+// ── เริ่มต้น: แสดง sidebar ก่อน แล้วค่อยโหลดข้อมูล ──
+initSidebarFallback();
 loadAndRender();
 setInterval(loadAndRender, CONFIG.REFRESH_MS);
+
 </script>
 </body>
 </html>
