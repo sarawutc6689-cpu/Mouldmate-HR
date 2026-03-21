@@ -692,30 +692,27 @@
     </div>
   </div>
 
-  <!-- AI + TARGET TABLE -->
+  <!-- MIXED CHART + TARGET TABLE -->
   <div class="chart-grid">
-    <!-- AI INSIGHTS -->
-    <div class="ai-card">
-      <div class="ai-header">
-        <div class="ai-badge">AI Insights</div>
-        <div style="font-size:11px; color:var(--gray);">สรุปแนวโน้มประจำเดือน · มีนาคม 2569</div>
+    <!-- MIXED BAR+LINE CHART -->
+    <div class="card" style="overflow:visible;">
+      <div class="card-header">
+        <div>
+          <div class="card-title" id="mixedChartTitle">รายงานชั่วโมง OT ประจำเดือน</div>
+          <div class="card-subtitle" id="mixedChartSub">จำนวนพนักงาน / ชั่วโมง OT / คิดเป็น %</div>
+        </div>
+        <span class="card-tag">MIXED</span>
       </div>
-      <div class="ai-insights">
-        <div class="insight-item alert">
-          <div class="insight-type">⚠ จุดเสี่ยงสูง</div>
-          <div class="insight-text">แผนก <strong>ผ.ผลิตยางตัน</strong> มีชั่วโมง OT สูงสุด <strong>1,652 ชม.</strong> คิดเป็น 45.7% ของ OT ทั้งหมด ควรทบทวนกำลังการผลิตและเพิ่มกะ</div>
+      <canvas id="mixedChart" height="210"></canvas>
+      <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);">
+          <span style="width:12px;height:12px;background:#1d4ed8;border-radius:2px;display:inline-block;"></span>จำนวนพนักงาน
         </div>
-        <div class="insight-item warn">
-          <div class="insight-type">📈 แนวโน้ม</div>
-          <div class="insight-text">OT พุ่งสูงในวันที่ 5–7 มี.ค. (310–341 ชม./วัน) ก่อนลดลงในสัปดาห์ที่ 3-4 อาจสะท้อนคำสั่งผลิตต้นเดือน</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);">
+          <span style="width:12px;height:12px;background:#dc2626;border-radius:2px;display:inline-block;"></span>ชั่วโมง OT
         </div>
-        <div class="insight-item good">
-          <div class="insight-type">✓ ผลดี</div>
-          <div class="insight-text">ค่า OT เฉลี่ย <strong>5.55%</strong> อยู่ต่ำกว่าเป้าหมาย 10% โดยรวมองค์กรบริหารต้นทุนแรงงานได้ดีในภาพรวม</div>
-        </div>
-        <div class="insight-item info">
-          <div class="insight-type">💡 ข้อเสนอแนะ</div>
-          <div class="insight-text">แผนก R&D Product Design และ ผ.วางแผนการผลิต ไม่มี OT เลย แสดงถึงภาระงานสมดุลดี หรืออาจต้องตรวจสอบประสิทธิภาพ</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);">
+          <span style="width:18px;height:3px;background:#f59e0b;display:inline-block;border-radius:2px;"></span>คิดเป็น %
         </div>
       </div>
     </div>
@@ -1057,6 +1054,133 @@ function renderCharts(days, otHrs, otPct, otEmp, depts) {
   });
 }
 
+// ── Mixed Chart (Bar+Bar+Line) ──
+let chartMixed;
+function renderMixedChart(dailyData) {
+  if (chartMixed) chartMixed.destroy();
+
+  const labels  = dailyData.map(r => String(r.day || ''));
+  const empData = dailyData.map(r => parseFloat(r.ot_emp)    || 0);
+  const otrData = dailyData.map(r => parseFloat(r.ot_hours)  || 0);
+  const pctData = dailyData.map(r => {
+    const p = parseFloat(r.ot_pct) || 0;
+    return parseFloat((p > 1 ? p : p * 100).toFixed(2));
+  });
+
+  // update subtitle with month total
+  const totalOT  = otrData.reduce((s,v)=>s+v,0);
+  const totalPct = pctData.filter(v=>v>0);
+  const avgPct   = totalPct.length ? (totalPct.reduce((s,v)=>s+v,0)/totalPct.length).toFixed(1) : 0;
+  const sub = document.getElementById('mixedChartSub');
+  if (sub) sub.textContent = `OT รวม ${totalOT.toLocaleString('th',{maximumFractionDigits:1})} ชม. · เฉลี่ย ${avgPct}%`;
+
+  const ctx = document.getElementById('mixedChart');
+  if (!ctx) return;
+
+  chartMixed = new Chart(ctx, {
+    data: {
+      labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'จำนวนพนักงาน',
+          data: empData,
+          backgroundColor: 'rgba(29,78,216,0.80)',
+          borderColor: '#1d4ed8',
+          borderWidth: 0,
+          borderRadius: 2,
+          yAxisID: 'yLeft',
+          order: 2,
+        },
+        {
+          type: 'bar',
+          label: 'ชั่วโมง OT',
+          data: otrData,
+          backgroundColor: 'rgba(220,38,38,0.82)',
+          borderColor: '#dc2626',
+          borderWidth: 0,
+          borderRadius: 2,
+          yAxisID: 'yRight',
+          order: 3,
+        },
+        {
+          type: 'line',
+          label: 'คิดเป็น %',
+          data: pctData,
+          borderColor: '#f59e0b',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: pctData.map(v => v > 0 ? 4 : 0),
+          pointBackgroundColor: '#f59e0b',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1.5,
+          tension: 0.3,
+          yAxisID: 'yPct',
+          order: 1,
+          datalabels: { display: false },
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e3a6e',
+          borderColor: '#bfdbfe',
+          borderWidth: 1,
+          titleColor: '#f0f5fb',
+          bodyColor: '#93c5fd',
+          padding: 10,
+          cornerRadius: 6,
+          callbacks: {
+            label: ctx => {
+              if (ctx.dataset.label === 'คิดเป็น %') return ` ${ctx.dataset.label}: ${ctx.raw}%`;
+              if (ctx.dataset.label === 'ชั่วโมง OT') return ` ${ctx.dataset.label}: ${ctx.raw} ชม.`;
+              return ` ${ctx.dataset.label}: ${ctx.raw} คน`;
+            }
+          }
+        },
+        // inline data labels on bars
+        annotation: {},
+      },
+      scales: {
+        x: {
+          ticks: { color: '#94a3b8', font: { size: 9 }, maxRotation: 0 },
+          grid: { color: 'rgba(148,163,184,0.1)' },
+          border: { color: '#e2e8f0' },
+        },
+        yLeft: {
+          position: 'left',
+          title: { display: true, text: 'จำนวนพนักงาน (คน)', color: '#1d4ed8', font: { size: 10 } },
+          ticks: { color: '#1d4ed8', font: { size: 9 } },
+          grid: { color: 'rgba(148,163,184,0.12)' },
+          border: { color: '#e2e8f0' },
+        },
+        yRight: {
+          position: 'right',
+          title: { display: true, text: 'ชั่วโมง OT', color: '#dc2626', font: { size: 10 } },
+          ticks: { color: '#dc2626', font: { size: 9 } },
+          grid: { drawOnChartArea: false },
+          border: { color: '#e2e8f0' },
+        },
+        yPct: {
+          position: 'right',
+          title: { display: false },
+          ticks: {
+            color: '#f59e0b', font: { size: 9 },
+            callback: v => v + '%',
+          },
+          grid: { drawOnChartArea: false },
+          border: { color: 'transparent' },
+          offset: true,
+        },
+      },
+    }
+  });
+}
+
 function renderTargetTable(depts) {
   const tbody = document.getElementById('targetBody');
   tbody.innerHTML = '';
@@ -1140,6 +1264,7 @@ function renderDashboard(dailyData, deptData, summaryData) {
   _rawSummary = summaryData;
   const mode  = document.getElementById('viewSelect')?.value || 'daily';
   applyViewMode(mode, dailyData, deptData, summaryData);
+  renderMixedChart(dailyData);
 }
 
 function applyViewMode(mode, dailyData, deptData, summaryData) {
