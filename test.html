@@ -1,374 +1,957 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบล็อกอิน - โอที-ยางตีนตะขาบ</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production OT Analytics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #0f2044;
+    --navy-light: #162d5e;
+    --blue: #1a56db;
+    --blue-bright: #2563eb;
+    --blue-light: #3b82f6;
+    --cyan: #06b6d4;
+    --cyan-light: #67e8f9;
+    --white: #f8fafc;
+    --white-dim: #e2e8f0;
+    --gray: #94a3b8;
+    --gray-dark: #475569;
+    --card-bg: rgba(15, 32, 68, 0.85);
+    --card-border: rgba(37, 99, 235, 0.25);
+    --accent-green: #10b981;
+    --accent-orange: #f59e0b;
+    --accent-red: #ef4444;
+    --sidebar-w: 260px;
+  }
 
-    body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    .container {
-      width: 100%;
-      max-width: 450px;
-    }
+  body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
 
-    .login-card {
-      background: white;
-      border-radius: 24px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-      padding: 40px 35px;
-      position: relative;
-      overflow: hidden;
-    }
+  /* ── BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% -10%, rgba(26,86,219,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 90%, rgba(6,182,212,0.10) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
 
-    .login-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 6px;
-      background: linear-gradient(to right, #F70E02, #ff6b6b);
-    }
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    min-height: 100vh;
+    background: rgba(10,22,40,0.97);
+    border-right: 1px solid var(--card-border);
+    display: flex;
+    flex-direction: column;
+    position: fixed; top: 0; left: 0;
+    z-index: 100;
+    padding: 0;
+    backdrop-filter: blur(12px);
+  }
 
-    /* ส่วนหัวบริษัท */
-    .company-header {
-      text-align: center;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #eee;
-    }
+  .sidebar-logo {
+    padding: 24px 22px 20px;
+    border-bottom: 1px solid var(--card-border);
+  }
 
-    .company-logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 15px;
-    }
+  .sidebar-logo .logo-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    padding: 6px 12px; border-radius: 8px;
+    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
 
-    .logo-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 70px;
-      height: 70px;
-      background: linear-gradient(135deg, #F70E02, #ff9a9e);
-      border-radius: 50%;
-      color: white;
-      font-size: 32px;
-      box-shadow: 0 5px 15px rgba(247, 14, 2, 0.2);
-      margin-right: 15px;
-    }
+  .sidebar-logo h1 {
+    font-size: 13px; font-weight: 600; color: var(--white-dim);
+    line-height: 1.4;
+  }
 
-    .company-name {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
+  .sidebar-logo p {
+    font-size: 11px; color: var(--gray); margin-top: 3px;
+  }
 
-    .company-name-thai {
-      font-size: 24px;
-      font-weight: 700;
-      color: #333;
-      line-height: 1.2;
-    }
+  .sidebar-section {
+    padding: 18px 16px 8px;
+  }
 
-    .company-name-english {
-      font-size: 14px;
-      color: #666;
-      font-weight: 500;
-      margin-top: 3px;
-    }
+  .sidebar-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--gray-dark);
+    margin-bottom: 10px; padding-left: 6px;
+  }
 
-    .system-title {
-      color: #333;
-      font-size: 22px;
-      font-weight: 700;
-      margin-top: 10px;
-    }
+  .filter-group { margin-bottom: 16px; }
 
-    .system-subtitle {
-      color: #666;
-      font-size: 15px;
-      font-weight: 500;
-      margin-top: 5px;
-    }
+  .filter-label {
+    font-size: 11px; color: var(--gray); margin-bottom: 6px;
+    padding-left: 4px; display: flex; align-items: center; gap: 6px;
+  }
 
-    /* ส่วนฟอร์ม */
-    .form-container {
-      margin-top: 25px;
-    }
+  .filter-label::before {
+    content: ''; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--blue-light); flex-shrink: 0;
+  }
 
-    .input-group {
-      margin-bottom: 22px;
-      position: relative;
-    }
+  .filter-select {
+    width: 100%;
+    background: rgba(22,45,94,0.6);
+    border: 1px solid var(--card-border);
+    color: var(--white-dim);
+    padding: 8px 12px; border-radius: 8px;
+    font-size: 12px; font-family: inherit;
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color .2s;
+  }
 
-    .input-icon {
-      position: absolute;
-      left: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #777;
-      font-size: 18px;
-      z-index: 1;
-    }
+  .filter-select:focus { outline: none; border-color: var(--blue-light); }
 
-    .inputtext {
-      width: 100%;
-      padding: 16px 20px 16px 52px;
-      font-size: 16px;
-      border: 2px solid #e1e5eb;
-      border-radius: 14px;
-      background-color: #f8f9fa;
-      transition: all 0.3s ease;
-      color: #333;
-    }
+  .dept-list {
+    display: flex; flex-direction: column; gap: 3px;
+    max-height: 260px; overflow-y: auto;
+  }
 
-    .inputtext:focus {
-      outline: none;
-      border-color: #F70E02;
-      background-color: white;
-      box-shadow: 0 0 0 4px rgba(247, 14, 2, 0.1);
-    }
+  .dept-list::-webkit-scrollbar { width: 3px; }
+  .dept-list::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 3px; }
 
-    .inputtext::placeholder {
-      color: #999;
-    }
+  .dept-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-radius: 7px;
+    cursor: pointer; transition: all .15s;
+    border: 1px solid transparent;
+  }
 
-    #msg {
-      text-align: center;
-      font-size: 14px;
-      min-height: 22px;
-      margin: 8px 0 15px;
-      color: #F70E02;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
+  .dept-chip:hover { background: rgba(26,86,219,0.1); }
 
-    .button {
-      width: 100%;
-      padding: 17px;
-      font-size: 17px;
-      font-weight: 700;
-      background: linear-gradient(to right, #F70E02, #ff5252);
-      color: white;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      letter-spacing: 0.5px;
-      box-shadow: 0 5px 15px rgba(247, 14, 2, 0.3);
-      margin-top: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
+  .dept-chip.active {
+    background: rgba(26,86,219,0.15);
+    border-color: rgba(26,86,219,0.3);
+  }
 
-    .button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(247, 14, 2, 0.4);
-      background: linear-gradient(to right, #e50c01, #ff4343);
-    }
+  .dept-chip .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
 
-    .button:active {
-      transform: translateY(0);
-    }
+  .dept-chip span {
+    font-size: 11px; color: var(--white-dim); flex: 1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
 
-    .footer-note {
-      text-align: center;
-      margin-top: 25px;
-      color: #888;
-      font-size: 13px;
-      font-weight: 500;
-    }
+  .dept-chip .hrs {
+    font-size: 10px; font-family: 'IBM Plex Mono', monospace;
+    color: var(--gray); flex-shrink: 0;
+  }
 
-    .footer-note a {
-      color: #F70E02;
-      text-decoration: none;
-    }
+  .sidebar-footer {
+    margin-top: auto; padding: 16px;
+    border-top: 1px solid var(--card-border);
+  }
 
-    .footer-note a:hover {
-      text-decoration: underline;
-    }
+  .status-dot {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--gray);
+  }
 
-    .password-note {
-      font-size: 12px;
-      color: #777;
-      margin-top: 5px;
-      margin-left: 10px;
-      font-weight: normal;
-    }
+  .status-dot::before {
+    content: ''; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent-green);
+    box-shadow: 0 0 6px var(--accent-green);
+    animation: pulse 2s infinite;
+  }
 
-    /* Responsive */
-    @media (max-width: 480px) {
-      .login-card {
-        padding: 30px 25px;
-      }
-      
-      .company-name-thai {
-        font-size: 20px;
-      }
-      
-      .system-title {
-        font-size: 20px;
-      }
-      
-      .logo-icon {
-        width: 60px;
-        height: 60px;
-        font-size: 26px;
-        margin-right: 12px;
-      }
-    }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
 
-    /* เอฟเฟกต์สำหรับชื่อบริษัท */
-    .company-name-thai {
-      position: relative;
-      display: inline-block;
-    }
+  /* ── MAIN ── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1; padding: 28px 30px;
+    position: relative; z-index: 1;
+    min-height: 100vh;
+  }
 
-    .company-name-thai::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(to right, #F70E02, transparent);
-      border-radius: 2px;
-    }
-  </style>
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .topbar-left h2 {
+    font-size: 22px; font-weight: 700;
+    background: linear-gradient(135deg, var(--white) 40%, var(--cyan-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .topbar-left p {
+    font-size: 12px; color: var(--gray); margin-top: 3px;
+  }
+
+  .topbar-right {
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .badge {
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  .badge-blue {
+    background: rgba(26,86,219,0.2);
+    border: 1px solid rgba(26,86,219,0.4);
+    color: var(--blue-light);
+  }
+
+  .badge-cyan {
+    background: rgba(6,182,212,0.15);
+    border: 1px solid rgba(6,182,212,0.3);
+    color: var(--cyan-light);
+  }
+
+  /* ── KPI CARDS ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 22px;
+  }
+
+  .kpi-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 20px 22px;
+    position: relative; overflow: hidden;
+    backdrop-filter: blur(8px);
+    transition: transform .2s, border-color .2s;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(37,99,235,0.45);
+  }
+
+  .kpi-card::after {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .kpi-card.c1::after { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+  .kpi-card.c2::after { background: linear-gradient(90deg, var(--accent-orange), #fbbf24); }
+  .kpi-card.c3::after { background: linear-gradient(90deg, var(--accent-green), #34d399); }
+  .kpi-card.c4::after { background: linear-gradient(90deg, var(--accent-red), #fb7185); }
+
+  .kpi-label {
+    font-size: 11px; color: var(--gray); letter-spacing: 0.5px;
+    text-transform: uppercase; font-weight: 500; margin-bottom: 10px;
+  }
+
+  .kpi-value {
+    font-size: 28px; font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: -1px;
+  }
+
+  .kpi-sub {
+    font-size: 11px; color: var(--gray); margin-top: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .trend { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
+  .trend-up { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+  .trend-ok { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+
+  .kpi-icon {
+    position: absolute; right: 18px; top: 16px;
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .kpi-icon.i1 { background: rgba(26,86,219,0.2); }
+  .kpi-icon.i2 { background: rgba(245,158,11,0.15); }
+  .kpi-icon.i3 { background: rgba(16,185,129,0.15); }
+  .kpi-icon.i4 { background: rgba(239,68,68,0.15); }
+
+  /* ── CHART GRID ── */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px; margin-bottom: 18px;
+  }
+
+  .chart-grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 18px; margin-bottom: 18px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 22px;
+    backdrop-filter: blur(8px);
+    position: relative;
+  }
+
+  .card-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .card-title {
+    font-size: 13px; font-weight: 600; color: var(--white-dim);
+  }
+
+  .card-subtitle {
+    font-size: 11px; color: var(--gray); margin-top: 3px;
+  }
+
+  .card-tag {
+    font-size: 10px; padding: 3px 9px; border-radius: 8px;
+    background: rgba(26,86,219,0.2); color: var(--blue-light);
+    font-weight: 600; letter-spacing: 0.5px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+
+  canvas { max-height: 220px; }
+
+  /* ── AI INSIGHT ── */
+  .ai-card {
+    background: linear-gradient(135deg, rgba(10,22,40,0.98) 0%, rgba(22,45,94,0.6) 100%);
+    border: 1px solid rgba(6,182,212,0.3);
+    border-radius: 14px; padding: 22px;
+    position: relative; overflow: hidden;
+  }
+
+  .ai-card::before {
+    content: ''; position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .ai-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  }
+
+  .ai-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, rgba(6,182,212,0.25), rgba(26,86,219,0.2));
+    border: 1px solid rgba(6,182,212,0.4);
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; color: var(--cyan-light);
+    letter-spacing: 0.5px;
+  }
+
+  .ai-badge::before {
+    content: '✦'; font-size: 9px;
+    animation: sparkle 3s ease-in-out infinite;
+  }
+
+  @keyframes sparkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .ai-insights {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .insight-item {
+    background: rgba(15,32,68,0.7);
+    border: 1px solid rgba(37,99,235,0.2);
+    border-radius: 10px; padding: 14px 16px;
+    position: relative;
+  }
+
+  .insight-item::before {
+    content: ''; position: absolute;
+    left: 0; top: 8px; bottom: 8px;
+    width: 3px; border-radius: 0 3px 3px 0;
+  }
+
+  .insight-item.warn::before { background: var(--accent-orange); }
+  .insight-item.good::before { background: var(--accent-green); }
+  .insight-item.info::before { background: var(--blue-light); }
+  .insight-item.alert::before { background: var(--accent-red); }
+
+  .insight-type {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 6px; margin-left: 12px;
+  }
+
+  .insight-item.warn .insight-type { color: var(--accent-orange); }
+  .insight-item.good .insight-type { color: var(--accent-green); }
+  .insight-item.info .insight-type { color: var(--blue-light); }
+  .insight-item.alert .insight-type { color: var(--accent-red); }
+
+  .insight-text {
+    font-size: 12px; line-height: 1.6; color: var(--white-dim);
+    margin-left: 12px;
+  }
+
+  /* ── TARGET TABLE ── */
+  .target-table { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
+
+  .target-table th {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--gray-dark);
+    padding: 6px 12px; text-align: left;
+  }
+
+  .target-table td {
+    padding: 9px 12px; font-size: 12px;
+    background: rgba(15,32,68,0.5);
+  }
+
+  .target-table tr td:first-child { border-radius: 8px 0 0 8px; }
+  .target-table tr td:last-child { border-radius: 0 8px 8px 0; }
+
+  .target-table .dept-name { color: var(--white-dim); font-weight: 500; }
+  .target-table .mono { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--gray); }
+
+  .progress-bar {
+    height: 5px; border-radius: 3px;
+    background: rgba(22,45,94,0.8);
+    overflow: hidden; min-width: 80px;
+  }
+
+  .progress-fill {
+    height: 100%; border-radius: 3px;
+    transition: width .6s ease;
+  }
+
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 10px;
+    font-size: 10px; font-weight: 600;
+  }
+
+  .pill-over { background: rgba(239,68,68,0.15); color: #fca5a5; }
+  .pill-ok { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+  .pill-low { background: rgba(100,116,139,0.2); color: var(--gray); }
+
+  /* scroll */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(37,99,235,0.3); border-radius: 4px; }
+
+  /* animate in */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .kpi-card { animation: fadeUp .5s ease both; }
+  .kpi-card:nth-child(1) { animation-delay: .05s; }
+  .kpi-card:nth-child(2) { animation-delay: .10s; }
+  .kpi-card:nth-child(3) { animation-delay: .15s; }
+  .kpi-card:nth-child(4) { animation-delay: .20s; }
+
+  .card, .ai-card { animation: fadeUp .5s ease .25s both; }
+
+  .divider {
+    height: 1px; background: var(--card-border);
+    margin: 4px 0 16px;
+  }
+
+  .sparkline-mini {
+    display: flex; align-items: flex-end; gap: 2px;
+    height: 24px; margin-top: 8px;
+  }
+
+  .spark-bar {
+    flex: 1; border-radius: 2px;
+    background: rgba(37,99,235,0.35);
+    transition: background .2s;
+  }
+
+  .spark-bar.high { background: rgba(239,68,68,0.5); }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="login-card">
-      <!-- ส่วนหัวบริษัท -->
-      <div class="company-header">
-        <div class="company-logo">
-          <div class="logo-icon">
-            <i class="fas fa-tire"></i>
-          </div>
-          <div class="company-name">
-            <div class="company-name-thai">โอที-ยางตีนตะขาบ</div>
-          </div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Analytics
+    </div>
+    <h1>ระบบวิเคราะห์การผลิต</h1>
+    <p>Factory OT Management System</p>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">ช่วงเวลา</div>
+    <div class="filter-group">
+      <div class="filter-label">เดือน / ปี</div>
+      <select class="filter-select">
+        <option>มีนาคม 2569</option>
+        <option>กุมภาพันธ์ 2569</option>
+        <option>มกราคม 2569</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">มุมมอง</div>
+      <select class="filter-select">
+        <option>รายวัน</option>
+        <option>รายสัปดาห์</option>
+        <option>รายเดือน</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">แผนก</div>
+    <div class="dept-list" id="deptList"></div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">กลุ่มเป้าหมาย OT</div>
+    <div class="filter-group">
+      <div class="filter-label">เป้าหมาย OT %</div>
+      <select class="filter-select" id="targetSelect">
+        <option value="8">≤ 8% (มาตรฐาน)</option>
+        <option value="10" selected>≤ 10% (ผ่อนปรน)</option>
+        <option value="12">≤ 12% (วิกฤต)</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">แสดงเฉพาะ</div>
+      <select class="filter-select">
+        <option>ทุกแผนก</option>
+        <option>เกินเป้าหมาย</option>
+        <option>ฝ่ายผลิต</option>
+        <option>ฝ่าย Support</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="status-dot">ข้อมูลล่าสุด: 31 มี.ค. 2569</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2>รายงานชั่วโมงล่วงเวลาประจำวัน</h2>
+      <p>โรงงานสระบุรี · มีนาคม 2569 · อัปเดตอัตโนมัติ</p>
+    </div>
+    <div class="topbar-right">
+      <span class="badge badge-cyan">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        มี.ค. 2569
+      </span>
+      <span class="badge badge-blue">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        428 พนักงาน
+      </span>
+    </div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi-card c1">
+      <div class="kpi-icon i1">⏱</div>
+      <div class="kpi-label">ชั่วโมง OT รวมเดือน</div>
+      <div class="kpi-value" style="color: var(--blue-light);">3,613<span style="font-size:16px; color:var(--gray);"> ชม.</span></div>
+      <div class="kpi-sub">
+        <span class="trend trend-up">▲ 5.5%</span>
+        จากเดือนก่อน
+      </div>
+      <div class="sparkline-mini" id="spark1"></div>
+    </div>
+
+    <div class="kpi-card c2">
+      <div class="kpi-icon i2">👥</div>
+      <div class="kpi-label">พนักงาน OT สูงสุด/วัน</div>
+      <div class="kpi-value" style="color: var(--accent-orange);">115<span style="font-size:16px; color:var(--gray);"> คน</span></div>
+      <div class="kpi-sub">
+        <span class="trend trend-up">วันที่ 6</span>
+        ชม. OT สูงสุด 341 ชม.
+      </div>
+      <div class="sparkline-mini" id="spark2"></div>
+    </div>
+
+    <div class="kpi-card c3">
+      <div class="kpi-icon i3">📊</div>
+      <div class="kpi-label">% OT เฉลี่ย (วันทำงาน)</div>
+      <div class="kpi-value" style="color: var(--accent-green);">5.55<span style="font-size:16px; color:var(--gray);">%</span></div>
+      <div class="kpi-sub">
+        <span class="trend trend-ok">✓ ต่ำกว่าเป้า</span>
+        เป้าหมาย ≤ 10%
+      </div>
+      <div class="sparkline-mini" id="spark3"></div>
+    </div>
+
+    <div class="kpi-card c4">
+      <div class="kpi-icon i4">🏭</div>
+      <div class="kpi-label">ชั่วโมงปกติรวม</div>
+      <div class="kpi-value" style="color: var(--white-dim);">95,856<span style="font-size:16px; color:var(--gray);"> ชม.</span></div>
+      <div class="kpi-sub">
+        <span class="trend trend-ok">21 วันทำงาน</span>
+        ตลอดเดือน
+      </div>
+      <div class="sparkline-mini" id="spark4"></div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 1 -->
+  <div class="chart-grid-3">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">แนวโน้ม OT รายวัน — มีนาคม 2569</div>
+          <div class="card-subtitle">ชั่วโมง OT จริง vs % OT ต่อชั่วโมงปกติ</div>
         </div>
-        <div class="system-title">ระบบล็อกอินพนักงาน</div>
-        <div class="system-subtitle">สำหรับการเข้าใช้งานระบบข้อมูลภายใน</div>
+        <span class="card-tag">LINE TREND</span>
       </div>
+      <canvas id="trendChart" height="200"></canvas>
+    </div>
 
-      <!-- ส่วนฟอร์มล็อกอิน -->
-      <div class="form-container">
-        <form name="myform" method="post">
-          <div class="input-group">
-            <div class="input-icon">
-              <i class="fas fa-id-card"></i>
-            </div>
-            <input type="text" name="uname" class="inputtext" autocomplete="off" placeholder="กรุณากรอกรหัสพนักงาน" required>
-          </div>
-
-          <div class="input-group">
-            <div class="input-icon">
-              <i class="fas fa-calendar-alt"></i>
-            </div>
-            <input type="password" name="pass" class="inputtext" autocomplete="off" placeholder="กรุณากรอกวันที่เริ่มงาน (รูปแบบ: DDMMYYYY)" required>
-          </div>
-          <p class="password-note">หมายเหตุ: รหัสผ่านคือวันที่เริ่มงาน (รูปแบบ: DDMMYYYY)</p>
-
-          <div id="msg"></div>
-
-          <button type="button" class="button" name="log" id="logbutton" onclick="myfunction()">
-            <i class="fas fa-sign-in-alt"></i>
-            เข้าสู่ระบบ
-          </button>
-        </form>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">สัดส่วน OT ตามแผนก</div>
+          <div class="card-subtitle">% ของ OT ทั้งหมด</div>
+        </div>
+        <span class="card-tag">DONUT</span>
       </div>
+      <canvas id="pieChart" height="200"></canvas>
+    </div>
+  </div>
 
-      <div class="footer-note">
-        <p>หากมีปัญหาในการเข้าสู่ระบบ โปรดติดต่อฝ่ายทรัพยากรบุคคล © 2026 โอที-ยางตีนตะขาบ  </p>
-        <p>พัฒนาระบบโดย Sarawut.C</p>
+  <!-- CHARTS ROW 2 -->
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">เปรียบเทียบชั่วโมง OT รายแผนก</div>
+          <div class="card-subtitle">ชั่วโมง OT สะสมตลอดเดือน</div>
+        </div>
+        <span class="card-tag">BAR COMPARE</span>
+      </div>
+      <canvas id="barChart" height="200"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">จำนวนพนักงาน OT รายวัน</div>
+          <div class="card-subtitle">เปรียบเทียบจำนวนกับชั่วโมง OT</div>
+        </div>
+        <span class="card-tag">AREA</span>
+      </div>
+      <canvas id="areaChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- AI + TARGET TABLE -->
+  <div class="chart-grid">
+    <!-- AI INSIGHTS -->
+    <div class="ai-card">
+      <div class="ai-header">
+        <div class="ai-badge">AI Insights</div>
+        <div style="font-size:11px; color:var(--gray);">สรุปโดย Claude AI · มี.ค. 2569</div>
+      </div>
+      <div class="ai-insights">
+        <div class="insight-item alert">
+          <div class="insight-type">⚠ จุดเสี่ยงสูง</div>
+          <div class="insight-text">แผนก <strong>ผ.ผลิตยางตัน</strong> มีชั่วโมง OT สูงสุด <strong>1,652 ชม.</strong> คิดเป็น 45.7% ของ OT ทั้งหมด ควรทบทวนกำลังการผลิตและเพิ่มกะ</div>
+        </div>
+        <div class="insight-item warn">
+          <div class="insight-type">📈 แนวโน้ม</div>
+          <div class="insight-text">OT พุ่งสูงในวันที่ 5–7 มี.ค. (310–341 ชม./วัน) ก่อนลดลงในสัปดาห์ที่ 3-4 อาจสะท้อนคำสั่งผลิตต้นเดือน</div>
+        </div>
+        <div class="insight-item good">
+          <div class="insight-type">✓ ผลดี</div>
+          <div class="insight-text">ค่า OT เฉลี่ย <strong>5.55%</strong> อยู่ต่ำกว่าเป้าหมาย 10% โดยรวมองค์กรบริหารต้นทุนแรงงานได้ดีในภาพรวม</div>
+        </div>
+        <div class="insight-item info">
+          <div class="insight-type">💡 ข้อเสนอแนะ</div>
+          <div class="insight-text">แผนก R&D Product Design และ ผ.วางแผนการผลิต ไม่มี OT เลย แสดงถึงภาระงานสมดุลดี หรืออาจต้องตรวจสอบประสิทธิภาพ</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TARGET TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">สถานะเทียบเป้าหมาย OT รายแผนก</div>
+          <div class="card-subtitle">เป้า ≤ 10% ต่อชั่วโมงปกติ</div>
+        </div>
+        <span class="card-tag">TARGET</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="target-table" id="targetTable">
+          <thead>
+            <tr>
+              <th>แผนก</th>
+              <th>OT ชม.</th>
+              <th>% OT</th>
+              <th>เป้าหมาย</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="targetBody"></tbody>
+        </table>
       </div>
     </div>
   </div>
 
-  <script>
-    function myfunction() {
-      var user = document.forms["myform"]["uname"].value;
-      var pass = document.forms["myform"]["pass"].value;
-      var msgElement = document.getElementById("msg");
-      
-      // ล้างข้อความเก่าก่อน
-      msgElement.innerHTML = "";
-      
-      // เพิ่มเอฟเฟกต์การโหลดชั่วคราว
-      var logButton = document.getElementById("logbutton");
-      var originalText = logButton.innerHTML;
-      logButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังตรวจสอบ...';
-      logButton.disabled = true;
-      
-      // สร้างดีเลย์เล็กน้อยเพื่อให้เห็นเอฟเฟกต์การโหลด
-      setTimeout(function() {
-        if ((user == "103608" && pass == "25072560") || (user == "104390" && pass == "19012565")) {
-          // เปลี่ยนปุ่มเป็นสำเร็จก่อนเปิดหน้าต่างใหม่
-          logButton.innerHTML = '<i class="fas fa-check"></i> ล็อกอินสำเร็จ!';
-          logButton.style.background = "linear-gradient(to right, #4CAF50, #45a049)";
-          
-          // รอสักครู่แล้วเปิดหน้าต่างใหม่
-          setTimeout(function() {
-            window.open('https://docs.google.com/spreadsheets/d/1riwTDK8mkTw-9t8yZVIy5CxokkWphgDxypKqVQWD6v4/edit?usp=sharing', '_blank');
-            // รีเซ็ตปุ่ม
-            logButton.innerHTML = originalText;
-            logButton.style.background = "linear-gradient(to right, #F70E02, #ff5252)";
-            logButton.disabled = false;
-          }, 800);
-        } else {
-          // รีเซ็ตปุ่มและแสดงข้อความผิดพลาด
-          logButton.innerHTML = originalText;
-          logButton.disabled = false;
-          msgElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง';
-          msgElement.style.color = "#F70E02";
-          
-          // เพิ่มเอฟเฟกต์สั่นให้กับฟิลด์ที่ผิดพลาด
-          document.forms["myform"]["uname"].style.borderColor = "#F70E02";
-          document.forms["myform"]["pass"].style.borderColor = "#F70E02";
-          
-          // รีเซ็ตสีบอร์ดหลังจาก 1.5 วินาที
-          setTimeout(function() {
-            document.forms["myform"]["uname"].style.borderColor = "#e1e5eb";
-            document.forms["myform"]["pass"].style.borderColor = "#e1e5eb";
-          }, 1500);
-        }
-      }, 800);
+</main>
+
+<script>
+// ── DATA ──
+const days = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31'];
+const rawDays = ['1-OFF','2','3','4','5','6','7','8-OFF','9','10','11','12','13','14','15-OFF','16-OFF','17','18','19','20','21','22-OFF','23','24','25','26','27','28','29-OFF','30','31'];
+const otHrs = [0,0,274.3,276,310,341.3,297,48,263.5,278.5,171.5,155,172,141,32,146,155,166.5,148,197.5,40,0,0,0,0,0,0,0,0,0,0];
+const otPct = [0,0,8.01,8.06,9.05,9.97,8.67,1.40,7.70,8.13,5.01,4.53,5.02,4.12,0.93,4.26,4.54,4.86,4.32,5.77,1.17,0,0,0,0,0,0,0,0,0,0];
+const otEmp = [0,0,93,93,105,115,101,6,88,95,58,53,58,47,5,48,55,57,49,60,12,0,0,0,0,0,0,0,0,0,0];
+
+const depts = [
+  { name: 'ผ.ผสมยาง', shortName: 'ผสมยาง', ot: 331.5, emp: 29, color: '#3b82f6' },
+  { name: 'ผ.ผลิตยางตีนตะขาบ', shortName: 'ยางตีนตะขาบ', ot: 636, emp: 89, color: '#06b6d4' },
+  { name: 'ผ.ผลิตยางตัน', shortName: 'ยางตัน', ot: 1652, emp: 70, color: '#ef4444' },
+  { name: 'ฝ.วิศวกรรม', shortName: 'วิศวกรรม', ot: 156, emp: 20, color: '#8b5cf6' },
+  { name: 'ผ.บริการยานยนต์', shortName: 'บริการยานยนต์', ot: 51.5, emp: 15, color: '#f59e0b' },
+  { name: 'ผ.R&D Compound', shortName: 'R&D Compound', ot: 8, emp: 12, color: '#10b981' },
+  { name: 'ผ.R&D Product', shortName: 'R&D Product', ot: 0, emp: 10, color: '#6b7280' },
+  { name: 'ผ.ควบคุมคุณภาพ', shortName: 'QC', ot: 637.6, emp: 35, color: '#f97316' },
+  { name: 'ผ.Mold Production', shortName: 'Mold', ot: 128, emp: 18, color: '#ec4899' },
+  { name: 'ผ.วางแผนการผลิต', shortName: 'วางแผน', ot: 0, emp: 8, color: '#6b7280' },
+  { name: 'ผ.คลังวัตถุดิบ', shortName: 'คลังวัตถุดิบ', ot: 6.5, emp: 20, color: '#84cc16' },
+  { name: 'ผ.คลังสินค้า', shortName: 'คลังสินค้า', ot: 6, emp: 18, color: '#22d3ee' },
+  { name: 'ผ.อาคารสถานที่', shortName: 'อาคาร', ot: 0, emp: 7, color: '#6b7280' },
+  { name: 'สำนักงาน', shortName: 'สำนักงาน', ot: 0, emp: 16, color: '#6b7280' },
+];
+
+const totalOT = depts.reduce((s,d) => s + d.ot, 0);
+const normalHrs = 95856;
+
+// ── DEPT LIST ──
+const deptList = document.getElementById('deptList');
+depts.forEach(d => {
+  const chip = document.createElement('div');
+  chip.className = 'dept-chip active';
+  chip.innerHTML = `<div class="dot" style="background:${d.color}"></div><span>${d.name}</span><span class="hrs">${d.ot>0 ? d.ot.toFixed(0) : '—'}</span>`;
+  chip.addEventListener('click', () => chip.classList.toggle('active'));
+  deptList.appendChild(chip);
+});
+
+// ── SPARKLINES ──
+function buildSpark(id, data, highlight) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const max = Math.max(...data);
+  data.forEach(v => {
+    const bar = document.createElement('div');
+    bar.className = 'spark-bar' + (v === max ? ' high' : '');
+    bar.style.height = max > 0 ? (v / max * 100) + '%' : '10%';
+    el.appendChild(bar);
+  });
+}
+buildSpark('spark1', otHrs.slice(0, 21));
+buildSpark('spark2', otEmp.slice(0, 21));
+buildSpark('spark3', otPct.slice(0, 21));
+buildSpark('spark4', otHrs.map(h => normalHrs / 31));
+
+// ── CHART DEFAULTS ──
+const base = {
+  color: '#94a3b8',
+  plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0f2044', borderColor: '#1a56db', borderWidth: 1, titleColor: '#e2e8f0', bodyColor: '#94a3b8', padding: 10, cornerRadius: 8 } },
+  scales: {
+    x: { ticks: { color: '#475569', font: { size: 10 } }, grid: { color: 'rgba(37,99,235,0.08)' } },
+    y: { ticks: { color: '#475569', font: { size: 10 } }, grid: { color: 'rgba(37,99,235,0.08)' } }
+  }
+};
+
+// TREND CHART
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: days,
+    datasets: [
+      {
+        label: 'ชั่วโมง OT',
+        data: otHrs,
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59,130,246,0.08)',
+        fill: true,
+        tension: 0.4, pointRadius: 3,
+        pointBackgroundColor: '#1a56db',
+        yAxisID: 'y',
+      },
+      {
+        label: '% OT',
+        data: otPct,
+        borderColor: '#06b6d4',
+        borderDash: [4, 3],
+        backgroundColor: 'transparent',
+        tension: 0.4, pointRadius: 2,
+        yAxisID: 'y1',
+      }
+    ]
+  },
+  options: {
+    ...base,
+    plugins: {
+      ...base.plugins,
+      legend: { display: true, labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 12, padding: 12 } }
+    },
+    scales: {
+      x: base.scales.x,
+      y: { ...base.scales.y, position: 'left', title: { display: true, text: 'ชม.', color: '#475569', font: { size: 10 } } },
+      y1: { ...base.scales.y, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '%', color: '#475569', font: { size: 10 } } }
     }
-    
-    // เพิ่มฟังก์ชันสำหรับกด Enter เพื่อล็อกอิน
-    document.addEventListener('DOMContentLoaded', function() {
-      var inputs = document.querySelectorAll('.inputtext');
-      inputs.forEach(function(input) {
-        input.addEventListener('keypress', function(event) {
-          if (event.key === 'Enter') {
-            event.preventDefault();
-            myfunction();
-          }
-        });
-      });
-    });
-  </script>
+  }
+});
+
+// PIE CHART
+const activeDepts = depts.filter(d => d.ot > 0);
+new Chart(document.getElementById('pieChart'), {
+  type: 'doughnut',
+  data: {
+    labels: activeDepts.map(d => d.shortName),
+    datasets: [{
+      data: activeDepts.map(d => d.ot),
+      backgroundColor: activeDepts.map(d => d.color + 'cc'),
+      borderColor: activeDepts.map(d => d.color),
+      borderWidth: 1.5,
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    cutout: '62%',
+    plugins: {
+      ...base.plugins,
+      legend: {
+        display: true, position: 'right',
+        labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 10, padding: 8 }
+      }
+    }
+  }
+});
+
+// BAR CHART
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: depts.map(d => d.shortName),
+    datasets: [{
+      label: 'OT ชม.',
+      data: depts.map(d => d.ot),
+      backgroundColor: depts.map(d => d.color + '99'),
+      borderColor: depts.map(d => d.color),
+      borderWidth: 1,
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    ...base,
+    scales: {
+      x: { ...base.scales.x, ticks: { color: '#475569', font: { size: 9 }, maxRotation: 35 } },
+      y: base.scales.y
+    }
+  }
+});
+
+// AREA CHART
+new Chart(document.getElementById('areaChart'), {
+  type: 'line',
+  data: {
+    labels: days,
+    datasets: [
+      {
+        label: 'พนักงาน OT',
+        data: otEmp,
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245,158,11,0.12)',
+        fill: true, tension: 0.4, pointRadius: 2,
+        yAxisID: 'y',
+      },
+      {
+        label: 'ชั่วโมง OT',
+        data: otHrs,
+        borderColor: '#3b82f6',
+        backgroundColor: 'transparent',
+        fill: false, tension: 0.4, pointRadius: 2,
+        yAxisID: 'y1',
+      }
+    ]
+  },
+  options: {
+    ...base,
+    plugins: {
+      ...base.plugins,
+      legend: { display: true, labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 12, padding: 10 } }
+    },
+    scales: {
+      x: base.scales.x,
+      y: { ...base.scales.y, position: 'left' },
+      y1: { ...base.scales.y, position: 'right', grid: { drawOnChartArea: false } }
+    }
+  }
+});
+
+// TARGET TABLE
+const tbody = document.getElementById('targetBody');
+const target = 10;
+const empHrsPerDept = (emp) => emp * 8 * 21;
+
+depts.forEach(d => {
+  const normalHrsDept = empHrsPerDept(d.emp);
+  const pct = normalHrsDept > 0 ? (d.ot / normalHrsDept * 100) : 0;
+  const ratio = Math.min(pct / target, 1);
+  let pillClass = 'pill-low', pillLabel = '—';
+  if (d.ot > 0) {
+    pillClass = pct > target ? 'pill-over' : 'pill-ok';
+    pillLabel = pct > target ? 'เกินเป้า' : 'ปกติ';
+  }
+  const barColor = pct > target ? '#ef4444' : (pct > target * 0.7 ? '#f59e0b' : '#10b981');
+
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="dept-name" style="display:flex;align-items:center;gap:8px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:${d.color};display:inline-block;flex-shrink:0;"></span>
+      ${d.shortName}
+    </td>
+    <td class="mono">${d.ot > 0 ? d.ot.toFixed(1) : '0'}</td>
+    <td class="mono">${pct > 0 ? pct.toFixed(1) + '%' : '—'}</td>
+    <td>
+      <div class="progress-bar" style="width:90px;">
+        <div class="progress-fill" style="width:${ratio*100}%;background:${barColor};"></div>
+      </div>
+    </td>
+    <td><span class="status-pill ${pillClass}">${pillLabel}</span></td>
+  `;
+  tbody.appendChild(tr);
+});
+</script>
 </body>
 </html>
