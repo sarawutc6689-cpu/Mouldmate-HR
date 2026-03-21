@@ -749,61 +749,264 @@
 </main>
 
 <script>
-// ── DATA ──
-const days = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31'];
-const rawDays = ['1-OFF','2','3','4','5','6','7','8-OFF','9','10','11','12','13','14','15-OFF','16-OFF','17','18','19','20','21','22-OFF','23','24','25','26','27','28','29-OFF','30','31'];
-const otHrs = [0,0,274.3,276,310,341.3,297,48,263.5,278.5,171.5,155,172,141,32,146,155,166.5,148,197.5,40,0,0,0,0,0,0,0,0,0,0];
-const otPct = [0,0,8.01,8.06,9.05,9.97,8.67,1.40,7.70,8.13,5.01,4.53,5.02,4.12,0.93,4.26,4.54,4.86,4.32,5.77,1.17,0,0,0,0,0,0,0,0,0,0];
-const otEmp = [0,0,93,93,105,115,101,6,88,95,58,53,58,47,5,48,55,57,49,60,12,0,0,0,0,0,0,0,0,0,0];
+// ════════════════════════════════════════════════════
+//  ⚙️  GOOGLE SHEETS — PUBLISH TO WEB (CSV)
+//  อัปเดต URL ด้านล่างถ้า Publish URL เปลี่ยน
+// ════════════════════════════════════════════════════
+const CONFIG = {
+  CSV_URLS: {
+    daily  : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFm8ZO4t7xfUXAFiQZWSs5NvS24XcJ8GPBoHbxZwfn5FyfaX3PNz7Ukh09xEz_vXaTE6V8-MjiM7Fd/pub?gid=1950968080&single=true&output=csv',
+    dept   : 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFm8ZO4t7xfUXAFiQZWSs5NvS24XcJ8GPBoHbxZwfn5FyfaX3PNz7Ukh09xEz_vXaTE6V8-MjiM7Fd/pub?gid=1426079127&single=true&output=csv',
+    summary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFm8ZO4t7xfUXAFiQZWSs5NvS24XcJ8GPBoHbxZwfn5FyfaX3PNz7Ukh09xEz_vXaTE6V8-MjiM7Fd/pub?gid=1088587672&single=true&output=csv',
+  },
+  REFRESH_MS: 5 * 60 * 1000, // รีเฟรชทุก 5 นาที (ปรับได้)
+  OT_TARGET : 10,             // เป้าหมาย OT % (ปรับได้)
+  // ── CORS Proxy ─────────────────────────────────────
+  // เปิดไฟล์จาก local (file://) → USE_PROXY: true
+  // โฮสต์บน web server แล้ว      → USE_PROXY: false
+  USE_PROXY : true,
+  PROXY_URL : 'https://corsproxy.io/?',
+};
 
-const depts = [
-  { name: 'ผ.ผสมยาง', shortName: 'ผสมยาง', ot: 331.5, emp: 29, color: '#2563eb' },
-  { name: 'ผ.ผลิตยางตีนตะขาบ', shortName: 'ยางตีนตะขาบ', ot: 636, emp: 89, color: '#0284c7' },
-  { name: 'ผ.ผลิตยางตัน', shortName: 'ยางตัน', ot: 1652, emp: 70, color: '#dc2626' },
-  { name: 'ฝ.วิศวกรรม', shortName: 'วิศวกรรม', ot: 156, emp: 20, color: '#7c3aed' },
-  { name: 'ผ.บริการยานยนต์', shortName: 'บริการยานยนต์', ot: 51.5, emp: 15, color: '#b45309' },
-  { name: 'ผ.R&D Compound', shortName: 'R&D Compound', ot: 8, emp: 12, color: '#047857' },
-  { name: 'ผ.R&D Product', shortName: 'R&D Product', ot: 0, emp: 10, color: '#94a3b8' },
-  { name: 'ผ.ควบคุมคุณภาพ', shortName: 'QC', ot: 637.6, emp: 35, color: '#c2410c' },
-  { name: 'ผ.Mold Production', shortName: 'Mold', ot: 128, emp: 18, color: '#9d174d' },
-  { name: 'ผ.วางแผนการผลิต', shortName: 'วางแผน', ot: 0, emp: 8, color: '#94a3b8' },
-  { name: 'ผ.คลังวัตถุดิบ', shortName: 'คลังวัตถุดิบ', ot: 6.5, emp: 20, color: '#15803d' },
-  { name: 'ผ.คลังสินค้า', shortName: 'คลังสินค้า', ot: 6, emp: 18, color: '#0e7490' },
-  { name: 'ผ.อาคารสถานที่', shortName: 'อาคาร', ot: 0, emp: 7, color: '#94a3b8' },
-  { name: 'สำนักงาน', shortName: 'สำนักงาน', ot: 0, emp: 16, color: '#94a3b8' },
-];
+// ── สถานะ Charts ──
+let chartTrend, chartPie, chartBar, chartArea;
 
-const totalOT = depts.reduce((s,d) => s + d.ot, 0);
-const normalHrs = 95856;
+// ── Loader overlay ──
+function setLoading(show, msg = 'กำลังโหลดข้อมูลจาก Google Sheets…') {
+  let ov = document.getElementById('gs-loader');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'gs-loader';
+    ov.style.cssText = `position:fixed;inset:0;z-index:999;background:rgba(240,245,251,0.88);
+      backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:14px;font-family:inherit;`;
+    ov.innerHTML = `
+      <div style="width:40px;height:40px;border:3px solid #bfdbfe;border-top-color:#2563eb;
+        border-radius:50%;animation:spin .8s linear infinite;"></div>
+      <div id="gs-loader-msg" style="font-size:13px;color:#1e3a6e;font-weight:500;"></div>`;
+    document.head.insertAdjacentHTML('beforeend',
+      '<style>@keyframes spin{to{transform:rotate(360deg)}}</style>');
+    document.body.appendChild(ov);
+  }
+  ov.style.display = show ? 'flex' : 'none';
+  if (show) document.getElementById('gs-loader-msg').textContent = msg;
+}
 
-// ── DEPT LIST ──
-const deptList = document.getElementById('deptList');
-depts.forEach(d => {
-  const chip = document.createElement('div');
-  chip.className = 'dept-chip active';
-  chip.innerHTML = `<div class="dot" style="background:${d.color}"></div><span>${d.name}</span><span class="hrs">${d.ot>0 ? d.ot.toFixed(0) : '—'}</span>`;
-  chip.addEventListener('click', () => chip.classList.toggle('active'));
-  deptList.appendChild(chip);
-});
+// ── ดึง CSV แล้วแปลงเป็น array of rows ──
+async function fetchCSV(url) {
+  const cacheBust = '&cachebust=' + Date.now();
+  const finalUrl = CONFIG.USE_PROXY
+    ? CONFIG.PROXY_URL + encodeURIComponent(url + cacheBust)
+    : url + cacheBust;
+  const res = await fetch(finalUrl);
+  if (!res.ok) throw new Error(`โหลด CSV ไม่สำเร็จ (HTTP ${res.status})`);
+  const text = await res.text();
+  // ถ้าได้ HTML แทน CSV แสดงว่า URL ผิดหรือ Sheet ยังไม่ได้ Publish
+  if (text.trim().startsWith('<')) {
+    throw new Error('ได้รับ HTML แทน CSV — ตรวจสอบว่า Sheet ถูก Publish to web แล้ว');
+  }
+  return parseCSV(text);
+}
 
-// ── SPARKLINES ──
-function buildSpark(id, data, highlight) {
+// ── CSV parser (รองรับ field ที่มี comma ใน quotes) ──
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    rows.push(cols);
+  }
+  return rows;
+}
+
+// ── แปลง rows → array of objects (row 0 = header) ──
+function rowsToObjects(rows) {
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.trim());
+  return rows.slice(1)
+    .filter(r => r.some(c => c !== ''))
+    .map(row => Object.fromEntries(headers.map((h, i) => [h, (row[i] ?? '').trim()])));
+}
+
+// ── แปลง summary rows (col0=key, col1=value) → object ──
+function summaryToObject(rows) {
+  const obj = {};
+  rows.slice(1).forEach(r => { if (r[0] && r[0].trim()) obj[r[0].trim()] = (r[1] ?? '').trim(); });
+  return obj;
+}
+
+// ── โหลดทั้งหมดแล้ว render ──
+async function loadAndRender() {
+  setLoading(true);
+  try {
+    const [dailyRows, deptRows, summaryRows] = await Promise.all([
+      fetchCSV(CONFIG.CSV_URLS.daily),
+      fetchCSV(CONFIG.CSV_URLS.dept),
+      fetchCSV(CONFIG.CSV_URLS.summary),
+    ]);
+
+    const dailyData   = rowsToObjects(dailyRows);
+    const deptData    = rowsToObjects(deptRows);
+    const summaryData = summaryToObject(summaryRows);
+
+    if (!dailyData.length && !deptData.length) {
+      throw new Error('ได้รับข้อมูลว่างเปล่า — ตรวจสอบว่า Sheet ถูก Publish และมีข้อมูลในแถวแรก');
+    }
+
+    renderDashboard(dailyData, deptData, summaryData);
+    updateLastRefresh();
+    // ซ่อน error banner ถ้ามีจากครั้งก่อน
+    const old = document.getElementById('gs-error');
+    if (old) old.remove();
+  } catch (e) {
+    setLoading(false);
+    showError(e.message);
+    return;
+  }
+  setLoading(false);
+}
+
+// ── แสดง error banner ──
+function showError(msg) {
+  let banner = document.getElementById('gs-error');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'gs-error';
+    banner.style.cssText = `position:fixed;top:16px;right:16px;z-index:998;max-width:380px;
+      background:#fff;border:1px solid #fecaca;border-radius:10px;padding:14px 18px;
+      box-shadow:0 4px 20px rgba(220,38,38,0.12);font-size:12px;line-height:1.6;`;
+    document.body.appendChild(banner);
+  }
+  banner.innerHTML = `
+    <div style="font-weight:700;color:#dc2626;margin-bottom:6px;">⚠ ไม่สามารถโหลดข้อมูลได้</div>
+    <div style="color:#64748b;">${msg}</div>
+    <div style="margin-top:10px;display:flex;gap:8px;">
+      <button onclick="loadAndRender()" style="padding:5px 12px;background:#eff6ff;border:1px solid #bfdbfe;
+        border-radius:6px;font-size:11px;color:#1d4ed8;cursor:pointer;font-family:inherit;">
+        ลองใหม่
+      </button>
+      <button onclick="this.closest('#gs-error').remove()" style="padding:5px 12px;background:#f8fafc;
+        border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#64748b;cursor:pointer;font-family:inherit;">
+        ปิด
+      </button>
+    </div>`;
+  banner.style.display = 'block';
+}
+
+// ── อัปเดต timestamp ──
+function updateLastRefresh() {
+  const el = document.querySelector('.status-dot');
+  if (el) {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    el.textContent = `อัปเดตล่าสุด: ${hh}:${mm} น.`;
+  }
+}
+
+// ════════════════════════════════════════════════════
+//  RENDER DASHBOARD
+// ════════════════════════════════════════════════════
+function renderDashboard(dailyData, deptData, summaryData) {
+
+  // ── Parse Daily ──
+  const days    = dailyData.map(r => r.day || '');
+  const otHrs   = dailyData.map(r => parseFloat(r.ot_hours)  || 0);
+  const otPct   = dailyData.map(r => parseFloat(r.ot_pct)    || 0);
+  const otEmp   = dailyData.map(r => parseFloat(r.ot_emp)    || 0);
+
+  // ── Parse Dept ──
+  const depts = deptData.map(r => ({
+    name      : r.dept_name  || '',
+    shortName : r.dept_short || r.dept_name || '',
+    ot        : parseFloat(r.ot_hours) || 0,
+    emp       : parseFloat(r.total_emp) || 0,
+    color     : r.color || '#2563eb',
+  }));
+
+  // ── Parse Summary KPIs ──
+  const totalOT      = parseFloat(summaryData.total_ot_hours)    || depts.reduce((s,d)=>s+d.ot,0);
+  const normalHrs    = parseFloat(summaryData.total_normal_hours) || 95856;
+  const maxOTEmp     = parseFloat(summaryData.max_ot_emp)         || Math.max(...otEmp);
+  const maxOTDay     = summaryData.max_ot_day                     || '';
+  const avgOTPct     = parseFloat(summaryData.avg_ot_pct)         || 0;
+  const monthName    = summaryData.month_name                     || '';
+  const totalEmp     = summaryData.total_emp                      || '';
+
+  // ── Update header ──
+  if (monthName) {
+    const h2 = document.querySelector('.topbar-left h2');
+    if (h2) h2.textContent = 'รายงานชั่วโมงล่วงเวลาประจำวัน';
+    const sub = document.querySelector('.topbar-left p');
+    if (sub) sub.textContent = `โรงงานสระบุรี · ${monthName} · อัปเดตอัตโนมัติ`;
+    document.querySelectorAll('.badge-cyan span, .badge-cyan')[1];
+  }
+  if (totalEmp) {
+    const empBadge = document.querySelector('.badge-blue');
+    if (empBadge) empBadge.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> ${totalEmp} พนักงาน`;
+  }
+
+  // ── Update KPI values ──
+  const kpiVals = document.querySelectorAll('.kpi-value');
+  if (kpiVals[0]) kpiVals[0].innerHTML = `${totalOT.toLocaleString('th', {maximumFractionDigits:1})}<span style="font-size:16px;color:var(--gray);"> ชม.</span>`;
+  if (kpiVals[1]) kpiVals[1].innerHTML = `${maxOTEmp}<span style="font-size:16px;color:var(--gray);"> คน</span>`;
+  if (kpiVals[2]) kpiVals[2].innerHTML = `${avgOTPct.toFixed(2)}<span style="font-size:16px;color:var(--gray);">%</span>`;
+  if (kpiVals[3]) kpiVals[3].innerHTML = `${normalHrs.toLocaleString('th')}<span style="font-size:16px;color:var(--gray);"> ชม.</span>`;
+
+  const kpiSubs = document.querySelectorAll('.kpi-sub');
+  if (kpiSubs[1] && maxOTDay) kpiSubs[1].innerHTML = `<span class="trend trend-up">วันที่ ${maxOTDay}</span> ชม. OT สูงสุด ${Math.max(...otHrs).toFixed(0)} ชม.`;
+
+  // ── Dept list sidebar ──
+  const deptList = document.getElementById('deptList');
+  deptList.innerHTML = '';
+  depts.forEach(d => {
+    const chip = document.createElement('div');
+    chip.className = 'dept-chip active';
+    chip.innerHTML = `<div class="dot" style="background:${d.color}"></div><span>${d.name}</span><span class="hrs">${d.ot>0 ? d.ot.toFixed(0) : '—'}</span>`;
+    chip.addEventListener('click', () => chip.classList.toggle('active'));
+    deptList.appendChild(chip);
+  });
+
+  // ── Sparklines ──
+  ['spark1','spark2','spark3','spark4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+  buildSpark('spark1', otHrs);
+  buildSpark('spark2', otEmp);
+  buildSpark('spark3', otPct);
+  buildSpark('spark4', Array(days.length).fill(normalHrs / (days.length || 31)));
+
+  // ── Charts ──
+  renderCharts(days, otHrs, otPct, otEmp, depts);
+
+  // ── Target table ──
+  renderTargetTable(depts);
+}
+
+// ── Sparklines ──
+function buildSpark(id, data) {
   const el = document.getElementById(id);
   if (!el) return;
   const max = Math.max(...data);
   data.forEach(v => {
     const bar = document.createElement('div');
-    bar.className = 'spark-bar' + (v === max ? ' high' : '');
-    bar.style.height = max > 0 ? (v / max * 100) + '%' : '10%';
+    bar.className = 'spark-bar' + (v === max && max > 0 ? ' high' : '');
+    bar.style.height = max > 0 ? (v / max * 100) + '%' : '5%';
     el.appendChild(bar);
   });
 }
-buildSpark('spark1', otHrs.slice(0, 21));
-buildSpark('spark2', otEmp.slice(0, 21));
-buildSpark('spark3', otPct.slice(0, 21));
-buildSpark('spark4', otHrs.map(h => normalHrs / 31));
 
-// ── CHART DEFAULTS ──
+// ── Chart defaults ──
 const base = {
   color: '#64748b',
   plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e3a6e', borderColor: '#bfdbfe', borderWidth: 1, titleColor: '#f0f5fb', bodyColor: '#93c5fd', padding: 10, cornerRadius: 6 } },
@@ -813,149 +1016,62 @@ const base = {
   }
 };
 
-// TREND CHART
-new Chart(document.getElementById('trendChart'), {
-  type: 'line',
-  data: {
-    labels: days,
-    datasets: [
-      {
-        label: 'ชั่วโมง OT',
-        data: otHrs,
-        borderColor: '#2563eb',
-        backgroundColor: 'rgba(37,99,235,0.06)',
-        fill: true,
-        tension: 0.4, pointRadius: 3,
-        pointBackgroundColor: '#1a56db',
-        yAxisID: 'y',
-      },
-      {
-        label: '% OT',
-        data: otPct,
-        borderColor: '#0284c7',
-        borderDash: [4, 3],
-        backgroundColor: 'transparent',
-        tension: 0.4, pointRadius: 2,
-        yAxisID: 'y1',
-      }
-    ]
-  },
-  options: {
-    ...base,
-    plugins: {
-      ...base.plugins,
-      legend: { display: true, labels: { color: '#64748b', font: { size: 10 }, boxWidth: 12, padding: 12 } }
+function renderCharts(days, otHrs, otPct, otEmp, depts) {
+  // ── destroy old instances ──
+  [chartTrend, chartPie, chartBar, chartArea].forEach(c => c?.destroy());
+
+  chartTrend = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [
+        { label: 'ชั่วโมง OT', data: otHrs, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.06)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#1a56db', yAxisID: 'y' },
+        { label: '% OT', data: otPct, borderColor: '#0284c7', borderDash: [4,3], backgroundColor: 'transparent', tension: 0.4, pointRadius: 2, yAxisID: 'y1' }
+      ]
     },
-    scales: {
-      x: base.scales.x,
-      y: { ...base.scales.y, position: 'left', title: { display: true, text: 'ชม.', color: '#475569', font: { size: 10 } } },
-      y1: { ...base.scales.y, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '%', color: '#475569', font: { size: 10 } } }
+    options: { ...base, plugins: { ...base.plugins, legend: { display: true, labels: { color: '#64748b', font: { size: 10 }, boxWidth: 12, padding: 12 } } },
+      scales: { x: base.scales.x, y: { ...base.scales.y, position: 'left', title: { display: true, text: 'ชม.', color: '#475569', font: { size: 10 } } }, y1: { ...base.scales.y, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '%', color: '#475569', font: { size: 10 } } } } }
+  });
+
+  const activeDepts = depts.filter(d => d.ot > 0);
+  chartPie = new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: { labels: activeDepts.map(d => d.shortName), datasets: [{ data: activeDepts.map(d => d.ot), backgroundColor: activeDepts.map(d => d.color + 'cc'), borderColor: activeDepts.map(d => d.color), borderWidth: 1.5, hoverOffset: 8 }] },
+    options: { cutout: '62%', plugins: { ...base.plugins, legend: { display: true, position: 'right', labels: { color: '#64748b', font: { size: 10 }, boxWidth: 10, padding: 8 } } } }
+  });
+
+  chartBar = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: { labels: depts.map(d => d.shortName), datasets: [{ label: 'OT ชม.', data: depts.map(d => d.ot), backgroundColor: depts.map(d => d.color + '99'), borderColor: depts.map(d => d.color), borderWidth: 1, borderRadius: 4 }] },
+    options: { ...base, scales: { x: { ...base.scales.x, ticks: { color: '#475569', font: { size: 9 }, maxRotation: 35 } }, y: base.scales.y } }
+  });
+
+  chartArea = new Chart(document.getElementById('areaChart'), {
+    type: 'line',
+    data: { labels: days, datasets: [
+      { label: 'พนักงาน OT', data: otEmp, borderColor: '#b45309', backgroundColor: 'rgba(180,83,9,0.07)', fill: true, tension: 0.4, pointRadius: 2, yAxisID: 'y' },
+      { label: 'ชั่วโมง OT', data: otHrs, borderColor: '#2563eb', backgroundColor: 'transparent', fill: false, tension: 0.4, pointRadius: 2, yAxisID: 'y1' }
+    ]},
+    options: { ...base, plugins: { ...base.plugins, legend: { display: true, labels: { color: '#64748b', font: { size: 10 }, boxWidth: 12, padding: 10 } } },
+      scales: { x: base.scales.x, y: { ...base.scales.y, position: 'left' }, y1: { ...base.scales.y, position: 'right', grid: { drawOnChartArea: false } } } }
+  });
+}
+
+function renderTargetTable(depts) {
+  const tbody = document.getElementById('targetBody');
+  tbody.innerHTML = '';
+  const target = CONFIG.OT_TARGET;
+
+  depts.forEach(d => {
+    const normalHrsDept = d.emp * 8 * 21;
+    const pct = normalHrsDept > 0 ? (d.ot / normalHrsDept * 100) : 0;
+    const ratio = Math.min(pct / target, 1);
+    let pillClass = 'pill-low', pillLabel = '—';
+    if (d.ot > 0) {
+      pillClass = pct > target ? 'pill-over' : 'pill-ok';
+      pillLabel = pct > target ? 'เกินเป้า' : 'ปกติ';
     }
-  }
-});
-
-// PIE CHART
-const activeDepts = depts.filter(d => d.ot > 0);
-new Chart(document.getElementById('pieChart'), {
-  type: 'doughnut',
-  data: {
-    labels: activeDepts.map(d => d.shortName),
-    datasets: [{
-      data: activeDepts.map(d => d.ot),
-      backgroundColor: activeDepts.map(d => d.color + 'cc'),
-      borderColor: activeDepts.map(d => d.color),
-      borderWidth: 1.5,
-      hoverOffset: 8,
-    }]
-  },
-  options: {
-    cutout: '62%',
-    plugins: {
-      ...base.plugins,
-      legend: {
-        display: true, position: 'right',
-        labels: { color: '#64748b', font: { size: 10 }, boxWidth: 10, padding: 8 }
-      }
-    }
-  }
-});
-
-// BAR CHART
-new Chart(document.getElementById('barChart'), {
-  type: 'bar',
-  data: {
-    labels: depts.map(d => d.shortName),
-    datasets: [{
-      label: 'OT ชม.',
-      data: depts.map(d => d.ot),
-      backgroundColor: depts.map(d => d.color + '99'),
-      borderColor: depts.map(d => d.color),
-      borderWidth: 1,
-      borderRadius: 4,
-    }]
-  },
-  options: {
-    ...base,
-    scales: {
-      x: { ...base.scales.x, ticks: { color: '#475569', font: { size: 9 }, maxRotation: 35 } },
-      y: base.scales.y
-    }
-  }
-});
-
-// AREA CHART
-new Chart(document.getElementById('areaChart'), {
-  type: 'line',
-  data: {
-    labels: days,
-    datasets: [
-      {
-        label: 'พนักงาน OT',
-        data: otEmp,
-        borderColor: '#b45309',
-        backgroundColor: 'rgba(180,83,9,0.07)',
-        fill: true, tension: 0.4, pointRadius: 2,
-        yAxisID: 'y',
-      },
-      {
-        label: 'ชั่วโมง OT',
-        data: otHrs,
-        borderColor: '#2563eb',
-        backgroundColor: 'transparent',
-        fill: false, tension: 0.4, pointRadius: 2,
-        yAxisID: 'y1',
-      }
-    ]
-  },
-  options: {
-    ...base,
-    plugins: {
-      ...base.plugins,
-      legend: { display: true, labels: { color: '#64748b', font: { size: 10 }, boxWidth: 12, padding: 10 } }
-    },
-    scales: {
-      x: base.scales.x,
-      y: { ...base.scales.y, position: 'left' },
-      y1: { ...base.scales.y, position: 'right', grid: { drawOnChartArea: false } }
-    }
-  }
-});
-
-// TARGET TABLE
-const tbody = document.getElementById('targetBody');
-const target = 10;
-const empHrsPerDept = (emp) => emp * 8 * 21;
-
-depts.forEach(d => {
-  const normalHrsDept = empHrsPerDept(d.emp);
-  const pct = normalHrsDept > 0 ? (d.ot / normalHrsDept * 100) : 0;
-  const ratio = Math.min(pct / target, 1);
-  let pillClass = 'pill-low', pillLabel = '—';
-  if (d.ot > 0) {
-    pillClass = pct > target ? 'pill-over' : 'pill-ok';
-    pillLabel = pct > target ? 'เกินเป้า' : 'ปกติ';
-  }
-  const barColor = pct > target ? '#dc2626' : (pct > target * 0.7 ? '#d97706' : '#059669');
+    const barColor = pct > target ? '#dc2626' : (pct > target * 0.7 ? '#d97706' : '#059669');
 
   const tr = document.createElement('tr');
   tr.innerHTML = `
@@ -973,7 +1089,14 @@ depts.forEach(d => {
     <td><span class="status-pill ${pillClass}">${pillLabel}</span></td>
   `;
   tbody.appendChild(tr);
-});
+  }); // end depts.forEach
+} // end renderTargetTable
+
+// ════════════════════════════════════════════════════
+//  🚀  INIT — โหลดข้อมูลและตั้ง auto-refresh
+// ════════════════════════════════════════════════════
+loadAndRender();
+setInterval(loadAndRender, CONFIG.REFRESH_MS);
 </script>
 </body>
 </html>
