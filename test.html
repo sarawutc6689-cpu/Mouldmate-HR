@@ -642,79 +642,40 @@
     </div>
   </div>
 
-  <!-- CHARTS ROW 1 -->
-  <div class="chart-grid-3">
+  <!-- MIXED CHART — full width -->
+  <div class="card" style="overflow:visible; margin-bottom:18px;">
+    <div class="card-header">
+      <div>
+        <div class="card-title" id="mixedChartTitle">รายงานชั่วโมง OT ประจำเดือน</div>
+        <div class="card-subtitle" id="mixedChartSub">จำนวนพนักงาน / ชั่วโมง OT / คิดเป็น %</div>
+      </div>
+      <span class="card-tag">MIXED</span>
+    </div>
+    <canvas id="mixedChart" height="160"></canvas>
+    <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-top:12px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray);">
+        <span style="width:12px;height:12px;background:#1d4ed8;border-radius:2px;display:inline-block;"></span>จำนวนพนักงาน
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray);">
+        <span style="width:12px;height:12px;background:#dc2626;border-radius:2px;display:inline-block;"></span>ชั่วโมง OT
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray);">
+        <span style="width:18px;height:3px;background:#f59e0b;display:inline-block;border-radius:2px;"></span>คิดเป็น %
+      </div>
+    </div>
+  </div>
+
+  <!-- TREND + TARGET TABLE -->
+  <div class="chart-grid">
     <div class="card">
       <div class="card-header">
         <div>
-          <div class="card-title">แนวโน้ม OT รายวัน — มีนาคม 2569</div>
+          <div class="card-title">แนวโน้ม OT รายวัน</div>
           <div class="card-subtitle">ชั่วโมง OT จริง vs % OT ต่อชั่วโมงปกติ</div>
         </div>
         <span class="card-tag">LINE TREND</span>
       </div>
       <canvas id="trendChart" height="200"></canvas>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="card-title">สัดส่วน OT ตามแผนก</div>
-          <div class="card-subtitle">% ของ OT ทั้งหมด</div>
-        </div>
-        <span class="card-tag">DONUT</span>
-      </div>
-      <canvas id="pieChart" height="200"></canvas>
-    </div>
-  </div>
-
-  <!-- CHARTS ROW 2 -->
-  <div class="chart-grid">
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="card-title">เปรียบเทียบชั่วโมง OT รายแผนก</div>
-          <div class="card-subtitle">ชั่วโมง OT สะสมตลอดเดือน</div>
-        </div>
-        <span class="card-tag">BAR COMPARE</span>
-      </div>
-      <canvas id="barChart" height="200"></canvas>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="card-title">จำนวนพนักงาน OT รายวัน</div>
-          <div class="card-subtitle">เปรียบเทียบจำนวนกับชั่วโมง OT</div>
-        </div>
-        <span class="card-tag">AREA</span>
-      </div>
-      <canvas id="areaChart" height="200"></canvas>
-    </div>
-  </div>
-
-  <!-- MIXED CHART + TARGET TABLE -->
-  <div class="chart-grid">
-    <!-- MIXED BAR+LINE CHART -->
-    <div class="card" style="overflow:visible;">
-      <div class="card-header">
-        <div>
-          <div class="card-title" id="mixedChartTitle">รายงานชั่วโมง OT ประจำเดือน</div>
-          <div class="card-subtitle" id="mixedChartSub">จำนวนพนักงาน / ชั่วโมง OT / คิดเป็น %</div>
-        </div>
-        <span class="card-tag">MIXED</span>
-      </div>
-      <canvas id="mixedChart" height="210"></canvas>
-      <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:12px;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);">
-          <span style="width:12px;height:12px;background:#1d4ed8;border-radius:2px;display:inline-block;"></span>จำนวนพนักงาน
-        </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);">
-          <span style="width:12px;height:12px;background:#dc2626;border-radius:2px;display:inline-block;"></span>ชั่วโมง OT
-        </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);">
-          <span style="width:18px;height:3px;background:#f59e0b;display:inline-block;border-radius:2px;"></span>คิดเป็น %
-        </div>
-      </div>
     </div>
 
     <!-- TARGET TABLE -->
@@ -741,6 +702,13 @@
         </table>
       </div>
     </div>
+  </div>
+
+  <!-- hidden canvases for unused charts (ป้องกัน JS error) -->
+  <div style="display:none;">
+    <canvas id="pieChart"></canvas>
+    <canvas id="barChart"></canvas>
+    <canvas id="areaChart"></canvas>
   </div>
 
 </main>
