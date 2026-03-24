@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production OT Analytics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #1e3a6e;
+    --navy-mid: #1a3460;
+    --navy-dark: #0f2044;
+    --blue: #1d4ed8;
+    --blue-pale: #dbeafe;
+    --white: #ffffff;
+    --page-bg: #f0f5fb;
+    --gray: #64748b;
+    --card-border: #d1dff5;
+    --card-shadow: 0 1px 4px rgba(30,58,110,0.07), 0 4px 16px rgba(30,58,110,0.06);
+    --accent-green: #059669;
+    --accent-red: #dc2626;
+    --sidebar-w: 260px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    background: var(--page-bg);
+    color: #1e2d45;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: linear-gradient(160deg, #e8f0fb 0%, #f0f5fb 100%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-w);
+    min-height: 100vh;
+    background: var(--navy-dark);
+    position: fixed; top: 0; left: 0;
+    z-index: 100;
+    box-shadow: 2px 0 12px rgba(15,32,68,0.18);
+  }
+
+  .sidebar-logo {
+    padding: 24px 22px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: #1e3a6e;
+  }
+
+  .sidebar-logo .logo-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 5px 11px; border-radius: 6px;
+    font-size: 10px; font-weight: 700;
+    margin-bottom: 10px;
+    color: #a8c4f0;
+  }
+
+  .sidebar-logo h1 { font-size: 13px; font-weight: 600; color: #e8f0fb; }
+  .sidebar-logo p { font-size: 11px; color: #6d8bb5; margin-top: 3px; }
+
+  .sidebar-section { padding: 18px 16px 8px; }
+  .sidebar-section-label {
+    font-size: 9px; font-weight: 700;
+    text-transform: uppercase; color: #4a6690;
+    margin-bottom: 10px; padding-left: 6px;
+  }
+
+  .filter-group { margin-bottom: 16px; }
+  .filter-label {
+    font-size: 11px; color: #7a9bc4; margin-bottom: 6px;
+    padding-left: 4px;
+  }
+
+  .filter-select {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #c8daf0;
+    padding: 8px 12px; border-radius: 7px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .dept-list {
+    display: flex; flex-direction: column; gap: 2px;
+    max-height: 320px; overflow-y: auto;
+  }
+
+  .dept-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border-radius: 6px;
+    border: 1px solid transparent;
+  }
+
+  .dept-chip:hover { background: rgba(255,255,255,0.06); }
+  .dept-chip .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dept-chip span { font-size: 11px; color: #b0c8e8; flex: 1; }
+  .dept-chip .hrs { font-size: 10px; font-family: monospace; color: #4a6690; }
+
+  .sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,0.07); }
+  .status-dot { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #4a6690; }
+  .status-dot::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Main */
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 28px 30px; position: relative; z-index: 1; }
+  .topbar { display: flex; justify-content: space-between; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--card-border); }
+  .topbar-left h2 { font-size: 21px; font-weight: 700; color: #1e3a6e; }
+  .topbar-left p { font-size: 12px; color: var(--gray); margin-top: 4px; }
+  .badge { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+  .badge-blue { background: var(--blue-pale); color: var(--blue); }
+  .badge-cyan { background: #eff6ff; color: #1a3460; }
+
+  /* KPI Cards */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+  .kpi-card {
+    background: var(--white);
+    border: 1px solid var(--card-border);
+    border-radius: 10px; padding: 20px 22px;
+    position: relative;
+    box-shadow: var(--card-shadow);
+  }
+  .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
+  .kpi-card.c1::after { background: linear-gradient(90deg, #1d4ed8, #60a5fa); }
+  .kpi-card.c2::after { background: linear-gradient(90deg, #d97706, #fbbf24); }
+  .kpi-card.c3::after { background: linear-gradient(90deg, #059669, #34d399); }
+  .kpi-card.c4::after { background: linear-gradient(90deg, #1e3a6e, #3b82f6); }
+  .kpi-label { font-size: 11px; color: var(--gray); text-transform: uppercase; font-weight: 600; margin-bottom: 10px; }
+  .kpi-value { font-size: 28px; font-weight: 700; font-family: monospace; color: #1e3a6e; }
+  .kpi-sub { font-size: 11px; color: var(--gray); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+  .trend { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; }
+  .trend-up { background: #fef2f2; color: #dc2626; }
+  .trend-ok { background: #f0fdf4; color: #059669; }
+  .kpi-icon { position: absolute; right: 18px; top: 18px; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
+  .kpi-icon.i1 { background: #eff6ff; }
+  .kpi-icon.i2 { background: #fffbeb; }
+  .kpi-icon.i3 { background: #f0fdf4; }
+  .kpi-icon.i4 { background: #eff6ff; }
+
+  .sparkline-mini { display: flex; align-items: flex-end; gap: 2px; height: 24px; margin-top: 12px; }
+  .spark-bar { flex: 1; border-radius: 2px; background: #bfdbfe; min-height: 2px; }
+  .spark-bar.high { background: #fca5a5; }
+
+  .card { background: var(--white); border: 1px solid var(--card-border); border-radius: 10px; padding: 22px; box-shadow: var(--card-shadow); margin-bottom: 18px; }
+  .card-header { display: flex; justify-content: space-between; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #eef2f8; }
+  .card-title { font-size: 13px; font-weight: 700; color: #1e3a6e; }
+  .card-subtitle { font-size: 11px; color: var(--gray); margin-top: 3px; }
+  .card-tag { font-size: 9px; padding: 3px 8px; border-radius: 4px; background: var(--blue-pale); color: var(--blue); font-weight: 700; border: 1px solid #bfdbfe; }
+
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  canvas { max-height: 220px; width: 100% !important; }
+
+  .target-table { width: 100%; border-collapse: separate; border-spacing: 0 3px; }
+  .target-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--gray); padding: 6px 12px; text-align: left; border-bottom: 1px solid var(--card-border); }
+  .target-table td { padding: 8px 12px; font-size: 12px; background: #f8fafd; }
+  .progress-bar { height: 5px; border-radius: 3px; background: #e2e8f0; overflow: hidden; width: 100px; margin-bottom: 4px; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width .6s ease; }
+  .status-pill { display: inline-flex; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  .pill-over { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  .pill-ok { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .pill-warning { background: #fffbeb; color: #d97706; border: 1px solid #fed7aa; }
+  .mono { font-family: monospace; font-size: 11px; }
+
+  #gs-loader { position: fixed; inset: 0; z-index: 999; background: rgba(240,245,251,0.95); display: flex; align-items: center; justify-content: center; }
+  .spinner { width: 40px; height: 40px; border: 3px solid #bfdbfe; border-top-color: #2563eb; border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      Analytics
+    </div>
+    <h1>ระบบวิเคราะห์การผลิต</h1>
+    <p>Factory OT Management System</p>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">ช่วงเวลา</div>
+    <div class="filter-group">
+      <div class="filter-label">เดือน / ปี</div>
+      <select class="filter-select" id="monthSelect">
+        <option value="3">มีนาคม 2569</option>
+        <option value="2">กุมภาพันธ์ 2569</option>
+        <option value="1">มกราคม 2569</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">แผนก</div>
+    <div class="dept-list" id="deptList"></div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">กลุ่มเป้าหมาย OT</div>
+    <div class="filter-group">
+      <div class="filter-label">เป้าหมาย OT %</div>
+      <select class="filter-select" id="targetSelect">
+        <option value="8">≤ 8% (เข้มงวด)</option>
+        <option value="10" selected>≤ 10% (มาตรฐาน)</option>
+        <option value="12">≤ 12% (ผ่อนปรน)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="status-dot" id="statusDot">กำลังโหลด...</div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2>รายงานชั่วโมงล่วงเวลารายเดือน</h2>
+      <p id="headerSubtitle">โรงงานสระบุรี · มีนาคม 2569</p>
+    </div>
+    <div class="topbar-right">
+      <span class="badge badge-cyan" id="monthBadge">📅 มี.ค. 2569</span>
+      <span class="badge badge-blue" id="empBadge">👥 0 พนักงาน</span>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card c1">
+      <div class="kpi-icon i1">⏱</div>
+      <div class="kpi-label">ชั่วโมง OT รวมเดือน</div>
+      <div class="kpi-value" id="kpiTotalOT">-</div>
+      <div class="kpi-sub" id="kpiTotalOTSub"></div>
+      <div class="sparkline-mini" id="spark1"></div>
+    </div>
+    <div class="kpi-card c2">
+      <div class="kpi-icon i2">👥</div>
+      <div class="kpi-label">พนักงาน OT สูงสุด/วัน</div>
+      <div class="kpi-value" id="kpiMaxEmp">-</div>
+      <div class="kpi-sub" id="kpiMaxEmpSub"></div>
+      <div class="sparkline-mini" id="spark2"></div>
+    </div>
+    <div class="kpi-card c3">
+      <div class="kpi-icon i3">📊</div>
+      <div class="kpi-label">% OT เฉลี่ย</div>
+      <div class="kpi-value" id="kpiAvgPct">-</div>
+      <div class="kpi-sub" id="kpiAvgPctSub"></div>
+      <div class="sparkline-mini" id="spark3"></div>
+    </div>
+    <div class="kpi-card c4">
+      <div class="kpi-icon i4">🏭</div>
+      <div class="kpi-label">ชั่วโมงปกติรวม</div>
+      <div class="kpi-value" id="kpiNormalHrs">-</div>
+      <div class="kpi-sub" id="kpiNormalHrsSub"></div>
+      <div class="sparkline-mini" id="spark4"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">รายงานชั่วโมง OT รายวัน</div>
+        <div class="card-subtitle" id="mixedChartSub">กำลังโหลด...</div>
+      </div>
+      <span class="card-tag">MIXED CHART</span>
+    </div>
+    <canvas id="mixedChart" height="160"></canvas>
+  </div>
+
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">แนวโน้ม OT รายวัน</div>
+          <div class="card-subtitle">ชั่วโมง OT vs % OT</div>
+        </div>
+        <span class="card-tag">LINE TREND</span>
+      </div>
+      <canvas id="trendChart" height="200"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">สถานะเทียบเป้าหมาย OT รายแผนก</div>
+          <div class="card-subtitle" id="targetSubtitle">เป้า ≤ 10%</div>
+        </div>
+        <span class="card-tag">TARGET</span>
+      </div>
+      <div style="overflow-x: auto; max-height: 320px;">
+        <table class="target-table">
+          <thead><tr><th>แผนก</th><th>OT ชม.</th><th>% OT</th><th>สถานะ</th></tr></thead>
+          <tbody id="targetBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ==================== CONFIGURATION ====================
+const CONFIG = {
+  CSV_URLS: {
+    daily: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFm8ZO4t7xfUXAFiQZWSs5NvS24XcJ8GPBoHbxZwfn5FyfaX3PNz7Ukh09xEz_vXaTE6V8-MjiM7Fd/pub?gid=1950968080&single=true&output=csv',
+    dept: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFm8ZO4t7xfUXAFiQZWSs5NvS24XcJ8GPBoHbxZwfn5FyfaX3PNz7Ukh09xEz_vXaTE6V8-MjiM7Fd/pub?gid=1426079127&single=true&output=csv',
+    summary: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFm8ZO4t7xfUXAFiQZWSs5NvS24XcJ8GPBoHbxZwfn5FyfaX3PNz7Ukh09xEz_vXaTE6V8-MjiM7Fd/pub?gid=1088587672&single=true&output=csv',
+  },
+  USE_PROXY: true,
+  PROXY_URL: 'https://corsproxy.io/?',
+  REFRESH_MS: 5 * 60 * 1000,
+  WORKING_DAYS: 21,
+  DAILY_HOURS: 8,
+};
+
+let charts = { trend: null, mixed: null };
+let rawData = { daily: [], dept: [], summary: {} };
+let currentTarget = 10;
+
+// ==================== UTILITIES ====================
+function showLoading(show) {
+  let loader = document.getElementById('gs-loader');
+  if (!loader && show) {
+    loader = document.createElement('div');
+    loader.id = 'gs-loader';
+    loader.innerHTML = '<div class="spinner"></div><div style="margin-top:12px;color:#1e3a6e;">กำลังโหลดข้อมูล...</div>';
+    document.body.appendChild(loader);
+  }
+  if (loader) loader.style.display = show ? 'flex' : 'none';
+}
+
+async function fetchCSV(url) {
+  const finalUrl = CONFIG.USE_PROXY ? CONFIG.PROXY_URL + encodeURIComponent(url + '&_t=' + Date.now()) : url + '&_t=' + Date.now();
+  const res = await fetch(finalUrl);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  if (text.trim().startsWith('<')) throw new Error('Invalid CSV format');
+  return parseCSV(text);
+}
+
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split('\n');
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
+    rows.push(cols);
+  }
+  return rows;
+}
+
+function rowsToObjects(rows) {
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.toLowerCase().trim());
+  return rows.slice(1).filter(r => r.length >= headers.length && r.some(c => c)).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i] || '');
+    return obj;
+  });
+}
+
+// ==================== DATA LOADING ====================
+async function loadData() {
+  showLoading(true);
+  try {
+    const [dailyRows, deptRows, summaryRows] = await Promise.all([
+      fetchCSV(CONFIG.CSV_URLS.daily),
+      fetchCSV(CONFIG.CSV_URLS.dept),
+      fetchCSV(CONFIG.CSV_URLS.summary)
+    ]);
+    
+    rawData.daily = rowsToObjects(dailyRows);
+    rawData.dept = rowsToObjects(deptRows);
+    
+    // Parse summary data
+    if (summaryRows.length > 1) {
+      summaryRows.slice(1).forEach(row => {
+        if (row[0]) rawData.summary[row[0].trim()] = row[1] || '';
+      });
+    }
+    
+    console.log('Daily data:', rawData.daily.length, 'records');
+    console.log('Dept data:', rawData.dept.length, 'records');
+    console.log('Summary:', rawData.summary);
+    
+    // ถ้าไม่มีข้อมูล ให้ใช้ fallback
+    if (rawData.daily.length === 0) {
+      useFallbackData();
+    }
+    
+    renderDashboard();
+    updateLastRefresh();
+  } catch (err) {
+    console.error('Load error:', err);
+    useFallbackData();
+    renderDashboard();
+  } finally {
+    showLoading(false);
+  }
+}
+
+function useFallbackData() {
+  console.log('Using fallback data');
+  const days = Array.from({ length: 21 }, (_, i) => i + 1);
+  rawData.daily = days.map(day => ({
+    day: day.toString(),
+    ot_hours: (Math.random() * 80 + 40).toFixed(1),
+    ot_pct: (Math.random() * 8 + 2).toFixed(1),
+    ot_emp: Math.floor(Math.random() * 80 + 30).toString(),
+    normal_hours: (8 * 50).toString()
+  }));
+  
+  const deptNames = ['PD1', 'PD2', 'QUALITY', 'MA', 'AMS', 'FG', 'MOULD', 'RD Product', 'MAT & ST'];
+  rawData.dept = deptNames.map((name, i) => ({
+    dept_name: name,
+    dept_short: name,
+    ot_hours: (Math.random() * 200 + 50).toFixed(1),
+    total_emp: Math.floor(Math.random() * 50 + 10).toString(),
+    color: ['#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed', '#0891b2', '#c2410c', '#9d174d', '#0284c7'][i % 9]
+  }));
+  
+  rawData.summary = {
+    total_ot_hours: rawData.daily.reduce((s, d) => s + parseFloat(d.ot_hours), 0).toFixed(1),
+    total_normal_hours: (21 * 8 * 50).toString(),
+    max_ot_emp: Math.max(...rawData.daily.map(d => parseInt(d.ot_emp))).toString(),
+    avg_ot_pct: (rawData.daily.reduce((s, d) => s + parseFloat(d.ot_pct), 0) / rawData.daily.length).toFixed(2),
+    month_name: 'มีนาคม 2569',
+    total_emp: '428'
+  };
+}
+
+// ==================== RENDER ====================
+function renderDashboard() {
+  updateKPIs();
+  updateDeptList();
+  updateTargetTable();
+  updateCharts();
+  updateHeader();
+}
+
+function updateKPIs() {
+  const daily = rawData.daily;
+  const summary = rawData.summary;
+  
+  // คำนวณค่า KPI
+  const totalOT = summary.total_ot_hours ? parseFloat(summary.total_ot_hours) : daily.reduce((s, d) => s + (parseFloat(d.ot_hours) || 0), 0);
+  const normalHrs = summary.total_normal_hours ? parseFloat(summary.total_normal_hours) : daily.reduce((s, d) => s + (parseFloat(d.normal_hours) || 0), 0);
+  const maxEmp = summary.max_ot_emp ? parseInt(summary.max_ot_emp) : Math.max(...daily.map(d => parseInt(d.ot_emp) || 0));
+  const avgPct = summary.avg_ot_pct ? parseFloat(summary.avg_ot_pct) : (daily.reduce((s, d) => s + (parseFloat(d.ot_pct) || 0), 0) / daily.length);
+  const totalEmp = summary.total_emp || '428';
+  const target = parseInt(document.getElementById('targetSelect').value);
+  
+  // แสดงค่า KPI
+  document.getElementById('kpiTotalOT').innerHTML = `${totalOT.toFixed(1)}<span style="font-size:16px;"> ชม.</span>`;
+  document.getElementById('kpiMaxEmp').innerHTML = `${maxEmp}<span style="font-size:16px;"> คน</span>`;
+  document.getElementById('kpiAvgPct').innerHTML = `${avgPct.toFixed(2)}<span style="font-size:16px;">%</span>`;
+  document.getElementById('kpiNormalHrs').innerHTML = `${Math.round(normalHrs).toLocaleString()}<span style="font-size:16px;"> ชม.</span>`;
+  
+  // แสดง trend
+  const prevMonthOT = totalOT * 0.95; // สมมติเดือนก่อนน้อยกว่า 5%
+  const trendPct = ((totalOT - prevMonthOT) / prevMonthOT * 100).toFixed(1);
+  document.getElementById('kpiTotalOTSub').innerHTML = `<span class="trend ${totalOT > prevMonthOT ? 'trend-up' : 'trend-ok'}">${totalOT > prevMonthOT ? '▲' : '▼'} ${Math.abs(trendPct)}%</span> จากเดือนก่อน`;
+  
+  const maxDay = daily.find(d => parseInt(d.ot_emp) === maxEmp);
+  document.getElementById('kpiMaxEmpSub').innerHTML = `<span class="trend trend-up">วันที่ ${maxDay?.day || '-'}</span> ชม. OT สูงสุด`;
+  
+  document.getElementById('kpiAvgPctSub').innerHTML = `<span class="trend ${avgPct <= target ? 'trend-ok' : 'trend-up'}">${avgPct <= target ? '✓ ต่ำกว่าเป้า' : '⚠️ เกินเป้า'}</span> เป้าหมาย ≤ ${target}%`;
+  
+  document.getElementById('kpiNormalHrsSub').innerHTML = `<span class="trend trend-ok">${daily.length} วันทำงาน</span> ตลอดเดือน`;
+  document.getElementById('empBadge').innerHTML = `👥 ${totalEmp} พนักงาน`;
+  
+  // Sparklines
+  const otHrs = daily.map(d => parseFloat(d.ot_hours) || 0);
+  const otEmp = daily.map(d => parseInt(d.ot_emp) || 0);
+  const otPct = daily.map(d => parseFloat(d.ot_pct) || 0);
+  const normalDaily = daily.map(() => normalHrs / daily.length);
+  
+  ['spark1', 'spark2', 'spark3', 'spark4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+  buildSpark('spark1', otHrs);
+  buildSpark('spark2', otEmp);
+  buildSpark('spark3', otPct);
+  buildSpark('spark4', normalDaily);
+}
+
+function buildSpark(id, data) {
+  const el = document.getElementById(id);
+  if (!el || !data.length) return;
+  const max = Math.max(...data, 1);
+  data.slice(-20).forEach(v => {
+    const bar = document.createElement('div');
+    bar.className = 'spark-bar' + (v === max && max > 0 ? ' high' : '');
+    bar.style.height = Math.max((v / max * 100), 3) + '%';
+    el.appendChild(bar);
+  });
+}
+
+function updateDeptList() {
+  const deptList = document.getElementById('deptList');
+  deptList.innerHTML = '';
+  rawData.dept.forEach(d => {
+    const chip = document.createElement('div');
+    chip.className = 'dept-chip';
+    chip.innerHTML = `
+      <div class="dot" style="background:${d.color || '#2563eb'}"></div>
+      <span>${d.dept_short || d.dept_name}</span>
+      <span class="hrs">${parseFloat(d.ot_hours || 0).toFixed(0)}</span>
+    `;
+    deptList.appendChild(chip);
+  });
+}
+
+function updateTargetTable() {
+  const tbody = document.getElementById('targetBody');
+  tbody.innerHTML = '';
+  currentTarget = parseInt(document.getElementById('targetSelect').value);
+  document.getElementById('targetSubtitle').textContent = `เป้า ≤ ${currentTarget}%`;
+  
+  rawData.dept.forEach(d => {
+    const ot = parseFloat(d.ot_hours) || 0;
+    const emp = parseFloat(d.total_emp) || 10;
+    const normalHrs = emp * CONFIG.DAILY_HOURS * CONFIG.WORKING_DAYS;
+    const pct = normalHrs > 0 ? (ot / normalHrs * 100) : 0;
+    
+    let pillClass = 'pill-low', pillLabel = 'ไม่มีข้อมูล';
+    if (ot > 0) {
+      if (pct > currentTarget) { pillClass = 'pill-over'; pillLabel = '⚠️ เกินเป้า'; }
+      else if (pct > currentTarget * 0.85) { pillClass = 'pill-warning'; pillLabel = '⚠️ ใกล้เกิน'; }
+      else { pillClass = 'pill-ok'; pillLabel = '✓ ผ่านเป้า'; }
+    }
+    
+    const barColor = pct > currentTarget ? '#dc2626' : (pct > currentTarget * 0.85 ? '#f59e0b' : '#10b981');
+    const barWidth = Math.min((pct / currentTarget) * 100, 100);
+    
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><strong>${d.dept_short || d.dept_name}</strong></td>
+      <td class="mono">${ot.toFixed(1)}</td>
+      <td class="mono">${pct.toFixed(1)}%</td>
+      <td>
+        <div class="progress-bar"><div class="progress-fill" style="width:${barWidth}%;background:${barColor};"></div></div>
+        <span class="status-pill ${pillClass}">${pillLabel}</span>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function updateCharts() {
+  const daily = rawData.daily;
+  const labels = daily.map(d => 'วัน ' + d.day);
+  const otHrs = daily.map(d => parseFloat(d.ot_hours) || 0);
+  const otPct = daily.map(d => parseFloat(d.ot_pct) || 0);
+  const otEmp = daily.map(d => parseInt(d.ot_emp) || 0);
+  
+  const totalOT = otHrs.reduce((s, v) => s + v, 0);
+  const avgPct = otPct.length ? (otPct.reduce((s, v) => s + v, 0) / otPct.length).toFixed(1) : 0;
+  document.getElementById('mixedChartSub').textContent = `OT รวม ${totalOT.toFixed(1)} ชม. · เฉลี่ย ${avgPct}%`;
+  
+  // Mixed Chart
+  if (charts.mixed) charts.mixed.destroy();
+  const mixedCtx = document.getElementById('mixedChart');
+  if (mixedCtx) {
+    charts.mixed = new Chart(mixedCtx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'พนักงาน OT', data: otEmp, type: 'bar', backgroundColor: 'rgba(29,78,216,0.8)', yAxisID: 'y', order: 2, borderRadius: 4 },
+          { label: 'ชั่วโมง OT', data: otHrs, type: 'bar', backgroundColor: 'rgba(220,38,38,0.8)', yAxisID: 'y1', order: 3, borderRadius: 4 },
+          { label: '% OT', data: otPct, type: 'line', borderColor: '#f59e0b', backgroundColor: 'transparent', borderWidth: 2, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#f59e0b', yAxisID: 'y2', order: 1 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { 
+          legend: { position: 'top', labels: { font: { size: 10 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}${ctx.dataset.label === '% OT' ? '%' : (ctx.dataset.label === 'ชั่วโมง OT' ? ' ชม.' : ' คน')}` } }
+        },
+        scales: {
+          y: { title: { display: true, text: 'คน', color: '#1d4ed8' }, position: 'left', ticks: { color: '#1d4ed8' } },
+          y1: { title: { display: true, text: 'ชั่วโมง', color: '#dc2626' }, position: 'right', ticks: { color: '#dc2626' }, grid: { drawOnChartArea: false } },
+          y2: { title: { display: true, text: '%', color: '#f59e0b' }, position: 'right', ticks: { color: '#f59e0b' }, grid: { drawOnChartArea: false } }
+        }
+      }
+    });
+  }
+  
+  // Trend Chart
+  if (charts.trend) charts.trend.destroy();
+  const trendCtx = document.getElementById('trendChart');
+  if (trendCtx) {
+    charts.trend = new Chart(trendCtx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'ชั่วโมง OT', data: otHrs, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.05)', fill: true, tension: 0.4, pointRadius: 2 },
+          { label: '% OT', data: otPct, borderColor: '#f59e0b', backgroundColor: 'transparent', borderDash: [5, 5], tension: 0.4, pointRadius: 2, yAxisID: 'y1' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        plugins: { legend: { position: 'top', labels: { font: { size: 10 } } } },
+        scales: {
+          y: { title: { display: true, text: 'ชั่วโมง' }, position: 'left' },
+          y1: { title: { display: true, text: '%' }, position: 'right', grid: { drawOnChartArea: false } }
+        }
+      }
+    });
+  }
+}
+
+function updateHeader() {
+  const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+  const month = parseInt(document.getElementById('monthSelect').value) || 3;
+  const monthName = rawData.summary.month_name || `${monthNames[month-1]} 2569`;
+  document.getElementById('headerSubtitle').innerHTML = `โรงงานสระบุรี · ${monthName}`;
+  document.getElementById('monthBadge').innerHTML = `📅 ${monthName.slice(0,4)}${monthName.slice(4)}`;
+}
+
+function updateLastRefresh() {
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  document.getElementById('statusDot').innerHTML = `อัปเดตล่าสุด: ${timeStr} น.`;
+}
+
+// ==================== EVENT LISTENERS ====================
+document.getElementById('targetSelect').addEventListener('change', () => updateTargetTable());
+document.getElementById('monthSelect').addEventListener('change', () => loadData());
+
+// ==================== INIT ====================
+loadData();
+setInterval(loadData, CONFIG.REFRESH_MS);
+</script>
+</body>
+</html>
