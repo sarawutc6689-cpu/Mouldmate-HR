@@ -1,1 +1,544 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบบริหารจัดการ-ขอโอที | Blue Harmony</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+        }
 
+        body {
+            background: linear-gradient(145deg, #f0f4fc 0%, #e6edf7 100%);
+            min-height: 100vh;
+            padding: 32px 24px;
+            color: #1a2c3e;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* Header Modern */
+        header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafd 100%);
+            border-radius: 28px;
+            padding: 28px 36px;
+            margin-bottom: 36px;
+            box-shadow: 0 12px 28px rgba(0, 32, 64, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            backdrop-filter: blur(2px);
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo-brand {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(145deg, #2c7be5, #1a5bbf);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 16px -6px rgba(28, 100, 242, 0.3);
+        }
+
+        .logo-icon i {
+            font-size: 28px;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e4a76, #2c6e9e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text p {
+            color: #5b6f82;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 28px;
+            background: #f8fafc;
+            padding: 12px 28px;
+            border-radius: 60px;
+            border: 1px solid #e2edff;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: #2c7be5;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #5b6f82;
+            font-weight: 500;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 28px;
+            margin-bottom: 48px;
+        }
+
+        .card-group-title {
+            grid-column: 1 / -1;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e4a76;
+            margin: 12px 0 8px 0;
+            padding-bottom: 12px;
+            border-bottom: 3px solid;
+            border-image: linear-gradient(90deg, #2c7be5, #b3d4ff);
+            border-image-slice: 1;
+            border-bottom-style: solid;
+            display: inline-block;
+            width: auto;
+            letter-spacing: -0.2px;
+        }
+
+        /* Card Styles - ฟ้าขาว สุภาพ */
+        .dashboard-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
+            position: relative;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #eef3fc;
+            backdrop-filter: blur(2px);
+        }
+
+        .dashboard-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #2c7be5, #87b9ff);
+            border-radius: 0 0 24px 24px;
+            transform: scaleX(0);
+            transition: transform 0.35s ease;
+            transform-origin: left;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 32px -12px rgba(28, 100, 242, 0.18);
+            border-color: #cddff5;
+        }
+
+        .dashboard-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 18px;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #eef5ff, #e3edfe);
+            border-radius: 22px;
+            color: #2c7be5;
+            transition: all 0.3s;
+        }
+
+        .dashboard-card:hover .card-icon {
+            background: linear-gradient(145deg, #2c7be5, #1f67c9);
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px -5px rgba(44, 123, 229, 0.4);
+        }
+
+        .card-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1f4468;
+            margin-bottom: 12px;
+            letter-spacing: -0.2px;
+        }
+
+        .card-desc {
+            color: #5f7d9c;
+            font-size: 0.85rem;
+            line-height: 1.45;
+            font-weight: 450;
+        }
+
+        /* Summary Section - ฟ้าขาวโปร่ง */
+        .summary-section {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(4px);
+            border-radius: 28px;
+            padding: 32px 36px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            margin-top: 24px;
+            transition: all 0.2s;
+        }
+
+        .summary-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1f4a7a;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .summary-title i {
+            font-size: 1.8rem;
+            color: #2c7be5;
+            background: #eef4ff;
+            padding: 10px;
+            border-radius: 20px;
+        }
+
+        .summary-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 26px;
+        }
+
+        .summary-item {
+            background: #ffffff;
+            padding: 22px 24px;
+            border-radius: 22px;
+            border-left: 5px solid #2c7be5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease;
+            border: 1px solid #e9f0fa;
+        }
+
+        .summary-item:hover {
+            background: #fafcff;
+            transform: translateX(4px);
+        }
+
+        .summary-item h4 {
+            color: #1f4a7a;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-item h4 i {
+            color: #2c7be5;
+            font-size: 1.1rem;
+        }
+
+        .summary-item p {
+            color: #4b6b89;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 48px;
+            padding: 24px 20px;
+            color: #4f6f8f;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Badge notice */
+        .badge-light {
+            background: #eef2ff;
+            color: #2c7be5;
+            font-size: 0.7rem;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-weight: 500;
+            margin-top: 12px;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 16px;
+            }
+            .logo {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-stats {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+            .dashboard-grid {
+                gap: 20px;
+            }
+            .summary-section {
+                padding: 24px 20px;
+            }
+            .card-title {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-number {
+                font-size: 1rem;
+            }
+            .logo-text h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-brand">
+                    <div class="logo-icon">
+                        <i class="fas fa-chalkboard-user"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>ระบบบริหารจัดการ-ขอโอที</h1>
+                        <p>ระบบจัดการค่าล่วงเวลาและแผนกผลิต | บริหารงานแบบมืออาชีพ</p>
+                    </div>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">14</div>
+                        <div class="stat-label">แผนกที่ใช้งาน</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">ความน่าเชื่อถือ</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">✓</div>
+                        <div class="stat-label">实时อัปเดต</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="dashboard-grid">
+                <!-- กระบวนการผลิต -->
+                <div class="card-group-title"><i class="fas fa-industry" style="margin-right: 8px;"></i> กระบวนการผลิต</div>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-PD1.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-flask"></i></div>
+                    <h3 class="card-title">ผสมยาง</h3>
+                    <p class="card-desc">จัดการสูตรและกระบวนการผสมยางตามมาตรฐาน ISO</p>
+                    <span class="badge-light">ใช้งานปกติ</span>
+                </a>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-RT.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-cogs"></i></div>
+                    <h3 class="card-title">ผลิตยางตีนตะขาบ</h3>
+                    <p class="card-desc">ระบบควบคุมการผลิตคุณภาพสูง ติดตามแบบ Real-time</p>
+                    <span class="badge-light">กำลังผลิตสูง</span>
+                </a>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-PD2.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-tire"></i></div>
+                    <h3 class="card-title">ผลิตยางตัน</h3>
+                    <p class="card-desc">กระบวนการผลิตยางตันประสิทธิภาพสูง</p>
+                </a>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-MA.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-hard-hat"></i></div>
+                    <h3 class="card-title">วิศวกรรม</h3>
+                    <p class="card-desc">สนับสนุนด้านวิศวกรรมและซ่อมบำรุงเชิงป้องกัน</p>
+                </a>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-Mould.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-tools"></i></div>
+                    <h3 class="card-title">แม่พิมพ์</h3>
+                    <p class="card-desc">จัดการแม่พิมพ์และเครื่องมือครบวงจร</p>
+                </a>
+                
+                <!-- วิจัยและพัฒนา -->
+                <div class="card-group-title"><i class="fas fa-microscope" style="margin-right: 8px;"></i> วิจัยและพัฒนา</div>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-RD.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-atom"></i></div>
+                    <h3 class="card-title">R&D Compound</h3>
+                    <p class="card-desc">วิจัยและพัฒนาสูตรยางขั้นสูง</p>
+                </a>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-DD.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-lightbulb"></i></div>
+                    <h3 class="card-title">R&D Product Design</h3>
+                    <p class="card-desc">ออกแบบผลิตภัณฑ์นวัตกรรมใหม่</p>
+                </a>
+                
+                <!-- คลังสินค้าและวัตถุดิบ -->
+                <div class="card-group-title"><i class="fas fa-boxes" style="margin-right: 8px;"></i> คลังสินค้าและวัตถุดิบ</div>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-FG.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-warehouse"></i></div>
+                    <h3 class="card-title">คลังสินค้า</h3>
+                    <p class="card-desc">จัดการคลังสินค้าสำเร็จรูปและจัดส่งตรงเวลา</p>
+                </a>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-RMST.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-boxes"></i></div>
+                    <h3 class="card-title">คลังวัตถุดิบและพัสดุ</h3>
+                    <p class="card-desc">บริหารวัตถุดิบคงคลังแบบ Lean</p>
+                </a>
+                
+                <!-- การวางแผนและการควบคุม -->
+                <div class="card-group-title"><i class="fas fa-chart-simple" style="margin-right: 8px;"></i> การวางแผนและการควบคุม</div>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-PN.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3 class="card-title">วางแผนการผลิต</h3>
+                    <p class="card-desc">วางแผนและควบคุมตารางการผลิตเชิงกลยุทธ์</p>
+                </a>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-Place.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-building"></i></div>
+                    <h3 class="card-title">อาคารสถานที่</h3>
+                    <p class="card-desc">จัดการอาคารและระบบสาธารณูปโภค</p>
+                </a>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-Quality.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-clipboard-check"></i></div>
+                    <h3 class="card-title">ควบคุมคุณภาพ</h3>
+                    <p class="card-desc">QA/QC ตรวจสอบมาตรฐานผลิตภัณฑ์</p>
+                </a>
+                
+                <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/OT-AMS.html" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-car"></i></div>
+                    <h3 class="card-title">บริการยานยนต์</h3>
+                    <p class="card-desc">บริการหลังการขายและศูนย์บริการ</p>
+                </a>
+                
+                <!-- รายงานสรุป -->
+                <div class="card-group-title"><i class="fas fa-chart-pie" style="margin-right: 8px;"></i> ข้อมูลเชิงลึก & รายงาน</div>
+                
+                <a href="https://docs.google.com/spreadsheets/d/1OX7Lxu4JkbZPxZKw2CC-DjDz6NzuFzUOHF1ECxHu_9s/edit?usp=sharing" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
+                    <h3 class="card-title">สรุปภาพรวม</h3>
+                    <p class="card-desc">รายงานสรุปผลการดำเนินงานทั้งหมด</p>
+                </a>
+                
+                <a href="https://lookerstudio.google.com/reporting/ff4d7e73-9531-4d80-9a13-bc7def8771d7" target="_blank" class="dashboard-card">
+                    <div class="card-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <h3 class="card-title">Executive Dashboard</h3>
+                    <p class="card-desc">ภาพรวม KPI แบบ Real-time Analytics</p>
+                </a>
+            </div>
+            
+            <div class="summary-section">
+                <h2 class="summary-title"><i class="fas fa-chalkboard"></i> ภาพรวมการดำเนินงาน</h2>
+                <div class="summary-content">
+                    <div class="summary-item">
+                        <h4><i class="fas fa-check-circle"></i> สถานะระบบ</h4>
+                        <p>✅ ทุกโมดูลทำงานปกติ 14/14</p>
+                        <p>📊 อัปเดตข้อมูลล่าสุด: 26 มีนาคม 2569</p>
+                        <p>⚙️ การแจ้งเตือนคลังวัตถุดิบ: อยู่ในระดับปลอดภัย</p>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <h4><i class="fas fa-chart-line"></i> ตัวชี้วัดการผลิต</h4>
+                        <p>🎯 ยางตีนตะขาบ: 5,480 ชิ้น (Target 105%)</p>
+                        <p>🎯 ยางตัน: 3,950 ชิ้น (ประสิทธิภาพ 94%)</p>
+                        <p>📈 อัตราการใช้กำลังการผลิต: 89% (+2% จากสัปดาห์ก่อน)</p>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <h4><i class="fas fa-database"></i> ข้อมูลคลัง & จัดส่ง</h4>
+                        <p>📦 วัตถุดิบคงคลัง: 94% (ระดับเหมาะสม)</p>
+                        <p>🚚 สินค้าสำเร็จรูป: 42% (หมุนเวียนดี)</p>
+                        <p>⏱️ อัตราการจัดส่งตรงเวลา (OTIF): 97.5%</p>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <h4><i class="fas fa-clock"></i> ขออนุมัติ OT ล่าสุด</h4>
+                        <p>👥 ยอดคำขอวันนี้: 23 รายการ</p>
+                        <p>✅ อนุมัติแล้ว: 19 รายการ</p>
+                        <p>⏳ รออนุมัติ: 4 รายการ</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p><i class="far fa-copyright"></i> 2026 ระบบบริหารจัดการ-ขอโอที | พัฒนาโดย Sarawut.C | สงวนลิขสิทธิ์</p>
+            <p style="margin-top: 8px;"><i class="fas fa-sync-alt"></i> Version 3.0 (Blue Horizon) | ปรับปรุงล่าสุด: 26 มีนาคม 2569</p>
+        </footer>
+    </div>
+    
+    <script>
+        // ฟังก์ชันติดตามการเข้าถึง และเพิ่มประสบการณ์ผู้ใช้
+        document.querySelectorAll('.dashboard-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                // อนิเมชันเล็กน้อย (ไม่กระทบการเปิดลิงก์)
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+                console.log(`🚀 เปิดโมดูล: ${this.querySelector('.card-title')?.innerText || 'ระบบ'}`);
+            });
+        });
+
+        // แสดงข้อความต้อนรับในคอนโซลแบบมืออาชีพ
+        console.log("%c✨ ระบบบริหารจัดการ-ขอโอที | Blue Harmony Edition ✨", "color: #2c7be5; font-size: 16px; font-weight: bold;");
+        console.log("โหมดการทำงาน: พร้อมใช้งาน | รองรับทุกแผนก");
+    </script>
+</body>
+</html>
