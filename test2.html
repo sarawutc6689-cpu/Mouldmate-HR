@@ -3,566 +3,519 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OT Dashboard - ปรับปรุงสำหรับโครงสร้าง Sheet ปัจจุบัน</title>
+<title>OT Dashboard – สระบุรี</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; color: #2d3748; }
-  .header { background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%); color: white; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-  .header h1 { font-size: 1.5rem; }
-  .refresh-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
-  .status-bar { background: #ebf8ff; padding: 8px 32px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #48bb78; }
-  .status-dot.loading { background: #ed8936; animation: pulse 1s infinite; }
-  .status-dot.error { background: #e53e3e; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .tabs { display: flex; background: white; border-bottom: 2px solid #e2e8f0; padding: 0 32px; gap: 8px; overflow-x: auto; }
-  .tab-btn { padding: 12px 24px; cursor: pointer; border: none; background: none; font-weight: 600; color: #718096; border-bottom: 3px solid transparent; white-space: nowrap; }
-  .tab-btn.active { color: #2b6cb0; border-bottom-color: #2b6cb0; }
-  .tab-content { display: none; padding: 24px 32px; }
-  .tab-content.active { display: block; }
-  .controls { background: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
-  .controls label { font-weight: 600; }
-  .controls select { padding: 8px 16px; border: 1px solid #cbd5e0; border-radius: 8px; background: white; }
-  .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .card { background: white; border-radius: 12px; padding: 16px; border-left: 4px solid #2b6cb0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-  .card.green { border-left-color: #38a169; }
-  .card.orange { border-left-color: #dd6b20; }
-  .card.purple { border-left-color: #805ad5; }
-  .card-label { font-size: 0.7rem; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; }
-  .card-value { font-size: 1.6rem; font-weight: 700; color: #1a202c; }
-  .card-unit { font-size: 0.75rem; color: #718096; }
-  .chart-container { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-  .chart-title { font-weight: 700; margin-bottom: 8px; font-size: 1.1rem; }
-  .chart-subtitle { font-size: 0.75rem; color: #718096; margin-bottom: 16px; }
-  .loading-screen { text-align: center; padding: 60px; }
-  .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #2b6cb0; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .no-data { text-align: center; padding: 40px; color: #a0aec0; }
-  .error-box { background: #fff5f5; border: 1px solid #fed7d7; border-radius: 12px; padding: 20px; margin: 20px; color: #c53030; }
-  .debug-panel { background: #1a202c; color: #68d391; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 11px; margin-top: 20px; overflow-x: auto; max-height: 300px; overflow-y: auto; display: none; }
-  .debug-panel.show { display: block; }
-  .debug-toggle { font-size: 12px; color: #718096; cursor: pointer; text-align: right; margin-top: 12px; text-decoration: underline; }
-  canvas { max-height: 400px; width: 100% !important; }
-  .dept-name-input { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; padding: 12px; background: #f7fafc; border-radius: 8px; }
-  .dept-name-input label { font-size: 0.85rem; }
-  .dept-name-input input { padding: 6px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.85rem; width: 150px; }
-  .dept-name-input button { padding: 6px 12px; background: #2b6cb0; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
-  @media (max-width: 768px) {
-    .tab-content { padding: 16px; }
-    .card-value { font-size: 1.3rem; }
-  }
+:root{
+  --bg:#0a0f1a;--s1:#111827;--s2:#1f2937;--s3:#374151;
+  --border:#1e293b;--border2:#2d3748;
+  --teal:#06d6a0;--orange:#fb923c;--purple:#a78bfa;--blue:#38bdf8;
+  --red:#f87171;
+  --text:#f1f5f9;--muted:#64748b;--muted2:#94a3b8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;min-height:100vh}
+header{
+  background:linear-gradient(135deg,#0a0f1a,#111827);
+  border-bottom:1px solid var(--border);
+  padding:0 28px;height:60px;
+  display:flex;align-items:center;gap:14px;
+  position:sticky;top:0;z-index:200;
+}
+.logo{width:36px;height:36px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,var(--teal),#0891b2);display:flex;align-items:center;justify-content:center;font-family:'Kanit',sans-serif;font-weight:800;font-size:14px;color:#fff}
+header h1{font-family:'Kanit',sans-serif;font-size:17px;font-weight:700}
+header h1 span{font-size:12px;color:var(--muted);font-weight:400;margin-left:6px}
+.hright{margin-left:auto;display:flex;align-items:center;gap:10px}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(6,214,160,.4)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(6,214,160,0)}}
+#statusTxt{font-size:11px;color:var(--muted)}
+.tabs{display:flex;gap:2px;padding:20px 28px 0;border-bottom:1px solid var(--border)}
+.tab{padding:10px 22px;border:none;border-radius:8px 8px 0 0;background:transparent;color:var(--muted2);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;position:relative;top:1px}
+.tab.active{background:var(--s1);color:var(--teal);border:1px solid var(--border);border-bottom-color:var(--s1)}
+.tab:hover:not(.active){color:var(--text)}
+main{padding:24px 28px;max-width:1500px;margin:0 auto}
+.tab-content{display:none}.tab-content.active{display:block}
+.cbar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.clabel{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+input[type=date],input[type=month]{background:var(--s2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:13px;padding:7px 14px;outline:none;transition:border-color .2s;cursor:pointer}
+input:focus{border-color:var(--teal)}
+.btn{background:linear-gradient(135deg,var(--teal),#0891b2);border:none;border-radius:8px;color:#0a0f1a;font-family:'Sarabun',sans-serif;font-weight:700;font-size:13px;padding:7px 18px;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.err{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:14px 18px;color:var(--red);font-size:13px;margin-bottom:18px;display:none}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:18px 20px;position:relative;overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:var(--border2)}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0}
+.card:nth-child(1)::after{background:var(--teal)}
+.card:nth-child(2)::after{background:var(--orange)}
+.card:nth-child(3)::after{background:var(--purple)}
+.card:nth-child(4)::after{background:var(--blue)}
+.card-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.card-val{font-family:'Kanit',sans-serif;font-size:26px;font-weight:700;line-height:1;margin-bottom:2px}
+.card:nth-child(1) .card-val{color:var(--teal)}
+.card:nth-child(2) .card-val{color:var(--orange)}
+.card:nth-child(3) .card-val{color:var(--purple)}
+.card:nth-child(4) .card-val{color:var(--blue)}
+.card-sub{font-size:11px;color:var(--muted)}
+.panel{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px}
+.panel-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.panel-title{font-family:'Kanit',sans-serif;font-size:15px;font-weight:700}
+.panel-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)}
+.ld{width:10px;height:10px;border-radius:3px}
+.ll{width:16px;height:3px;border-radius:2px}
+canvas{max-height:360px}
+.tpanel{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:22px}
+.tpanel h3{font-family:'Kanit',sans-serif;font-size:14px;font-weight:600;margin-bottom:16px}
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 12px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid rgba(30,41,59,.6);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.chip{display:inline-flex;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.chip-t{background:rgba(6,214,160,.12);color:var(--teal)}
+.chip-o{background:rgba(251,146,60,.12);color:var(--orange)}
+.chip-p{background:rgba(167,139,250,.12);color:var(--purple)}
+@media(max-width:700px){main,header,.tabs{padding-left:16px;padding-right:16px}.cards{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
+<header>
+  <div class="logo">OT</div>
+  <h1>OT Dashboard <span>ติดตามการทำงานล่วงเวลา สระบุรี</span></h1>
+  <div class="hright"><div class="pulse"></div><span id="statusTxt">กำลังโหลด...</span></div>
+</header>
 
-<div class="header">
-  <div>
-    <h1>📊 OT Dashboard</h1>
-    <p style="font-size: 0.8rem;">Google Sheets | รายงาน OT รายแผนก (ปรับปรุง)</p>
-  </div>
-  <button class="refresh-btn" onclick="loadData()">🔄 โหลดใหม่</button>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('daily',this)">📅 รายวัน</button>
+  <button class="tab" onclick="switchTab('monthly',this)">📆 รายเดือน</button>
+  <button class="tab" onclick="switchTab('overall',this)">📊 ภาพรวม</button>
 </div>
 
-<div class="status-bar">
-  <span class="status-dot loading" id="statusDot"></span>
-  <span id="statusText">กำลังโหลด...</span>
-</div>
+<main>
+  <div id="errBox" class="err"></div>
 
-<div id="loadingScreen" class="loading-screen">
-  <div class="spinner"></div>
-  <p>กำลังโหลดข้อมูลจาก Google Sheets...</p>
-</div>
-
-<div id="errorScreen" style="display:none;">
-  <div class="error-box">
-    <h3>❌ โหลดข้อมูลไม่สำเร็จ</h3>
-    <p id="errorMsg"></p>
-    <p>👉 ตรวจสอบว่า Sheet ตั้งค่าเป็น "Anyone with the link" และ "Viewer"</p>
-  </div>
-</div>
-
-<div id="mainContent" style="display:none;">
-  <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('daily')">📅 รายวัน</button>
-    <button class="tab-btn" onclick="showTab('monthly')">📆 รายเดือน</button>
-    <button class="tab-btn" onclick="showTab('summary')">📈 ภาพรวม</button>
-  </div>
-
+  <!-- DAILY -->
   <div id="tab-daily" class="tab-content active">
-    <div class="controls">
-      <label>📅 วันที่:</label>
-      <select id="dateSelect" onchange="updateDaily()"></select>
+    <div class="cbar">
+      <span class="clabel">วันที่</span>
+      <input type="date" id="datePicker">
+      <button class="btn" onclick="renderDaily()">แสดงข้อมูล</button>
     </div>
-    <div class="summary-cards" id="dailyCards"></div>
-    <div class="chart-container">
-      <div class="chart-title">📊 จำนวนพนักงานทำ OT และชั่วโมง OT รายแผนก</div>
-      <div class="chart-subtitle">🔵 แท่งน้ำเงิน = พนักงานทำ OT (คน) | 🟠 แท่งส้ม = ชั่วโมง OT (ชม.) | 🔴 เส้นแดง = % OT ของแผนก</div>
+    <div class="cards">
+      <div class="card"><div class="card-lbl">พนักงานทำ OT</div><div class="card-val" id="d-otEmp">—</div><div class="card-sub">คน</div></div>
+      <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="d-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
+      <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="d-pct">—</div><div class="card-sub">ทุกแผนก</div></div>
+      <div class="card"><div class="card-lbl">จำนวนแผนก</div><div class="card-val" id="d-dept">—</div><div class="card-sub">แผนก</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">OT รายวัน แยกตามแผนก</div><div class="panel-sub" id="d-sub">กรุณาเลือกวันที่</div></div>
+        <div class="legend">
+          <div class="li"><div class="ld" style="background:var(--teal)"></div>พนักงาน OT (แกนซ้าย)</div>
+          <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT (แกนขวา)</div>
+          <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
+        </div>
+      </div>
       <canvas id="dailyChart"></canvas>
-      <div id="dailyNoDataMsg" class="no-data" style="display:none;">📭 ไม่มีข้อมูล OT ในวันที่เลือก</div>
     </div>
-    
-    <!-- ส่วนตั้งชื่อแผนก -->
-    <div class="dept-name-input">
-      <label>✏️ ตั้งชื่อแผนก (เรียงตามคอลัมน์ H, K, N, ...):</label>
-      <input type="text" id="deptNamesInput" placeholder="เช่น แผนกผลิต, แผนกขาย, แผนกบัญชี" style="flex:1; min-width:200px;">
-      <button onclick="saveDeptNames()">💾 บันทึกชื่อแผนก</button>
+    <div class="tpanel">
+      <h3>รายละเอียดรายวัน</h3>
+      <div class="tscroll"><table>
+        <thead><tr>
+          <th>แผนก</th>
+          <th>พนักงานปัจจุบัน</th>
+          <th>พนักงานทำ OT</th>
+          <th>ชั่วโมง OT</th>
+          <th>% OT</th>
+        </tr></thead>
+        <tbody id="d-tbody"></tbody>
+      </table></div>
     </div>
-    <div class="debug-toggle" onclick="toggleDebug()">🔧 แสดงข้อมูลดิบที่ parse ได้</div>
-    <div id="debugPanel" class="debug-panel"></div>
   </div>
 
+  <!-- MONTHLY -->
   <div id="tab-monthly" class="tab-content">
-    <div class="controls">
-      <label>📆 เดือน:</label>
-      <select id="monthSelect" onchange="updateMonthly()"></select>
+    <div class="cbar">
+      <span class="clabel">เดือน</span>
+      <input type="month" id="monthPicker">
+      <button class="btn" onclick="renderMonthly()">แสดงข้อมูล</button>
     </div>
-    <div class="summary-cards" id="monthlyCards"></div>
-    <div class="chart-container">
-      <div class="chart-title">📊 ชั่วโมง OT สะสมรายแผนก (ทั้งเดือน)</div>
-      <div class="chart-subtitle">🟢 แท่งเขียว = ชั่วโมง OT สะสม | 🔴 เส้นแดง = % สัดส่วนของแต่ละแผนก</div>
+    <div class="cards">
+      <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="m-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
+      <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="m-pct">—</div><div class="card-sub">ทุกแผนก</div></div>
+      <div class="card"><div class="card-lbl">จำนวนแผนก</div><div class="card-val" id="m-dept">—</div><div class="card-sub">แผนก</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">OT รายเดือน แยกตามแผนก</div><div class="panel-sub" id="m-sub">กรุณาเลือกเดือน</div></div>
+        <div class="legend">
+          <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT</div>
+          <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
+        </div>
+      </div>
       <canvas id="monthlyChart"></canvas>
     </div>
-  </div>
-
-  <div id="tab-summary" class="tab-content">
-    <div class="summary-cards" id="summaryCards"></div>
-    <div class="chart-container">
-      <div class="chart-title">📊 ภาพรวม OT รายวัน</div>
-      <div class="chart-subtitle">🔵 พนักงานทำ OT (คน) | 🟠 ชั่วโมง OT (ชม.) | 🔴 % OT</div>
-      <canvas id="summaryChart"></canvas>
+    <div class="tpanel">
+      <h3>รายละเอียดรายเดือน</h3>
+      <div class="tscroll"><table>
+        <thead><tr><th>แผนก</th><th>ชั่วโมง OT รวม</th><th>% OT เฉลี่ย</th></tr></thead>
+        <tbody id="m-tbody"></tbody>
+      </table></div>
     </div>
   </div>
-</div>
+
+  <!-- OVERALL -->
+  <div id="tab-overall" class="tab-content">
+    <div class="cbar">
+      <button class="btn" onclick="renderOverall()">🔄 โหลดข้อมูลรวม</button>
+    </div>
+    <div class="cards">
+      <div class="card"><div class="card-lbl">วันที่มีข้อมูล</div><div class="card-val" id="o-days">—</div><div class="card-sub">วัน</div></div>
+      <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="o-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
+      <div class="card"><div class="card-lbl">พนักงาน OT รวม</div><div class="card-val" id="o-emp">—</div><div class="card-sub">คน-วัน</div></div>
+      <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="o-pct">—</div><div class="card-sub">ทุกวัน</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <div><div class="panel-title">ภาพรวม OT รายวัน</div><div class="panel-sub">แสดงทุกวันที่มีข้อมูลในชีต</div></div>
+        <div class="legend">
+          <div class="li"><div class="ld" style="background:var(--teal)"></div>พนักงาน OT (คน)</div>
+          <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT</div>
+          <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
+        </div>
+      </div>
+      <canvas id="overallChart"></canvas>
+    </div>
+  </div>
+</main>
 
 <script>
-const SHEET_ID = '17_tx5flqRab3nTxoL7hrT227PYlff_XCgmgaCim1ghA';
+const SHEET_ID   = '17_tx5flqRab3nTxoL7hrT227PYlff_XCgmgaCim1ghA';
 const SHEET_NAME = 'data';
 
-let allData = [];
-let departmentNames = []; // ชื่อแผนกที่ผู้ใช้กำหนด
-let dailyChart = null, monthlyChart = null, summaryChart = null;
+const DEPT_NAMES = [
+  'ผสมยาง','ยางตีนตะขาบ','ยางตัน','วิศวกรรม',
+  'บริการยานยนต์','R&D Compound','R&D Product Design',
+  'ควบคุมคุณภาพ','Mold Production','วางแผนการผลิต',
+  'คลังวัตถุดิบฯ','คลังสินค้า','อาคารสถานที่','สำนักงาน'
+];
 
-// โหลดชื่อแผนกที่บันทึกไว้
-function loadDeptNames() {
-  const saved = localStorage.getItem('ot_dept_names');
-  if (saved) {
-    departmentNames = JSON.parse(saved);
-  }
+/*
+  โครงสร้าง Sheet (index เริ่มที่ 0):
+  A=0  วันที่
+  B=1  จำนวนพนักงานรวม
+  C=2  พนักงานทำ OT
+  D=3  ชั่วโมงปกติ
+  E=4  ชั่วโมง OT
+  F=5  % OT (ทั้งบริษัท)
+
+  G=6  แผนก 1 → +0 = พนักงานปัจจุบัน, +1 = พนักงานทำ OT, +2 = ชั่วโมง OT
+  J=9  แผนก 2 → +0 = พนักงานปัจจุบัน, +1 = พนักงานทำ OT, +2 = ชั่วโมง OT
+  ... ทุก 3 cols
+*/
+const DEPT_COL_START = 6; // col G = index 6
+// offset ภายในแต่ละแผนก
+const OFF_TOTAL  = 0; // พนักงานปัจจุบัน
+const OFF_OT_EMP = 1; // พนักงานทำ OT
+const OFF_OT_HRS = 2; // ชั่วโมง OT
+
+let rows   = [];
+let charts = {};
+
+Chart.defaults.color      = '#64748b';
+Chart.defaults.borderColor = '#1e293b';
+Chart.defaults.font.family = 'Sarabun';
+
+/* ─── Fetch & Parse ─────────────────────────────── */
+async function fetchData() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return parseCSV(await res.text());
 }
 
-// บันทึกชื่อแผนก
-function saveDeptNames() {
-  const input = document.getElementById('deptNamesInput');
-  const names = input.value.split(',').map(n => n.trim()).filter(n => n);
-  if (names.length > 0) {
-    departmentNames = names;
-    localStorage.setItem('ot_dept_names', JSON.stringify(departmentNames));
-    alert(`บันทึกชื่อแผนก ${names.length} แผนกเรียบร้อยแล้ว`);
-    updateDaily(); // รีเฟรชกราฟ
-    updateMonthly();
-  } else {
-    alert('กรุณากรอกชื่อแผนก คั่นด้วยเครื่องหมายจุลภาค (,) เช่น แผนกผลิต, แผนกขาย');
-  }
-}
-
-function setStatus(state, msg) {
-  const dot = document.getElementById('statusDot');
-  dot.className = 'status-dot ' + (state === 'loading' ? 'loading' : state === 'error' ? 'error' : '');
-  document.getElementById('statusText').innerText = msg;
-}
-
-function toggleDebug() {
-  document.getElementById('debugPanel').classList.toggle('show');
-}
-
-// แปลงวันที่
-function parseDateValue(cell) {
-  if (!cell) return null;
-  
-  if (cell.v && typeof cell.v === 'string' && cell.v.startsWith('Date(')) {
-    const match = cell.v.match(/Date\((\d+),(\d+),(\d+)\)/);
-    if (match) {
-      return `${match[1]}-${String(parseInt(match[2]) + 1).padStart(2, '0')}-${String(match[3]).padStart(2, '0')}`;
+function parseCSV(text) {
+  return text.replace(/\r/g,'').split('\n').map(line => {
+    const row = []; let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') inQ = !inQ;
+      else if (ch === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
+      else cur += ch;
     }
+    row.push(cur.trim());
+    return row;
+  });
+}
+
+function parseAllRows(csvRows) {
+  const data = [];
+  // Row 0 = header1 (ชื่อแผนก), Row 1 = header2 (sub-header), Row 2+ = ข้อมูล
+  for (let i = 2; i < csvRows.length; i++) {
+    const r = csvRows[i];
+    if (!r || !r[0]) continue;
+    const raw = r[0].trim();
+    if (!raw || /รวม|total/i.test(raw)) continue;
+
+    const date = normalizeDate(raw);
+    if (!date) continue;
+
+    // ข้อมูลระดับบริษัท (col A-F)
+    const totalEmp = num(r[1]); // B
+    const otEmp    = num(r[2]); // C
+    // D=3 ชั่วโมงปกติ (ไม่ใช้)
+    const otHrs    = num(r[4]); // E
+    const pct      = num(r[5]); // F
+
+    // ข้อมูลระดับแผนก
+    const depts = DEPT_NAMES.map((name, d) => {
+      const base   = DEPT_COL_START + d * 3;
+      const dTotal = num(r[base + OFF_TOTAL]);   // พนักงานปัจจุบัน
+      const dOtEmp = num(r[base + OFF_OT_EMP]);  // พนักงานทำ OT
+      const dOtHrs = num(r[base + OFF_OT_HRS]);  // ชั่วโมง OT
+      const dPct   = dTotal > 0 ? (dOtEmp / dTotal * 100) : 0;
+      return { name, total: dTotal, otEmp: dOtEmp, otHrs: dOtHrs, pct: dPct };
+    });
+
+    data.push({ date, totalEmp, otEmp, otHrs, pct, depts });
   }
-  
-  if (cell.f) {
-    const str = cell.f;
-    const parts = str.split(/[/-]/);
-    if (parts.length === 3) {
-      if (parts[2].length === 4) {
-        return `${parts[2]}-${String(parseInt(parts[1])).padStart(2, '0')}-${String(parseInt(parts[0])).padStart(2, '0')}`;
-      }
-      if (parts[0].length === 4) {
-        return `${parts[0]}-${String(parseInt(parts[1])).padStart(2, '0')}-${String(parseInt(parts[2])).padStart(2, '0')}`;
-      }
-    }
+  return data;
+}
+
+function normalizeDate(raw) {
+  // dd/mm/yyyy หรือ dd/mm/yyyy พ.ศ.
+  const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) {
+    const yr = parseInt(m[3]) > 2400 ? parseInt(m[3]) - 543 : parseInt(m[3]);
+    return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
   }
-  
-  if (cell.v && typeof cell.v === 'number') {
-    const date = new Date((cell.v - 25569) * 86400000);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  // Excel serial
+  if (/^\d{4,5}$/.test(raw)) {
+    const d = new Date(Date.UTC(1899,11,30));
+    d.setUTCDate(d.getUTCDate() + parseInt(raw));
+    return d.toISOString().slice(0,10);
   }
-  
   return null;
 }
 
-// อ่านข้อมูลจากตาราง - ปรับให้เข้ากับโครงสร้างที่ไม่มีชื่อแผนก
-function parseSheetData(table) {
-  const rows = table.rows;
-  if (!rows || rows.length < 2) return [];
-  
-  console.log('=== STRUCTURE DEBUG ===');
-  console.log('Total rows:', rows.length);
-  
-  // แสดงแถวที่ 0 และ 1 เพื่อดูโครงสร้าง
-  if (rows[0] && rows[0].c) {
-    console.log('ROW 0:', rows[0].c.map((c, i) => `${i}:${c?.v ?? c?.f ?? 'empty'}`));
-  }
-  if (rows[1] && rows[1].c) {
-    console.log('ROW 1:', rows[1].c.map((c, i) => `${i}:${c?.v ?? c?.f ?? 'empty'}`));
-  }
-  
-  // ตรวจสอบว่ามีข้อมูลแผนกตั้งแต่คอลัมน์ไหน
-  // จากโครงสร้าง: คอลัมน์ 0=A(วันที่), 1=B(พนักงาน), 2=C(OTคน), 3=D(ชั่วโมงปกติ), 4=E(OTชม), 5=F(%)
-  // คอลัมน์ 6=G(ว่าง), คอลัมน์ 7=H(เริ่มข้อมูลแผนก)
-  const START_DEPT_COL = 7; // คอลัมน์ H
-  
-  // ตรวจจับจำนวนแผนกจากแถวที่ 1 (ข้อมูลจริง) หรือแถวที่ 0
-  // นับจำนวนคอลัมน์ที่มีข้อมูลตั้งแต่ START_DEPT_COL ขึ้นไป
-  let deptCount = 0;
-  if (rows[1] && rows[1].c) {
-    for (let i = START_DEPT_COL; i < rows[1].c.length; i += 3) {
-      if (rows[1].c[i] !== undefined) {
-        deptCount++;
-      }
-    }
-  }
-  
-  console.log(`Detected ${deptCount} departments (every 3 columns from col ${START_DEPT_COL})`);
-  
-  const result = [];
-  
-  // อ่านข้อมูลตั้งแต่แถวที่ 1 (หรือ 2 ขึ้นอยู่กับว่าแถวที่ 1 เป็นหัวตารางหรือข้อมูล)
-  // จากภาพ แถวที่ 1 เป็นข้อมูลวันแรก (01/03/2026)
-  for (let r = 1; r < rows.length; r++) {
-    const row = rows[r].c;
-    if (!row) continue;
-    
-    const dateCell = row[0];
-    const date = parseDateValue(dateCell);
-    if (!date) continue;
-    
-    // ฟังก์ชันอ่านตัวเลข
-    const getVal = (col, def = 0) => {
-      if (!row[col]) return def;
-      const val = parseFloat(row[col]?.v);
-      return isNaN(val) ? def : val;
-    };
-    
-    // อ่านข้อมูลแผนก (ทุก 3 คอลัมน์)
-    const deptDataList = [];
-    for (let d = 0; d < deptCount; d++) {
-      const colBase = START_DEPT_COL + (d * 3);
-      const totalEmp = getVal(colBase);      // พนักงานทั้งหมดของแผนก
-      const otEmp = getVal(colBase + 1);     // OT คน
-      const otHours = getVal(colBase + 2);   // OT ชั่วโมง
-      
-      // ใช้ชื่อแผนกจากที่ผู้ใช้กำหนด หรือใช้ชื่อ default
-      const deptName = departmentNames[d] || `แผนกที่ ${d + 1}`;
-      
-      deptDataList.push({
-        dept: deptName,
-        total_emp: totalEmp,
-        ot_emp: otEmp,
-        ot_hours: otHours,
-        pct: totalEmp > 0 ? (otEmp / totalEmp * 100) : 0
-      });
-    }
-    
-    // กรองเอาเฉพาะแผนกที่มีข้อมูล (มีพนักงานหรือ OT)
-    const validDepts = deptDataList.filter(d => d.total_emp > 0 || d.ot_emp > 0 || d.ot_hours > 0);
-    
-    result.push({
-      date: date,
-      total_emp: getVal(1),      // คอลัมน์ B
-      ot_emp: getVal(2),         // คอลัมน์ C
-      ot_hours: getVal(4),       // คอลัมน์ E
-      pct: getVal(5),            // คอลัมน์ F
-      depts: validDepts.length > 0 ? validDepts : deptDataList // ใช้ทั้งหมดถ้าไม่มีข้อมูล
-    });
-  }
-  
-  console.log(`✅ Parsed ${result.length} days`);
-  if (result.length > 0) {
-    console.log('Sample day (first):', result[0]);
-    console.log('Departments in sample:', result[0].depts.map(d => ({ name: d.dept, ot_emp: d.ot_emp, hours: d.ot_hours })));
-  }
-  
-  return result;
+function num(v) {
+  if (v === undefined || v === null || v === '') return 0;
+  const n = parseFloat(String(v).replace(/,/g,''));
+  return isNaN(n) ? 0 : n;
 }
 
-async function loadData() {
-  setStatus('loading', 'กำลังโหลดข้อมูล...');
-  document.getElementById('loadingScreen').style.display = 'block';
-  document.getElementById('mainContent').style.display = 'none';
-  document.getElementById('errorScreen').style.display = 'none';
-  
-  loadDeptNames(); // โหลดชื่อแผนกที่บันทึกไว้
-  
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&t=${Date.now()}`;
-  
+/* ─── UI helpers ────────────────────────────────── */
+function setStatus(t) { document.getElementById('statusTxt').textContent = t; }
+function setErr(msg)  { const el = document.getElementById('errBox'); el.textContent = '⚠️ ' + msg; el.style.display = 'block'; }
+function clearErr()   { document.getElementById('errBox').style.display = 'none'; }
+function set(id, v)   { const el = document.getElementById(id); if (el) el.textContent = v; }
+function fmtDate(d)   { const [y,m,day] = d.split('-'); return `${parseInt(day)}/${parseInt(m)}/${parseInt(y)+543}`; }
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+const TT = {
+  backgroundColor:'#1f2937', borderColor:'#2d3748', borderWidth:1,
+  titleColor:'#f1f5f9', bodyColor:'#94a3b8', padding:12
+};
+
+/* ─── DAILY ─────────────────────────────────────── */
+function renderDaily() {
+  clearErr();
+  const date = document.getElementById('datePicker').value;
+  if (!date) { setErr('กรุณาเลือกวันที่'); return; }
+  const row = rows.find(r => r.date === date);
+  if (!row)  { setErr(`ไม่พบข้อมูลวันที่ ${fmtDate(date)}`); return; }
+
+  set('d-sub',   `วันที่ ${fmtDate(date)}`);
+  set('d-otEmp', row.otEmp);
+  set('d-hrs',   row.otHrs.toFixed(1));
+
+  const active = row.depts.filter(d => d.total > 0);
+  const avgPct = active.length
+    ? (active.reduce((s,d) => s + d.pct, 0) / active.length).toFixed(2)
+    : '0.00';
+  set('d-pct',  avgPct + '%');
+  set('d-dept', row.depts.length);
+
+  const labels  = row.depts.map(d => d.name);
+  const empData = row.depts.map(d => d.otEmp);
+  const hrsData = row.depts.map(d => d.otHrs);
+  const pctData = row.depts.map(d => d.pct);
+
+  destroyChart('dailyChart');
+  const ctx = document.getElementById('dailyChart').getContext('2d');
+  charts['dailyChart'] = new Chart(ctx, {
+    data: { labels, datasets: [
+      { label:'พนักงาน OT (คน)', data:empData, type:'bar',  backgroundColor:'rgba(6,214,160,.65)',   borderColor:'#06d6a0', borderWidth:1, borderRadius:4, yAxisID:'yL' },
+      { label:'ชั่วโมง OT',      data:hrsData, type:'bar',  backgroundColor:'rgba(251,146,60,.65)',  borderColor:'#fb923c', borderWidth:1, borderRadius:4, yAxisID:'yR' },
+      { label:'% OT',            data:pctData, type:'line', borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,.08)', borderWidth:2.5, pointBackgroundColor:'#a78bfa', pointRadius:5, tension:.3, yAxisID:'yPct' }
+    ]},
+    options: {
+      responsive:true, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{display:false}, tooltip:{ ...TT,
+        callbacks:{ label: c => {
+          const v = c.parsed.y;
+          const suf = c.datasetIndex===2 ? '%' : c.datasetIndex===0 ? ' คน' : ' ชม.';
+          return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
+        }}
+      }},
+      scales:{
+        x:    { grid:{color:'rgba(30,41,59,.6)'}, ticks:{maxRotation:40,font:{size:11}} },
+        yL:   { type:'linear', position:'left',  grid:{color:'rgba(30,41,59,.4)'}, title:{display:true,text:'พนักงาน OT (คน)',color:'#06d6a0',font:{size:11}} },
+        yR:   { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'ชั่วโมง OT',color:'#fb923c',font:{size:11}} },
+        yPct: { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#a78bfa',font:{size:11}}, ticks:{callback:v=>v+'%'}, offset:true }
+      }
+    }
+  });
+
+  document.getElementById('d-tbody').innerHTML = row.depts.map(d => `
+    <tr>
+      <td>${d.name}</td>
+      <td>${d.total}</td>
+      <td><span class="chip chip-t">${d.otEmp}</span></td>
+      <td><span class="chip chip-o">${d.otHrs.toFixed(1)}</span></td>
+      <td><span class="chip chip-p">${d.pct.toFixed(2)}%</span></td>
+    </tr>`).join('');
+}
+
+/* ─── MONTHLY ───────────────────────────────────── */
+function renderMonthly() {
+  clearErr();
+  const month = document.getElementById('monthPicker').value;
+  if (!month) { setErr('กรุณาเลือกเดือน'); return; }
+  const filtered = rows.filter(r => r.date.startsWith(month));
+  if (!filtered.length) { setErr(`ไม่พบข้อมูลเดือน ${month}`); return; }
+
+  set('m-sub', `เดือน ${month.replace('-','/')} (${filtered.length} วัน)`);
+
+  const deptAgg = DEPT_NAMES.map(name => {
+    let otHrs = 0, otEmp = 0, totalEmp = 0;
+    for (const row of filtered) {
+      const d = row.depts.find(x => x.name === name);
+      if (d) { otHrs += d.otHrs; otEmp += d.otEmp; totalEmp += d.total; }
+    }
+    const pct = totalEmp > 0 ? (otEmp / totalEmp * 100) : 0;
+    return { name, otHrs, otEmp, totalEmp, pct };
+  });
+
+  const totalHrs = deptAgg.reduce((s,d) => s + d.otHrs, 0);
+  const active   = deptAgg.filter(d => d.totalEmp > 0);
+  const avgPct   = active.length ? active.reduce((s,d) => s + d.pct, 0) / active.length : 0;
+
+  set('m-hrs',  totalHrs.toFixed(1));
+  set('m-pct',  avgPct.toFixed(2) + '%');
+  set('m-dept', DEPT_NAMES.length);
+
+  destroyChart('monthlyChart');
+  const ctx = document.getElementById('monthlyChart').getContext('2d');
+  charts['monthlyChart'] = new Chart(ctx, {
+    data:{ labels: deptAgg.map(d=>d.name), datasets:[
+      { label:'ชั่วโมง OT', data:deptAgg.map(d=>d.otHrs), type:'bar',  backgroundColor:'rgba(251,146,60,.65)', borderColor:'#fb923c', borderWidth:1, borderRadius:4, yAxisID:'yL' },
+      { label:'% OT',       data:deptAgg.map(d=>d.pct),   type:'line', borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,.08)', borderWidth:2.5, pointBackgroundColor:'#a78bfa', pointRadius:5, tension:.3, yAxisID:'yR' }
+    ]},
+    options:{
+      responsive:true, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{display:false}, tooltip:{ ...TT,
+        callbacks:{ label: c => {
+          const v = c.parsed.y, suf = c.datasetIndex===1 ? '%' : ' ชม.';
+          return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
+        }}
+      }},
+      scales:{
+        x:  { grid:{color:'rgba(30,41,59,.6)'}, ticks:{maxRotation:40,font:{size:11}} },
+        yL: { type:'linear', position:'left',  grid:{color:'rgba(30,41,59,.4)'}, title:{display:true,text:'ชั่วโมง OT',color:'#fb923c',font:{size:11}} },
+        yR: { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#a78bfa',font:{size:11}}, ticks:{callback:v=>v+'%'} }
+      }
+    }
+  });
+
+  document.getElementById('m-tbody').innerHTML = deptAgg.map(d=>`
+    <tr>
+      <td>${d.name}</td>
+      <td><span class="chip chip-o">${d.otHrs.toFixed(1)}</span></td>
+      <td><span class="chip chip-p">${d.pct.toFixed(2)}%</span></td>
+    </tr>`).join('');
+}
+
+/* ─── OVERALL ───────────────────────────────────── */
+function renderOverall() {
+  clearErr();
+  if (!rows.length) { setErr('ไม่มีข้อมูล'); return; }
+
+  const dates   = rows.map(r => fmtDate(r.date));
+  const empData = rows.map(r => r.otEmp);
+  const hrsData = rows.map(r => r.otHrs);
+  const pctData = rows.map(r => r.pct);
+
+  set('o-days', rows.length);
+  set('o-hrs',  hrsData.reduce((a,b)=>a+b,0).toFixed(1));
+  set('o-emp',  empData.reduce((a,b)=>a+b,0));
+  set('o-pct',  (pctData.reduce((a,b)=>a+b,0) / Math.max(1,rows.length)).toFixed(2) + '%');
+
+  destroyChart('overallChart');
+  const ctx = document.getElementById('overallChart').getContext('2d');
+  charts['overallChart'] = new Chart(ctx, {
+    data:{ labels:dates, datasets:[
+      { label:'พนักงาน OT (คน)', data:empData, type:'bar',  backgroundColor:'rgba(6,214,160,.6)',  borderColor:'#06d6a0', borderWidth:1, borderRadius:3, yAxisID:'yL' },
+      { label:'ชั่วโมง OT',      data:hrsData, type:'bar',  backgroundColor:'rgba(251,146,60,.6)', borderColor:'#fb923c', borderWidth:1, borderRadius:3, yAxisID:'yL' },
+      { label:'% OT',            data:pctData, type:'line', borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,.08)', borderWidth:2.5, pointBackgroundColor:'#a78bfa', pointRadius:4, tension:.3, yAxisID:'yR' }
+    ]},
+    options:{
+      responsive:true, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{display:false}, tooltip:{ ...TT,
+        callbacks:{ label: c => {
+          const v = c.parsed.y, suf = c.datasetIndex===2 ? '%' : '';
+          return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
+        }}
+      }},
+      scales:{
+        x:  { grid:{color:'rgba(30,41,59,.6)'}, ticks:{maxRotation:45,font:{size:10}} },
+        yL: { type:'linear', position:'left',  grid:{color:'rgba(30,41,59,.4)'}, title:{display:true,text:'จำนวน / ชั่วโมง',color:'#64748b',font:{size:11}} },
+        yR: { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#a78bfa',font:{size:11}}, ticks:{callback:v=>v+'%'} }
+      }
+    }
+  });
+}
+
+/* ─── Tab switch ────────────────────────────────── */
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── Init ──────────────────────────────────────── */
+async function init() {
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
-    if (!match) throw new Error('รูปแบบข้อมูลไม่ถูกต้อง');
-    const json = JSON.parse(match[1]);
-    if (json.status === 'error') throw new Error(json.errors?.[0]?.message);
-    
-    allData = parseSheetData(json.table);
-    if (allData.length === 0) throw new Error('ไม่พบข้อมูล');
-    
-    // ตั้งค่า input ชื่อแผนก
-    const deptCount = allData[0]?.depts?.length || 0;
-    if (deptCount > 0 && departmentNames.length === 0) {
-      const defaultNames = [];
-      for (let i = 1; i <= deptCount; i++) {
-        defaultNames.push(`แผนกที่ ${i}`);
-      }
-      document.getElementById('deptNamesInput').value = defaultNames.join(', ');
-    } else if (departmentNames.length > 0) {
-      document.getElementById('deptNamesInput').value = departmentNames.join(', ');
+    const csvRows = await fetchData();
+    rows = parseAllRows(csvRows);
+
+    if (!rows.length) {
+      setErr('โหลดข้อมูลได้แต่ไม่พบแถวข้อมูลที่ถูกต้อง');
+      setStatus('ไม่มีข้อมูล');
+      return;
     }
-    
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('mainContent').style.display = 'block';
-    setStatus('ok', `✅ โหลดสำเร็จ ${allData.length} วัน | แผนก ${deptCount} แผนก`);
-    initDashboard();
-  } catch (err) {
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('errorScreen').style.display = 'block';
-    document.getElementById('errorMsg').innerText = err.message;
-    setStatus('error', 'โหลดไม่สำเร็จ');
+
+    const lastDate = rows[rows.length - 1].date;
+    setStatus(`อัปเดต ${new Date().toLocaleTimeString('th-TH')} · ${rows.length} วัน`);
+    clearErr();
+
+    document.getElementById('datePicker').value  = lastDate;
+    document.getElementById('monthPicker').value = lastDate.slice(0, 7);
+
+    renderDaily();
+    renderOverall();
+  } catch(e) {
+    setErr('โหลดข้อมูลไม่สำเร็จ: ' + e.message + ' — ตรวจสอบว่า Google Sheet เปิดเป็นสาธารณะ');
+    setStatus('โหลดไม่สำเร็จ');
   }
 }
 
-function initDashboard() {
-  const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-  
-  const dateSelect = document.getElementById('dateSelect');
-  dateSelect.innerHTML = '';
-  allData.forEach(d => {
-    const [y, m, day] = d.date.split('-');
-    const opt = document.createElement('option');
-    opt.value = d.date;
-    opt.textContent = `${parseInt(day)} ${months[parseInt(m)-1]} ${y}`;
-    dateSelect.appendChild(opt);
-  });
-  
-  const monthSelect = document.getElementById('monthSelect');
-  monthSelect.innerHTML = '';
-  const uniqueMonths = [...new Set(allData.map(d => d.date.substring(0, 7)))];
-  uniqueMonths.forEach(m => {
-    const [y, mo] = m.split('-');
-    const opt = document.createElement('option');
-    opt.value = m;
-    opt.textContent = `${months[parseInt(mo)-1]} ${y}`;
-    monthSelect.appendChild(opt);
-  });
-  
-  updateDaily();
-  updateMonthly();
-  updateSummary();
-}
-
-function showTab(tab) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(`tab-${tab}`).classList.add('active');
-  if (tab === 'daily') updateDaily();
-  if (tab === 'monthly') updateMonthly();
-  if (tab === 'summary') updateSummary();
-}
-
-function card(label, value, unit, cls = '') {
-  return `<div class="card ${cls}"><div class="card-label">${label}</div><div class="card-value">${value}</div><div class="card-unit">${unit}</div></div>`;
-}
-
-function updateDaily() {
-  const date = document.getElementById('dateSelect').value;
-  const data = allData.find(d => d.date === date);
-  if (!data) return;
-  
-  const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-  const [y, m, d] = date.split('-');
-  const dateLabel = `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
-  const pctAll = data.total_emp > 0 ? (data.ot_emp / data.total_emp * 100).toFixed(2) : '0';
-  
-  document.getElementById('dailyCards').innerHTML = `
-    ${card('📅 วันที่', dateLabel, '')}
-    ${card('👥 พนักงานทั้งหมด', data.total_emp.toLocaleString(), 'คน')}
-    ${card('🙋 ทำ OT', data.ot_emp.toLocaleString(), 'คน', 'green')}
-    ${card('⏱️ ชั่วโมง OT', data.ot_hours.toFixed(1), 'ชม.', 'orange')}
-    ${card('📊 % OT รวม', pctAll + '%', '', 'purple')}
-  `;
-  
-  const depts = data.depts;
-  const hasData = depts.some(d => d.ot_emp > 0 || d.ot_hours > 0);
-  
-  const debugDiv = document.getElementById('debugPanel');
-  debugDiv.innerHTML = `<strong>📋 ข้อมูลดิบ (${dateLabel})</strong><br><pre>${JSON.stringify(depts, null, 2)}</pre>`;
-  
-  if (!hasData) {
-    document.getElementById('dailyNoDataMsg').style.display = 'block';
-    document.getElementById('dailyChart').style.display = 'none';
-    if (dailyChart) dailyChart.destroy();
-    return;
-  }
-  
-  document.getElementById('dailyNoDataMsg').style.display = 'none';
-  document.getElementById('dailyChart').style.display = 'block';
-  
-  const labels = depts.map(d => d.dept);
-  const otEmp = depts.map(d => d.ot_emp);
-  const otHours = depts.map(d => d.ot_hours);
-  const pctData = depts.map(d => d.pct);
-  
-  if (dailyChart) dailyChart.destroy();
-  
-  dailyChart = new Chart(document.getElementById('dailyChart'), {
-    data: {
-      labels: labels,
-      datasets: [
-        { label: 'พนักงานทำ OT (คน)', data: otEmp, type: 'bar', backgroundColor: '#2b6cb0', yAxisID: 'y1', borderRadius: 4 },
-        { label: 'ชั่วโมง OT', data: otHours, type: 'bar', backgroundColor: '#dd6b20', yAxisID: 'y2', borderRadius: 4 },
-        { label: '% OT', data: pctData, type: 'line', borderColor: '#e53e3e', backgroundColor: 'transparent', tension: 0.3, pointRadius: 4, pointBackgroundColor: '#e53e3e', borderWidth: 2, yAxisID: 'y3' }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: (ctx) => {
-              if (ctx.dataset.label.includes('%')) return `${ctx.dataset.label}: ${ctx.raw.toFixed(2)}%`;
-              if (ctx.dataset.label.includes('ชั่วโมง')) return `${ctx.dataset.label}: ${ctx.raw.toFixed(1)} ชม.`;
-              return `${ctx.dataset.label}: ${ctx.raw} คน`;
-            }
-          }
-        }
-      },
-      scales: {
-        y1: { position: 'left', title: { display: true, text: 'พนักงาน (คน)' }, beginAtZero: true, ticks: { stepSize: 1 } },
-        y2: { position: 'right', title: { display: true, text: 'ชั่วโมง OT' }, beginAtZero: true, grid: { drawOnChartArea: false } },
-        y3: { position: 'right', title: { display: true, text: '% OT', color: '#e53e3e' }, beginAtZero: true, ticks: { callback: v => v.toFixed(1) + '%' }, grid: { drawOnChartArea: false } }
-      }
-    }
-  });
-}
-
-function updateMonthly() {
-  const month = document.getElementById('monthSelect').value;
-  const rows = allData.filter(d => d.date.startsWith(month));
-  if (rows.length === 0) return;
-  
-  const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-  const [y, m] = month.split('-');
-  const monthLabel = `${months[parseInt(m)-1]} ${y}`;
-  
-  const deptMap = new Map();
-  rows.forEach(row => {
-    row.depts.forEach(dept => {
-      if (!deptMap.has(dept.dept)) {
-        deptMap.set(dept.dept, { hours: 0, empDays: 0 });
-      }
-      const d = deptMap.get(dept.dept);
-      d.hours += dept.ot_hours;
-      d.empDays += dept.ot_emp;
-    });
-  });
-  
-  const totalHours = Array.from(deptMap.values()).reduce((s, v) => s + v.hours, 0);
-  const totalEmpDays = rows.reduce((s, r) => s + r.ot_emp, 0);
-  const daysWithOT = rows.filter(r => r.ot_emp > 0).length;
-  
-  document.getElementById('monthlyCards').innerHTML = `
-    ${card('📆 เดือน', monthLabel, '')}
-    ${card('🙋 คน-วัน OT', totalEmpDays.toLocaleString(), 'คน-วัน', 'green')}
-    ${card('⏱️ ชั่วโมง OT รวม', totalHours.toFixed(1), 'ชม.', 'orange')}
-    ${card('📅 วันที่มี OT', daysWithOT, 'วัน', 'purple')}
-  `;
-  
-  const labels = Array.from(deptMap.keys());
-  const hoursData = labels.map(l => deptMap.get(l).hours);
-  const pctData = hoursData.map(h => totalHours > 0 ? (h / totalHours * 100) : 0);
-  
-  if (monthlyChart) monthlyChart.destroy();
-  
-  monthlyChart = new Chart(document.getElementById('monthlyChart'), {
-    data: {
-      labels: labels,
-      datasets: [
-        { label: 'ชั่วโมง OT สะสม', data: hoursData, type: 'bar', backgroundColor: '#38a169', yAxisID: 'y1', borderRadius: 4 },
-        { label: '% สัดส่วน', data: pctData, type: 'line', borderColor: '#e53e3e', tension: 0.3, pointRadius: 4, borderWidth: 2, yAxisID: 'y2' }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y1: { position: 'left', title: { display: true, text: 'ชั่วโมง OT' }, beginAtZero: true },
-        y2: { position: 'right', title: { display: true, text: '% สัดส่วน', color: '#e53e3e' }, beginAtZero: true, ticks: { callback: v => v.toFixed(1) + '%' }, grid: { drawOnChartArea: false } }
-      }
-    }
-  });
-}
-
-function updateSummary() {
-  const totalEmpDays = allData.reduce((s, d) => s + d.ot_emp, 0);
-  const totalHours = allData.reduce((s, d) => s + d.ot_hours, 0);
-  const daysWithOT = allData.filter(d => d.ot_emp > 0).length;
-  const avgEmp = Math.round(allData.reduce((s, d) => s + d.total_emp, 0) / allData.length);
-  
-  document.getElementById('summaryCards').innerHTML = `
-    ${card('📆 จำนวนวัน', allData.length, 'วัน')}
-    ${card('👥 พนักงานเฉลี่ย', avgEmp.toLocaleString(), 'คน/วัน')}
-    ${card('🙋 คน-วัน OT', totalEmpDays.toLocaleString(), 'คน-วัน', 'green')}
-    ${card('⏱️ ชั่วโมง OT', totalHours.toFixed(1), 'ชม.', 'orange')}
-    ${card('📅 วันที่มี OT', daysWithOT, 'วัน', 'purple')}
-  `;
-  
-  const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-  const labels = allData.map(d => {
-    const [y, m, day] = d.date.split('-');
-    return `${parseInt(day)} ${months[parseInt(m)-1]}`;
-  });
-  
-  if (summaryChart) summaryChart.destroy();
-  
-  summaryChart = new Chart(document.getElementById('summaryChart'), {
-    data: {
-      labels: labels,
-      datasets: [
-        { label: 'พนักงานทำ OT (คน)', data: allData.map(d => d.ot_emp), type: 'bar', backgroundColor: '#2b6cb0', yAxisID: 'y1', borderRadius: 3 },
-        { label: 'ชั่วโมง OT', data: allData.map(d => d.ot_hours), type: 'bar', backgroundColor: '#dd6b20', yAxisID: 'y2', borderRadius: 3 },
-        { label: '% OT', data: allData.map(d => d.total_emp > 0 ? (d.ot_emp / d.total_emp * 100) : 0), type: 'line', borderColor: '#e53e3e', tension: 0.3, borderWidth: 2, yAxisID: 'y3' }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y1: { position: 'left', title: { display: true, text: 'พนักงาน (คน)' }, beginAtZero: true },
-        y2: { position: 'right', title: { display: true, text: 'ชั่วโมง OT' }, beginAtZero: true, grid: { drawOnChartArea: false } },
-        y3: { position: 'right', title: { display: true, text: '% OT', color: '#e53e3e' }, beginAtZero: true, ticks: { callback: v => v.toFixed(1) + '%' }, grid: { drawOnChartArea: false } }
-      }
-    }
-  });
-}
-
-loadData();
+init();
 </script>
 </body>
 </html>
