@@ -253,7 +253,8 @@ tr:hover td{background:rgba(59,130,246,0.03)}
       <span class="clabel">วันที่</span>
       <input type="date" id="datePicker">
       <button class="btn" onclick="renderDaily()">แสดงข้อมูล</button>
-      <button class="btn-export" id="btn-export-daily" onclick="exportTab('daily')">⬇️ Export รายวัน (JPEG)</button>
+      <button class="btn-export" id="btn-export-daily-chart" onclick="exportSection('daily','chart')">📊 Export กราฟ</button>
+      <button class="btn-export" id="btn-export-daily-table" onclick="exportSection('daily','table')">📋 Export ตาราง</button>
     </div>
     <div id="export-daily-content">
       <div class="cards">
@@ -262,7 +263,7 @@ tr:hover td{background:rgba(59,130,246,0.03)}
         <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="d-pct">—</div><div class="card-sub">ทุกแผนก</div></div>
         <div class="card"><div class="card-lbl">จำนวนแผนก</div><div class="card-val" id="d-dept">—</div><div class="card-sub">แผนก</div></div>
       </div>
-      <div class="panel">
+      <div class="panel" id="daily-chart-section">
         <div class="panel-hdr">
           <div><div class="panel-title">OT รายวัน แยกตามแผนก</div><div class="panel-sub" id="d-sub">กรุณาเลือกวันที่</div></div>
           <div class="legend">
@@ -273,7 +274,7 @@ tr:hover td{background:rgba(59,130,246,0.03)}
         </div>
         <canvas id="dailyChart"></canvas>
       </div>
-      <div class="tpanel">
+      <div class="tpanel" id="daily-table-section">
         <h3>รายละเอียดรายวัน</h3>
         <div class="tscroll">
           <table>
@@ -293,7 +294,8 @@ tr:hover td{background:rgba(59,130,246,0.03)}
       <span class="clabel">เดือน</span>
       <input type="month" id="monthPicker">
       <button class="btn" onclick="renderMonthly()">แสดงข้อมูล</button>
-      <button class="btn-export" id="btn-export-monthly" onclick="exportTab('monthly')">⬇️ Export รายเดือน (JPEG)</button>
+      <button class="btn-export" id="btn-export-monthly-chart" onclick="exportSection('monthly','chart')">📊 Export กราฟ</button>
+      <button class="btn-export" id="btn-export-monthly-table" onclick="exportSection('monthly','table')">📋 Export ตาราง</button>
     </div>
     <div id="export-monthly-content">
       <div class="cards">
@@ -301,7 +303,7 @@ tr:hover td{background:rgba(59,130,246,0.03)}
         <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="m-pct">—</div><div class="card-sub">ทุกแผนก</div></div>
         <div class="card"><div class="card-lbl">จำนวนแผนก</div><div class="card-val" id="m-dept">—</div><div class="card-sub">แผนก</div></div>
       </div>
-      <div class="panel">
+      <div class="panel" id="monthly-chart-section">
         <div class="panel-hdr">
           <div><div class="panel-title">OT รายเดือน แยกตามแผนก</div><div class="panel-sub" id="m-sub">กรุณาเลือกเดือน</div></div>
           <div class="legend">
@@ -311,7 +313,7 @@ tr:hover td{background:rgba(59,130,246,0.03)}
         </div>
         <canvas id="monthlyChart"></canvas>
       </div>
-      <div class="tpanel">
+      <div class="tpanel" id="monthly-table-section">
         <h3>รายละเอียดรายเดือน</h3>
         <div class="tscroll">
           <table>
@@ -327,7 +329,7 @@ tr:hover td{background:rgba(59,130,246,0.03)}
   <div id="tab-overall" class="tab-content">
     <div class="cbar">
       <button class="btn" onclick="renderOverall()">🔄 โหลดข้อมูลรวม</button>
-      <button class="btn-export" id="btn-export-overall" onclick="exportTab('overall')">⬇️ Export ภาพรวม (JPEG)</button>
+      <button class="btn-export" id="btn-export-overall-chart" onclick="exportSection('overall','chart')">📊 Export กราฟ</button>
     </div>
     <div id="export-overall-content">
       <div class="cards">
@@ -336,7 +338,7 @@ tr:hover td{background:rgba(59,130,246,0.03)}
         <div class="card"><div class="card-lbl">พนักงาน OT รวม</div><div class="card-val" id="o-emp">—</div><div class="card-sub">คน-วัน</div></div>
         <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="o-pct">—</div><div class="card-sub">ทุกวัน</div></div>
       </div>
-      <div class="panel">
+      <div class="panel" id="overall-chart-section">
         <div class="panel-hdr">
           <div><div class="panel-title">ภาพรวม OT รายวัน</div><div class="panel-sub">แสดงทุกวันที่มีข้อมูลในชีต</div></div>
           <div class="legend">
@@ -664,21 +666,26 @@ function renderOverall() {
 }
 
 /* ─── EXPORT JPEG ───────────────────────────────── */
-async function exportTab(tabName) {
-  const btn = document.getElementById(`btn-export-${tabName}`);
+const SECTION_IDS = {
+  daily:   { chart: 'daily-chart-section',   table: 'daily-table-section'   },
+  monthly: { chart: 'monthly-chart-section', table: 'monthly-table-section' },
+  overall: { chart: 'overall-chart-section'                                  },
+};
+
+async function exportSection(tabName, section) {
+  const btnId = `btn-export-${tabName}-${section}`;
+  const btn = document.getElementById(btnId);
   const overlay = document.getElementById('exportOverlay');
-  const contentEl = document.getElementById(`export-${tabName}-content`);
+  const elId = SECTION_IDS[tabName]?.[section];
+  const contentEl = elId ? document.getElementById(elId) : null;
 
   if (!contentEl) { alert('ไม่พบเนื้อหาสำหรับ Export'); return; }
 
   btn.disabled = true;
   overlay.classList.add('show');
-
-  // small delay so spinner renders before heavy canvas work
   await new Promise(r => setTimeout(r, 80));
 
   try {
-    // Determine a label for the filename
     let label = tabName;
     if (tabName === 'daily') {
       const d = document.getElementById('datePicker').value;
@@ -689,22 +696,17 @@ async function exportTab(tabName) {
     } else {
       label = 'overall';
     }
+    const suffix = section === 'chart' ? 'chart' : 'table';
 
     const canvas = await html2canvas(contentEl, {
       scale: 2,
       useCORS: true,
-      backgroundColor: '#f5f7fc',
+      backgroundColor: '#ffffff',
       logging: false,
-      onclone: (doc) => {
-        // ensure fonts rendered
-        doc.querySelectorAll('*').forEach(el => {
-          el.style.fontFamily = "'Sarabun', sans-serif";
-        });
-      }
     });
 
     const link = document.createElement('a');
-    link.download = `OT_Dashboard_Saraburi_${label}.jpg`;
+    link.download = `OT_${label}_${suffix}.jpg`;
     link.href = canvas.toDataURL('image/jpeg', 0.92);
     link.click();
   } catch(e) {
