@@ -115,6 +115,15 @@ input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,0.1
 }
 .btn-export:hover{background:linear-gradient(135deg,#10b981,#059669);transform:translateY(-1px);box-shadow:0 4px 8px rgba(5,150,105,0.3);}
 .btn-export:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+/* Toggle group */
+.toggle-group{display:flex;border:1px solid var(--border2);border-radius:10px;overflow:hidden;background:var(--s1);}
+.toggle-btn{
+  padding:8px 18px;border:none;background:transparent;
+  font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;
+  color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.toggle-btn.active{background:var(--primary);color:#fff;}
+.toggle-btn:hover:not(.active){background:var(--s3);color:var(--primary);}
 .err{
   background:#fee2e2;border-left:4px solid var(--red);
   border-radius:10px;padding:14px 20px;color:#991b1b;
@@ -241,6 +250,7 @@ tr:hover td{background:rgba(59,130,246,0.03)}
 <div class="tabs">
   <button class="tab active" onclick="switchTab('daily',this)">📅 รายวัน</button>
   <button class="tab" onclick="switchTab('monthly',this)">📆 รายเดือน</button>
+  <button class="tab" onclick="switchTab('yearly',this)">📈 รายปี</button>
   <button class="tab" onclick="switchTab('overall',this)">📊 ภาพรวม</button>
 </div>
 
@@ -319,6 +329,51 @@ tr:hover td{background:rgba(59,130,246,0.03)}
           <table>
             <thead><tr><th>แผนก</th><th>ชั่วโมง OT รวม</th><th>% OT เฉลี่ย</th></tr></thead>
             <tbody id="m-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YEARLY -->
+  <div id="tab-yearly" class="tab-content">
+    <div class="cbar">
+      <span class="clabel">ปี (พ.ศ.)</span>
+      <input type="number" id="yearPicker" min="2560" max="2580" step="1"
+        style="background:#fff;border:1px solid #cbd5e1;border-radius:10px;color:#1e293b;font-family:'Sarabun',sans-serif;font-size:14px;padding:8px 16px;outline:none;width:110px;">
+      <button class="btn" onclick="renderYearly()">แสดงข้อมูล</button>
+      <span class="clabel" style="margin-left:8px;">แกน X</span>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="y-toggle-month" onclick="setYearlyMode('month',this)">รายเดือน</button>
+        <button class="toggle-btn" id="y-toggle-dept" onclick="setYearlyMode('dept',this)">รายแผนก</button>
+      </div>
+      <button class="btn-export" id="btn-export-yearly-chart" onclick="exportSection('yearly','chart')">📊 Export กราฟ</button>
+      <button class="btn-export" id="btn-export-yearly-table" onclick="exportSection('yearly','table')">📋 Export ตาราง</button>
+    </div>
+    <div id="export-yearly-content">
+      <div class="cards">
+        <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="y-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
+        <div class="card"><div class="card-lbl">พนักงาน OT รวม</div><div class="card-val" id="y-emp">—</div><div class="card-sub">คน-วัน</div></div>
+        <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="y-pct">—</div><div class="card-sub">ทั้งปี</div></div>
+        <div class="card"><div class="card-lbl">จำนวนวันข้อมูล</div><div class="card-val" id="y-days">—</div><div class="card-sub">วัน</div></div>
+      </div>
+      <div class="panel" id="yearly-chart-section">
+        <div class="panel-hdr">
+          <div><div class="panel-title" id="y-chart-title">OT รายปี</div><div class="panel-sub" id="y-sub">กรุณาเลือกปี</div></div>
+          <div class="legend">
+            <div class="li"><div class="ld" style="background:var(--primary)"></div>พนักงาน OT (คน)</div>
+            <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT</div>
+            <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
+          </div>
+        </div>
+        <canvas id="yearlyChart"></canvas>
+      </div>
+      <div class="tpanel" id="yearly-table-section">
+        <h3 id="y-table-title">รายละเอียดรายปี</h3>
+        <div class="tscroll">
+          <table>
+            <thead id="y-thead"></thead>
+            <tbody id="y-tbody"></tbody>
           </table>
         </div>
       </div>
@@ -665,10 +720,130 @@ function renderOverall() {
   });
 }
 
+/* ─── YEARLY ────────────────────────────────────── */
+let yearlyMode = 'month'; // 'month' | 'dept'
+
+function setYearlyMode(mode, btn) {
+  yearlyMode = mode;
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderYearly();
+}
+
+const MONTH_LABELS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+function renderYearly() {
+  clearErr();
+  const buddhistYear = parseInt(document.getElementById('yearPicker').value);
+  if (!buddhistYear) { setErr('กรุณาเลือกปี'); return; }
+  const ceYear = buddhistYear - 543;
+  const filtered = rows.filter(r => parseInt(r.date.slice(0,4)) === ceYear);
+  if (!filtered.length) { setErr(`ไม่พบข้อมูลปี พ.ศ. ${buddhistYear}`); return; }
+
+  // Summary cards
+  const totalHrs = filtered.reduce((s,r) => s + r.otHrs, 0);
+  const totalEmp = filtered.reduce((s,r) => s + r.otEmp, 0);
+  const avgPct   = filtered.length ? filtered.reduce((s,r) => s + r.pct, 0) / filtered.length : 0;
+  set('y-hrs',  totalHrs.toFixed(1));
+  set('y-emp',  totalEmp);
+  set('y-pct',  avgPct.toFixed(2) + '%');
+  set('y-days', filtered.length);
+  set('y-sub',  `ปี พ.ศ. ${buddhistYear} · ${filtered.length} วัน`);
+
+  let labels, empData, hrsData, pctData, tableRows;
+
+  if (yearlyMode === 'month') {
+    // Aggregate by month (1–12)
+    set('y-chart-title', `OT รายปี ${buddhistYear} แยกตามเดือน`);
+    set('y-table-title', `รายละเอียดรายปี ${buddhistYear} แยกตามเดือน`);
+    const months = Array.from({length:12}, (_,i) => {
+      const m = String(i+1).padStart(2,'0');
+      const mRows = filtered.filter(r => r.date.slice(5,7) === m);
+      const hrs  = mRows.reduce((s,r) => s + r.otHrs, 0);
+      const emp  = mRows.reduce((s,r) => s + r.otEmp, 0);
+      const pct  = mRows.length ? mRows.reduce((s,r) => s + r.pct, 0) / mRows.length : 0;
+      return { label: MONTH_LABELS[i], hrs, emp, pct, days: mRows.length };
+    });
+    labels  = months.map(m => m.label);
+    empData = months.map(m => m.emp);
+    hrsData = months.map(m => m.hrs);
+    pctData = months.map(m => parseFloat(m.pct.toFixed(2)));
+
+    document.getElementById('y-thead').innerHTML =
+      '<tr><th>เดือน</th><th>จำนวนวัน</th><th>พนักงาน OT (คน-วัน)</th><th>ชั่วโมง OT รวม</th><th>% OT เฉลี่ย</th></tr>';
+    tableRows = months.map(m =>
+      `<tr><td style="font-weight:600">${m.label}</td>
+       <td>${m.days}</td>
+       <td><span class="chip chip-t">${m.emp}</span></td>
+       <td><span class="chip chip-o">${m.hrs.toFixed(1)}</span></td>
+       <td><span class="chip chip-p">${m.pct.toFixed(2)}%</span></td></tr>`
+    );
+  } else {
+    // Aggregate by department
+    set('y-chart-title', `OT รายปี ${buddhistYear} แยกตามแผนก`);
+    set('y-table-title', `รายละเอียดรายปี ${buddhistYear} แยกตามแผนก`);
+    const depts = DEPT_NAMES.map(name => {
+      let hrs = 0, emp = 0, total = 0;
+      for (const r of filtered) {
+        const d = r.depts.find(x => x.name === name);
+        if (d) { hrs += d.otHrs; emp += d.otEmp; total += d.total; }
+      }
+      const pct = total > 0 ? (emp / total * 100) : 0;
+      return { name, hrs, emp, pct };
+    });
+    labels  = depts.map(d => d.name);
+    empData = depts.map(d => d.emp);
+    hrsData = depts.map(d => d.hrs);
+    pctData = depts.map(d => parseFloat(d.pct.toFixed(2)));
+
+    document.getElementById('y-thead').innerHTML =
+      '<tr><th>แผนก</th><th>พนักงาน OT (คน-วัน)</th><th>ชั่วโมง OT รวม</th><th>% OT เฉลี่ย</th></tr>';
+    tableRows = depts.map(d =>
+      `<tr><td style="font-weight:600">${d.name}</td>
+       <td><span class="chip chip-t">${d.emp}</span></td>
+       <td><span class="chip chip-o">${d.hrs.toFixed(1)}</span></td>
+       <td><span class="chip chip-p">${d.pct.toFixed(2)}%</span></td></tr>`
+    );
+  }
+
+  document.getElementById('y-tbody').innerHTML = tableRows.join('');
+
+  destroyChart('yearlyChart');
+  const ctx = document.getElementById('yearlyChart').getContext('2d');
+  charts['yearlyChart'] = new Chart(ctx, {
+    data: { labels, datasets: [
+      { label:'พนักงาน OT (คน)', data:empData, type:'bar',  backgroundColor:'rgba(44,126,160,0.7)',  borderColor:'#2c7da0', borderWidth:1, borderRadius:6, yAxisID:'yL' },
+      { label:'ชั่วโมง OT',      data:hrsData, type:'bar',  backgroundColor:'rgba(233,138,62,0.7)', borderColor:'#e98a3e', borderWidth:1, borderRadius:6, yAxisID:'yR' },
+      { label:'% OT',            data:pctData, type:'line', borderColor:'#6b7280', backgroundColor:'rgba(107,114,128,0.05)', borderWidth:2.5, pointBackgroundColor:'#6b7280', pointRadius:5, tension:.3, yAxisID:'yPct' }
+    ]},
+    options: {
+      responsive:true, maintainAspectRatio:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{ ...TT,
+          callbacks:{ label: c => {
+            const v = c.parsed.y;
+            const suf = c.datasetIndex===2 ? '%' : c.datasetIndex===0 ? ' คน' : ' ชม.';
+            return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
+          }}
+        }
+      },
+      scales:{
+        x:    { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:40,font:{size:11}} },
+        yL:   { type:'linear', position:'left',  min:0, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'พนักงาน OT (คน)',color:'#2c7da0',font:{size:11,weight:'500'}} },
+        yR:   { type:'linear', position:'right', min:0, grid:{drawOnChartArea:false}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
+        yPct: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'}, offset:true }
+      }
+    }
+  });
+}
+
 /* ─── EXPORT JPEG ───────────────────────────────── */
 const SECTION_IDS = {
   daily:   { chart: 'daily-chart-section',   table: 'daily-table-section'   },
   monthly: { chart: 'monthly-chart-section', table: 'monthly-table-section' },
+  yearly:  { chart: 'yearly-chart-section',  table: 'yearly-table-section'  },
   overall: { chart: 'overall-chart-section'                                  },
 };
 
@@ -693,6 +868,9 @@ async function exportSection(tabName, section) {
     } else if (tabName === 'monthly') {
       const m = document.getElementById('monthPicker').value;
       if (m) label = 'monthly_' + m;
+    } else if (tabName === 'yearly') {
+      const y = document.getElementById('yearPicker').value;
+      if (y) label = 'yearly_' + y;
     } else {
       label = 'overall';
     }
@@ -743,6 +921,7 @@ async function init() {
 
     document.getElementById('datePicker').value  = lastDate;
     document.getElementById('monthPicker').value = lastDate.slice(0, 7);
+    document.getElementById('yearPicker').value  = parseInt(lastDate.slice(0,4)) + 543;
 
     renderDaily();
     renderOverall();
