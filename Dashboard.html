@@ -376,21 +376,29 @@ const dataLabelPlugin = {
   afterDatasetsDraw(chart) {
     const { ctx } = chart;
     chart.data.datasets.forEach((dataset, datasetIndex) => {
-      if (dataset.type === 'line') return; // skip line datasets
       const meta = chart.getDatasetMeta(datasetIndex);
       if (meta.hidden) return;
-      meta.data.forEach((bar, index) => {
+      const isLine = dataset.type === 'line';
+      meta.data.forEach((point, index) => {
         const value = dataset.data[index];
         if (!value || value === 0) return;
-        const label = value % 1 === 0 ? value : value.toFixed(1);
+        const label = isLine
+          ? (value % 1 === 0 ? value + '%' : value.toFixed(2) + '%')
+          : (value % 1 === 0 ? value : value.toFixed(1));
         ctx.save();
-        ctx.fillStyle = '#1e293b';
-        ctx.font = '600 11px Sarabun, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        const x = bar.x;
-        const y = bar.y - 3;
-        ctx.fillText(label, x, y);
+        if (isLine) {
+          ctx.fillStyle = '#6b7280';
+          ctx.font = '600 10px Sarabun, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(label, point.x, point.y - 7);
+        } else {
+          ctx.fillStyle = '#1e293b';
+          ctx.font = '600 11px Sarabun, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(label, point.x, point.y - 3);
+        }
         ctx.restore();
       });
     });
