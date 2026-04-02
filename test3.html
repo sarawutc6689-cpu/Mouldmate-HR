@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OT Dashboard – สระบุรี</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -103,6 +104,17 @@ input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,0.1
   box-shadow:0 1px 2px rgba(0,0,0,0.05);
 }
 .btn:hover{background:linear-gradient(135deg,var(--primary-light),var(--primary));transform:translateY(-1px);box-shadow:0 4px 8px rgba(30,74,107,0.2);}
+/* Export button style */
+.btn-export{
+  background:linear-gradient(135deg,#059669,#10b981);
+  border:none;border-radius:10px;color:#fff;
+  font-family:'Sarabun',sans-serif;font-weight:600;font-size:13px;
+  padding:8px 20px;cursor:pointer;transition:all .2s;
+  box-shadow:0 1px 2px rgba(0,0,0,0.05);
+  display:flex;align-items:center;gap:6px;
+}
+.btn-export:hover{background:linear-gradient(135deg,#10b981,#059669);transform:translateY(-1px);box-shadow:0 4px 8px rgba(5,150,105,0.3);}
+.btn-export:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
 .err{
   background:#fee2e2;border-left:4px solid var(--red);
   border-radius:10px;padding:14px 20px;color:#991b1b;
@@ -164,7 +176,7 @@ input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,0.1
 .li{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-light);font-weight:500}
 .ld{width:12px;height:12px;border-radius:4px}
 .ll{width:20px;height:3px;border-radius:2px}
-canvas{max-height:400px;margin-top:8px}
+canvas{max-height:420px;margin-top:8px}
 .tpanel{
   background:var(--s1);border:1px solid var(--border);
   border-radius:20px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.04);
@@ -174,22 +186,38 @@ canvas{max-height:400px;margin-top:8px}
   margin-bottom:18px;color:var(--primary);
 }
 .tscroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}
+/* ── Larger table font ── */
+table{width:100%;border-collapse:collapse;font-size:15px}
 th{
-  text-align:left;padding:12px 16px;color:var(--muted);font-weight:600;
-  font-size:12px;text-transform:uppercase;letter-spacing:0.5px;
+  text-align:left;padding:14px 18px;color:var(--primary);font-weight:700;
+  font-size:14px;text-transform:uppercase;letter-spacing:0.5px;
   border-bottom:2px solid var(--border);background:var(--s2);
 }
-td{padding:12px 16px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:14px 18px;border-bottom:1px solid var(--border);white-space:nowrap;font-size:15px}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(59,130,246,0.03)}
 .chip{
-  display:inline-flex;padding:4px 12px;border-radius:20px;
-  font-size:12px;font-weight:600;
+  display:inline-flex;padding:5px 14px;border-radius:20px;
+  font-size:14px;font-weight:600;
 }
 .chip-t{background:#e6f4ff;color:var(--primary);}
 .chip-o{background:#fff3e6;color:var(--orange);}
 .chip-p{background:#f1f5f9;color:var(--purple);}
+
+/* Export overlay spinner */
+.export-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
+  z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:14px;
+}
+.export-overlay.show{display:flex}
+.export-spinner{
+  width:44px;height:44px;border:4px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.export-overlay p{color:#fff;font-size:15px;font-weight:600;font-family:'Sarabun',sans-serif}
+
 @media(max-width:700px){
   main,header,.tabs{padding-left:20px;padding-right:20px}
   .cards{grid-template-columns:repeat(2,1fr)}
@@ -199,6 +227,11 @@ tr:hover td{background:rgba(59,130,246,0.03)}
 </style>
 </head>
 <body>
+<div class="export-overlay" id="exportOverlay">
+  <div class="export-spinner"></div>
+  <p>กำลังสร้างภาพ...</p>
+</div>
+
 <header>
   <div class="logo">OT</div>
   <h1>OT Dashboard <span>ติดตามการทำงานล่วงเวลา สระบุรี</span></h1>
@@ -220,33 +253,37 @@ tr:hover td{background:rgba(59,130,246,0.03)}
       <span class="clabel">วันที่</span>
       <input type="date" id="datePicker">
       <button class="btn" onclick="renderDaily()">แสดงข้อมูล</button>
+      <button class="btn-export" id="btn-export-daily-chart" onclick="exportSection('daily','chart')">📊 Export กราฟ</button>
+      <button class="btn-export" id="btn-export-daily-table" onclick="exportSection('daily','table')">📋 Export ตาราง</button>
     </div>
-    <div class="cards">
-      <div class="card"><div class="card-lbl">พนักงานทำ OT</div><div class="card-val" id="d-otEmp">—</div><div class="card-sub">คน</div></div>
-      <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="d-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
-      <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="d-pct">—</div><div class="card-sub">ทุกแผนก</div></div>
-      <div class="card"><div class="card-lbl">จำนวนแผนก</div><div class="card-val" id="d-dept">—</div><div class="card-sub">แผนก</div></div>
-    </div>
-    <div class="panel">
-      <div class="panel-hdr">
-        <div><div class="panel-title">OT รายวัน แยกตามแผนก</div><div class="panel-sub" id="d-sub">กรุณาเลือกวันที่</div></div>
-        <div class="legend">
-          <div class="li"><div class="ld" style="background:var(--primary)"></div>พนักงาน OT (แกนซ้าย)</div>
-          <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT (แกนขวา)</div>
-          <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
-        </div>
+    <div id="export-daily-content">
+      <div class="cards">
+        <div class="card"><div class="card-lbl">พนักงานทำ OT</div><div class="card-val" id="d-otEmp">—</div><div class="card-sub">คน</div></div>
+        <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="d-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
+        <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="d-pct">—</div><div class="card-sub">ทุกแผนก</div></div>
+        <div class="card"><div class="card-lbl">จำนวนแผนก</div><div class="card-val" id="d-dept">—</div><div class="card-sub">แผนก</div></div>
       </div>
-      <canvas id="dailyChart"></canvas>
-    </div>
-    <div class="tpanel">
-      <h3>รายละเอียดรายวัน</h3>
-      <div class="tscroll">
-        <table>
-          <thead>
-            <tr><th>แผนก</th><th>พนักงานปัจจุบัน</th><th>พนักงานทำ OT</th><th>ชั่วโมง OT</th><th>% OT</th></tr>
-          </thead>
-          <tbody id="d-tbody"></tbody>
-        </table>
+      <div class="panel" id="daily-chart-section">
+        <div class="panel-hdr">
+          <div><div class="panel-title">OT รายวัน แยกตามแผนก</div><div class="panel-sub" id="d-sub">กรุณาเลือกวันที่</div></div>
+          <div class="legend">
+            <div class="li"><div class="ld" style="background:var(--primary)"></div>พนักงาน OT (แกนซ้าย)</div>
+            <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT (แกนขวา)</div>
+            <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
+          </div>
+        </div>
+        <canvas id="dailyChart"></canvas>
+      </div>
+      <div class="tpanel" id="daily-table-section">
+        <h3>รายละเอียดรายวัน</h3>
+        <div class="tscroll">
+          <table>
+            <thead>
+              <tr><th>แผนก</th><th>พนักงานปัจจุบัน</th><th>พนักงานทำ OT</th><th>ชั่วโมง OT</th><th>% OT</th></tr>
+            </thead>
+            <tbody id="d-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -257,29 +294,33 @@ tr:hover td{background:rgba(59,130,246,0.03)}
       <span class="clabel">เดือน</span>
       <input type="month" id="monthPicker">
       <button class="btn" onclick="renderMonthly()">แสดงข้อมูล</button>
+      <button class="btn-export" id="btn-export-monthly-chart" onclick="exportSection('monthly','chart')">📊 Export กราฟ</button>
+      <button class="btn-export" id="btn-export-monthly-table" onclick="exportSection('monthly','table')">📋 Export ตาราง</button>
     </div>
-    <div class="cards">
-      <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="m-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
-      <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="m-pct">—</div><div class="card-sub">ทุกแผนก</div></div>
-      <div class="card"><div class="card-lbl">จำนวนแผนก</div><div class="card-val" id="m-dept">—</div><div class="card-sub">แผนก</div></div>
-    </div>
-    <div class="panel">
-      <div class="panel-hdr">
-        <div><div class="panel-title">OT รายเดือน แยกตามแผนก</div><div class="panel-sub" id="m-sub">กรุณาเลือกเดือน</div></div>
-        <div class="legend">
-          <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT</div>
-          <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
-        </div>
+    <div id="export-monthly-content">
+      <div class="cards">
+        <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="m-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
+        <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="m-pct">—</div><div class="card-sub">ทุกแผนก</div></div>
+        <div class="card"><div class="card-lbl">จำนวนแผนก</div><div class="card-val" id="m-dept">—</div><div class="card-sub">แผนก</div></div>
       </div>
-      <canvas id="monthlyChart"></canvas>
-    </div>
-    <div class="tpanel">
-      <h3>รายละเอียดรายเดือน</h3>
-      <div class="tscroll">
-        <table>
-          <thead><tr><th>แผนก</th><th>ชั่วโมง OT รวม</th><th>% OT เฉลี่ย</th></tr></thead>
-          <tbody id="m-tbody"></tbody>
-        </table>
+      <div class="panel" id="monthly-chart-section">
+        <div class="panel-hdr">
+          <div><div class="panel-title">OT รายเดือน แยกตามแผนก</div><div class="panel-sub" id="m-sub">กรุณาเลือกเดือน</div></div>
+          <div class="legend">
+            <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT</div>
+            <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
+          </div>
+        </div>
+        <canvas id="monthlyChart"></canvas>
+      </div>
+      <div class="tpanel" id="monthly-table-section">
+        <h3>รายละเอียดรายเดือน</h3>
+        <div class="tscroll">
+          <table>
+            <thead><tr><th>แผนก</th><th>ชั่วโมง OT รวม</th><th>% OT เฉลี่ย</th></tr></thead>
+            <tbody id="m-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -288,23 +329,26 @@ tr:hover td{background:rgba(59,130,246,0.03)}
   <div id="tab-overall" class="tab-content">
     <div class="cbar">
       <button class="btn" onclick="renderOverall()">🔄 โหลดข้อมูลรวม</button>
+      <button class="btn-export" id="btn-export-overall-chart" onclick="exportSection('overall','chart')">📊 Export กราฟ</button>
     </div>
-    <div class="cards">
-      <div class="card"><div class="card-lbl">วันที่มีข้อมูล</div><div class="card-val" id="o-days">—</div><div class="card-sub">วัน</div></div>
-      <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="o-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
-      <div class="card"><div class="card-lbl">พนักงาน OT รวม</div><div class="card-val" id="o-emp">—</div><div class="card-sub">คน-วัน</div></div>
-      <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="o-pct">—</div><div class="card-sub">ทุกวัน</div></div>
-    </div>
-    <div class="panel">
-      <div class="panel-hdr">
-        <div><div class="panel-title">ภาพรวม OT รายวัน</div><div class="panel-sub">แสดงทุกวันที่มีข้อมูลในชีต</div></div>
-        <div class="legend">
-          <div class="li"><div class="ld" style="background:var(--primary)"></div>พนักงาน OT (คน)</div>
-          <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT</div>
-          <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
-        </div>
+    <div id="export-overall-content">
+      <div class="cards">
+        <div class="card"><div class="card-lbl">วันที่มีข้อมูล</div><div class="card-val" id="o-days">—</div><div class="card-sub">วัน</div></div>
+        <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="o-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
+        <div class="card"><div class="card-lbl">พนักงาน OT รวม</div><div class="card-val" id="o-emp">—</div><div class="card-sub">คน-วัน</div></div>
+        <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="o-pct">—</div><div class="card-sub">ทุกวัน</div></div>
       </div>
-      <canvas id="overallChart"></canvas>
+      <div class="panel" id="overall-chart-section">
+        <div class="panel-hdr">
+          <div><div class="panel-title">ภาพรวม OT รายวัน</div><div class="panel-sub">แสดงทุกวันที่มีข้อมูลในชีต</div></div>
+          <div class="legend">
+            <div class="li"><div class="ld" style="background:var(--primary)"></div>พนักงาน OT (คน)</div>
+            <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT</div>
+            <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
+          </div>
+        </div>
+        <canvas id="overallChart"></canvas>
+      </div>
     </div>
   </div>
 </main>
@@ -323,9 +367,46 @@ const DEPT_NAMES = [
 let rows   = [];
 let charts = {};
 
-Chart.defaults.color      = '#475569';
+Chart.defaults.color       = '#475569';
 Chart.defaults.borderColor = '#e2e8f0';
 Chart.defaults.font.family = 'Sarabun';
+
+/* ─── Data label plugin (datalabels built-in workaround) ──────────── */
+// We use Chart.js built-in afterDraw to draw custom labels on bars
+const dataLabelPlugin = {
+  id: 'customDataLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    chart.data.datasets.forEach((dataset, datasetIndex) => {
+      const meta = chart.getDatasetMeta(datasetIndex);
+      if (meta.hidden) return;
+      const isLine = dataset.type === 'line';
+      meta.data.forEach((point, index) => {
+        const value = dataset.data[index];
+        if (!value || value === 0) return;
+        const label = isLine
+          ? (value % 1 === 0 ? value + '%' : value.toFixed(2) + '%')
+          : (value % 1 === 0 ? value : value.toFixed(1));
+        ctx.save();
+        if (isLine) {
+          ctx.fillStyle = '#4b5563';
+          ctx.font = '700 13px Sarabun, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(label, point.x, point.y - 8);
+        } else {
+          ctx.fillStyle = '#1e293b';
+          ctx.font = '700 13px Sarabun, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(label, point.x, point.y - 4);
+        }
+        ctx.restore();
+      });
+    });
+  }
+};
+Chart.register(dataLabelPlugin);
 
 /* ─── Fetch & Parse ─────────────────────────────── */
 async function fetchData() {
@@ -448,18 +529,21 @@ function renderDaily() {
     options: {
       responsive:true, maintainAspectRatio:true,
       interaction:{mode:'index',intersect:false},
-      plugins:{ legend:{display:false}, tooltip:{ ...TT,
-        callbacks:{ label: c => {
-          const v = c.parsed.y;
-          const suf = c.datasetIndex===2 ? '%' : c.datasetIndex===0 ? ' คน' : ' ชม.';
-          return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
-        }}
-      }},
+      plugins:{
+        legend:{display:false},
+        tooltip:{ ...TT,
+          callbacks:{ label: c => {
+            const v = c.parsed.y;
+            const suf = c.datasetIndex===2 ? '%' : c.datasetIndex===0 ? ' คน' : ' ชม.';
+            return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
+          }}
+        }
+      },
       scales:{
         x:    { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:40,font:{size:11}} },
-        yL:   { type:'linear', position:'left',  grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'พนักงาน OT (คน)',color:'#2c7da0',font:{size:11,weight:'500'}} },
-        yR:   { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
-        yPct: { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'}, offset:true }
+        yL:   { type:'linear', position:'left',  min:0, max:100, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'พนักงาน OT (คน)',color:'#2c7da0',font:{size:11,weight:'500'}} },
+        yR:   { type:'linear', position:'right', min:0, max:200, grid:{drawOnChartArea:false}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
+        yPct: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'}, offset:true }
       }
     }
   });
@@ -512,16 +596,19 @@ function renderMonthly() {
     options:{
       responsive:true, maintainAspectRatio:true,
       interaction:{mode:'index',intersect:false},
-      plugins:{ legend:{display:false}, tooltip:{ ...TT,
-        callbacks:{ label: c => {
-          const v = c.parsed.y, suf = c.datasetIndex===1 ? '%' : ' ชม.';
-          return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
-        }}
-      }},
+      plugins:{
+        legend:{display:false},
+        tooltip:{ ...TT,
+          callbacks:{ label: c => {
+            const v = c.parsed.y, suf = c.datasetIndex===1 ? '%' : ' ชม.';
+            return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
+          }}
+        }
+      },
       scales:{
         x:  { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:40,font:{size:11}} },
-        yL: { type:'linear', position:'left',  grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
-        yR: { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'} }
+        yL: { type:'linear', position:'left',  min:0, max:200, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
+        yR: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'} }
       }
     }
   });
@@ -560,19 +647,74 @@ function renderOverall() {
     options:{
       responsive:true, maintainAspectRatio:true,
       interaction:{mode:'index',intersect:false},
-      plugins:{ legend:{display:false}, tooltip:{ ...TT,
-        callbacks:{ label: c => {
-          const v = c.parsed.y, suf = c.datasetIndex===2 ? '%' : '';
-          return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
-        }}
-      }},
+      plugins:{
+        legend:{display:false},
+        tooltip:{ ...TT,
+          callbacks:{ label: c => {
+            const v = c.parsed.y, suf = c.datasetIndex===2 ? '%' : '';
+            return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
+          }}
+        }
+      },
       scales:{
         x:  { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:45,font:{size:10}} },
-        yL: { type:'linear', position:'left',  grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'จำนวน / ชั่วโมง',color:'#475569',font:{size:11,weight:'500'}} },
-        yR: { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'} }
+        yL: { type:'linear', position:'left',  min:0, max:200, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'จำนวน / ชั่วโมง',color:'#475569',font:{size:11,weight:'500'}} },
+        yR: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'} }
       }
     }
   });
+}
+
+/* ─── EXPORT JPEG ───────────────────────────────── */
+const SECTION_IDS = {
+  daily:   { chart: 'daily-chart-section',   table: 'daily-table-section'   },
+  monthly: { chart: 'monthly-chart-section', table: 'monthly-table-section' },
+  overall: { chart: 'overall-chart-section'                                  },
+};
+
+async function exportSection(tabName, section) {
+  const btnId = `btn-export-${tabName}-${section}`;
+  const btn = document.getElementById(btnId);
+  const overlay = document.getElementById('exportOverlay');
+  const elId = SECTION_IDS[tabName]?.[section];
+  const contentEl = elId ? document.getElementById(elId) : null;
+
+  if (!contentEl) { alert('ไม่พบเนื้อหาสำหรับ Export'); return; }
+
+  btn.disabled = true;
+  overlay.classList.add('show');
+  await new Promise(r => setTimeout(r, 80));
+
+  try {
+    let label = tabName;
+    if (tabName === 'daily') {
+      const d = document.getElementById('datePicker').value;
+      if (d) label = 'daily_' + d;
+    } else if (tabName === 'monthly') {
+      const m = document.getElementById('monthPicker').value;
+      if (m) label = 'monthly_' + m;
+    } else {
+      label = 'overall';
+    }
+    const suffix = section === 'chart' ? 'chart' : 'table';
+
+    const canvas = await html2canvas(contentEl, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+    });
+
+    const link = document.createElement('a');
+    link.download = `OT_${label}_${suffix}.jpg`;
+    link.href = canvas.toDataURL('image/jpeg', 0.92);
+    link.click();
+  } catch(e) {
+    alert('Export ไม่สำเร็จ: ' + e.message);
+  } finally {
+    overlay.classList.remove('show');
+    btn.disabled = false;
+  }
 }
 
 /* ─── Tab switch ────────────────────────────────── */
