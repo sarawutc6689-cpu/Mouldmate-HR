@@ -539,9 +539,9 @@ function renderDaily() {
       },
       scales:{
         x:    { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:40,font:{size:11}} },
-        yL:   { type:'linear', position:'left',  grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'พนักงาน OT (คน)',color:'#2c7da0',font:{size:11,weight:'500'}} },
-        yR:   { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
-        yPct: { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'}, offset:true }
+        yL:   { type:'linear', position:'left',  min:0, max:100, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'พนักงาน OT (คน)',color:'#2c7da0',font:{size:11,weight:'500'}} },
+        yR:   { type:'linear', position:'right', min:0, max:200, grid:{drawOnChartArea:false}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
+        yPct: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'}, offset:true }
       }
     }
   });
@@ -605,8 +605,8 @@ function renderMonthly() {
       },
       scales:{
         x:  { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:40,font:{size:11}} },
-        yL: { type:'linear', position:'left',  grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
-        yR: { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'} }
+        yL: { type:'linear', position:'left',  min:0, max:200, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
+        yR: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'} }
       }
     }
   });
@@ -656,8 +656,8 @@ function renderOverall() {
       },
       scales:{
         x:  { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:45,font:{size:10}} },
-        yL: { type:'linear', position:'left',  grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'จำนวน / ชั่วโมง',color:'#475569',font:{size:11,weight:'500'}} },
-        yR: { type:'linear', position:'right', grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'} }
+        yL: { type:'linear', position:'left',  min:0, max:200, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'จำนวน / ชั่วโมง',color:'#475569',font:{size:11,weight:'500'}} },
+        yR: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'} }
       }
     }
   });
