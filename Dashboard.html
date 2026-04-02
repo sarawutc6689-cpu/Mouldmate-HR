@@ -189,8 +189,8 @@ canvas{max-height:420px;margin-top:8px}
 /* ── Larger table font ── */
 table{width:100%;border-collapse:collapse;font-size:15px}
 th{
-  text-align:left;padding:14px 18px;color:var(--muted);font-weight:600;
-  font-size:13px;text-transform:uppercase;letter-spacing:0.5px;
+  text-align:left;padding:14px 18px;color:var(--primary);font-weight:700;
+  font-size:14px;text-transform:uppercase;letter-spacing:0.5px;
   border-bottom:2px solid var(--border);background:var(--s2);
 }
 td{padding:14px 18px;border-bottom:1px solid var(--border);white-space:nowrap;font-size:15px}
@@ -387,17 +387,17 @@ const dataLabelPlugin = {
           : (value % 1 === 0 ? value : value.toFixed(1));
         ctx.save();
         if (isLine) {
-          ctx.fillStyle = '#6b7280';
-          ctx.font = '600 10px Sarabun, sans-serif';
+          ctx.fillStyle = '#4b5563';
+          ctx.font = '700 13px Sarabun, sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'bottom';
-          ctx.fillText(label, point.x, point.y - 7);
+          ctx.fillText(label, point.x, point.y - 8);
         } else {
           ctx.fillStyle = '#1e293b';
-          ctx.font = '600 11px Sarabun, sans-serif';
+          ctx.font = '700 13px Sarabun, sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'bottom';
-          ctx.fillText(label, point.x, point.y - 3);
+          ctx.fillText(label, point.x, point.y - 4);
         }
         ctx.restore();
       });
