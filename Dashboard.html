@@ -749,7 +749,7 @@ function renderOverall() {
       },
       scales:{
         x:  { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:45,font:{size:12}} },
-        yL: { type:'linear', position:'left',  min:0, max:1000, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'จำนวน / ชั่วโมง',color:'#475569',font:{size:13,weight:'500'}} },
+        yL: { type:'linear', position:'left',  min:0, max:500, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'จำนวน / ชั่วโมง',color:'#475569',font:{size:13,weight:'500'}} },
         yR: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:13,weight:'500'}}, ticks:{callback:v=>v+'%'} }
       }
     }
