@@ -23,58 +23,65 @@
   --purple:#6b7280;
   --blue:#3b82f6;
   --red:#dc2626;
+  --green:#059669;
   --text:#1e293b;
   --text-light:#475569;
   --muted:#64748b;
   --muted2:#94a3b8;
+  --hl1-bg:#fff9c4;
+  --hl1-txt:#6b4c00;
+  --hl2-bg:#ffe0b2;
+  --hl2-txt:#7c3400;
+  --hl3-bg:#ffcdd2;
+  --hl3-txt:#7f0000;
+  --hl4-bg:#e8a0a8;
+  --hl4-txt:#4a0000;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;font-size:20px;min-height:100vh}
 header{
   background:linear-gradient(135deg,#ffffff,#f8fafc);
   border-bottom:2px solid var(--border);
-  padding:0 32px;height:70px;
+  padding:0 32px;height:76px;
   display:flex;align-items:center;gap:14px;
   position:sticky;top:0;z-index:200;
   box-shadow:0 1px 3px rgba(0,0,0,0.05);
 }
 .logo{
-  width:40px;height:40px;border-radius:12px;flex-shrink:0;
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
   background:linear-gradient(135deg,var(--primary),var(--primary-light));
   display:flex;align-items:center;justify-content:center;
-  font-family:'Kanit',sans-serif;font-weight:700;font-size:16px;color:#fff;
+  font-family:'Kanit',sans-serif;font-weight:700;font-size:18px;color:#fff;
   box-shadow:0 2px 6px rgba(30,74,107,0.2);
 }
 header h1{
-  font-family:'Kanit',sans-serif;font-size:20px;font-weight:600;
-  color:var(--primary);
-  letter-spacing:-0.3px;
+  font-family:'Kanit',sans-serif;font-size:24px;font-weight:600;
+  color:var(--primary);letter-spacing:-0.3px;
 }
 header h1 span{
-  font-size:13px;color:var(--muted);font-weight:400;margin-left:8px;
+  font-size:16px;color:var(--muted);font-weight:400;margin-left:10px;
   font-family:'Sarabun',sans-serif;
 }
 .hright{margin-left:auto;display:flex;align-items:center;gap:12px}
 .pulse{
-  width:10px;height:10px;border-radius:50%;background:var(--accent);
-  animation:pulse 2s infinite;
-  box-shadow:0 0 0 0 rgba(59,130,246,0.4);
+  width:11px;height:11px;border-radius:50%;background:var(--accent);
+  animation:pulse 2s infinite;box-shadow:0 0 0 0 rgba(59,130,246,0.4);
 }
 @keyframes pulse{
   0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(59,130,246,0.4)}
   50%{opacity:.7;box-shadow:0 0 0 6px rgba(59,130,246,0)}
 }
-#statusTxt{font-size:12px;color:var(--muted);font-weight:500}
+#statusTxt{font-size:15px;color:var(--muted);font-weight:500}
 .tabs{
   display:flex;gap:4px;padding:20px 32px 0;border-bottom:2px solid var(--border);
-  background:var(--bg);
+  background:var(--bg);overflow-x:auto;
 }
 .tab{
-  padding:12px 28px;border:none;border-radius:12px 12px 0 0;
+  padding:12px 26px;border:none;border-radius:12px 12px 0 0;
   background:transparent;color:var(--muted2);
-  font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;
-  cursor:pointer;transition:all .2s;position:relative;top:2px;
-  letter-spacing:0.3px;
+  font-family:'Sarabun',sans-serif;font-size:18px;font-weight:600;
+  cursor:pointer;transition:all .2s;position:relative;top:2px;letter-spacing:0.3px;
+  white-space:nowrap;
 }
 .tab.active{
   background:var(--s1);color:var(--primary);
@@ -85,41 +92,44 @@ header h1 span{
 main{padding:28px 32px;max-width:1600px;margin:0 auto}
 .tab-content{display:none}.tab-content.active{display:block}
 .cbar{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
-.clabel{
-  font-size:13px;color:var(--text-light);font-weight:500;
-  letter-spacing:0.3px;
-}
-input[type=date],input[type=month]{
+.clabel{font-size:17px;color:var(--text-light);font-weight:600;letter-spacing:0.3px;}
+input[type=date],input[type=month],input[type=number]{
   background:var(--s1);border:1px solid var(--border2);border-radius:10px;
-  color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;
-  padding:8px 16px;outline:none;transition:all .2s;cursor:pointer;
+  color:var(--text);font-family:'Sarabun',sans-serif;font-size:18px;
+  padding:9px 18px;outline:none;transition:all .2s;cursor:pointer;
   box-shadow:0 1px 2px rgba(0,0,0,0.02);
 }
 input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
 .btn{
   background:linear-gradient(135deg,var(--primary),var(--primary-light));
   border:none;border-radius:10px;color:#fff;
-  font-family:'Sarabun',sans-serif;font-weight:600;font-size:13px;
-  padding:8px 20px;cursor:pointer;transition:all .2s;
+  font-family:'Sarabun',sans-serif;font-weight:600;font-size:17px;
+  padding:9px 22px;cursor:pointer;transition:all .2s;
   box-shadow:0 1px 2px rgba(0,0,0,0.05);
 }
 .btn:hover{background:linear-gradient(135deg,var(--primary-light),var(--primary));transform:translateY(-1px);box-shadow:0 4px 8px rgba(30,74,107,0.2);}
-/* Export button style */
 .btn-export{
   background:linear-gradient(135deg,#059669,#10b981);
   border:none;border-radius:10px;color:#fff;
-  font-family:'Sarabun',sans-serif;font-weight:600;font-size:13px;
-  padding:8px 20px;cursor:pointer;transition:all .2s;
+  font-family:'Sarabun',sans-serif;font-weight:600;font-size:17px;
+  padding:9px 22px;cursor:pointer;transition:all .2s;
   box-shadow:0 1px 2px rgba(0,0,0,0.05);
   display:flex;align-items:center;gap:6px;
 }
 .btn-export:hover{background:linear-gradient(135deg,#10b981,#059669);transform:translateY(-1px);box-shadow:0 4px 8px rgba(5,150,105,0.3);}
 .btn-export:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.toggle-group{display:flex;border:1px solid var(--border2);border-radius:10px;overflow:hidden;background:var(--s1);}
+.toggle-btn{
+  padding:9px 20px;border:none;background:transparent;
+  font-family:'Sarabun',sans-serif;font-size:17px;font-weight:600;
+  color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.toggle-btn.active{background:var(--primary);color:#fff;}
+.toggle-btn:hover:not(.active){background:var(--s3);color:var(--primary);}
 .err{
   background:#fee2e2;border-left:4px solid var(--red);
   border-radius:10px;padding:14px 20px;color:#991b1b;
-  font-size:13px;margin-bottom:20px;display:none;
-  font-weight:500;
+  font-size:17px;margin-bottom:20px;display:none;font-weight:500;
 }
 .cards{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
@@ -130,81 +140,100 @@ input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,0.1
   border-radius:20px;padding:20px 24px;position:relative;
   overflow:hidden;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,0.04);
 }
-.card:hover{
-  border-color:var(--border2);box-shadow:0 4px 12px rgba(0,0,0,0.05);
-  transform:translateY(-2px);
-}
-.card::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:4px;
-  border-radius:20px 20px 0 0;
-}
+.card:hover{border-color:var(--border2);box-shadow:0 4px 12px rgba(0,0,0,0.05);transform:translateY(-2px);}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:20px 20px 0 0;}
 .card:nth-child(1)::after{background:var(--primary)}
 .card:nth-child(2)::after{background:var(--orange)}
 .card:nth-child(3)::after{background:var(--purple)}
 .card:nth-child(4)::after{background:var(--accent)}
-.card-lbl{
-  font-size:12px;color:var(--muted);font-weight:600;
-  text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;
-}
-.card-val{
-  font-family:'Kanit',sans-serif;font-size:32px;font-weight:700;
-  line-height:1;margin-bottom:4px;
-}
+.card-lbl{font-size:15px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+.card-val{font-family:'Kanit',sans-serif;font-size:36px;font-weight:700;line-height:1;margin-bottom:4px;}
 .card:nth-child(1) .card-val{color:var(--primary)}
 .card:nth-child(2) .card-val{color:var(--orange)}
 .card:nth-child(3) .card-val{color:var(--purple)}
 .card:nth-child(4) .card-val{color:var(--accent)}
-.card-sub{font-size:12px;color:var(--muted);font-weight:400}
+.card-sub{font-size:15px;color:var(--muted);font-weight:400}
 .panel{
   background:var(--s1);border:1px solid var(--border);
   border-radius:20px;padding:24px;margin-bottom:28px;
   box-shadow:0 1px 3px rgba(0,0,0,0.04);
 }
-.panel-hdr{
-  display:flex;justify-content:space-between;align-items:flex-start;
-  margin-bottom:20px;flex-wrap:wrap;gap:12px;
-}
-.panel-title{
-  font-family:'Kanit',sans-serif;font-size:16px;font-weight:600;
-  color:var(--primary);
-}
-.panel-sub{
-  font-size:12px;color:var(--muted);margin-top:4px;
-  font-weight:400;
-}
+.panel-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.panel-title{font-family:'Kanit',sans-serif;font-size:20px;font-weight:600;color:var(--primary);}
+.panel-sub{font-size:15px;color:var(--muted);margin-top:4px;font-weight:400;}
 .legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
-.li{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-light);font-weight:500}
-.ld{width:12px;height:12px;border-radius:4px}
-.ll{width:20px;height:3px;border-radius:2px}
+.li{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--text-light);font-weight:500}
+.ld{width:13px;height:13px;border-radius:4px}
+.ll{width:22px;height:3px;border-radius:2px}
 canvas{max-height:420px;margin-top:8px}
 .tpanel{
   background:var(--s1);border:1px solid var(--border);
   border-radius:20px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.04);
 }
-.tpanel h3{
-  font-family:'Kanit',sans-serif;font-size:15px;font-weight:600;
-  margin-bottom:18px;color:var(--primary);
-}
+.tpanel h3{font-family:'Kanit',sans-serif;font-size:20px;font-weight:600;margin-bottom:18px;color:var(--primary);}
 .tscroll{overflow-x:auto}
-/* ── Larger table font ── */
-table{width:100%;border-collapse:collapse;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:28px}
 th{
-  text-align:left;padding:14px 18px;color:var(--primary);font-weight:700;
-  font-size:14px;text-transform:uppercase;letter-spacing:0.5px;
+  text-align:left;padding:16px 20px;color:var(--primary);font-weight:700;
+  font-size:22px;
+  text-transform:uppercase;letter-spacing:0.5px;
   border-bottom:2px solid var(--border);background:var(--s2);
 }
-td{padding:14px 18px;border-bottom:1px solid var(--border);white-space:nowrap;font-size:15px}
+td{padding:14px 20px;border-bottom:1px solid var(--border);white-space:nowrap;font-size:18px}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(59,130,246,0.03)}
+tr.hl-1 td{background:var(--hl1-bg) !important;color:var(--hl1-txt)}
+tr.hl-2 td{background:var(--hl2-bg) !important;color:var(--hl2-txt)}
+tr.hl-3 td{background:var(--hl3-bg) !important;color:var(--hl3-txt)}
+tr.hl-4 td{background:var(--hl4-bg) !important;color:var(--hl4-txt)}
 .chip{
-  display:inline-flex;padding:5px 14px;border-radius:20px;
-  font-size:14px;font-weight:600;
+  display:inline-flex;padding:5px 16px;border-radius:20px;
+  font-size:18px;font-weight:600;
 }
 .chip-t{background:#e6f4ff;color:var(--primary);}
 .chip-o{background:#fff3e6;color:var(--orange);}
 .chip-p{background:#f1f5f9;color:var(--purple);}
-
-/* Export overlay spinner */
+.chip-g{background:#d1fae5;color:#065f46;}
+.hl-legend{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  margin-bottom:14px;padding:12px 16px;
+  background:var(--s2);border:1px solid var(--border);border-radius:12px;
+  font-size:16px;
+}
+.hl-legend-item{display:flex;align-items:center;gap:6px;font-weight:600;}
+.hl-swatch{width:18px;height:18px;border-radius:4px;border:1px solid rgba(0,0,0,0.12);flex-shrink:0;}
+select.dept-select{
+  background:var(--s1);border:1px solid var(--border2);border-radius:10px;
+  color:var(--text);font-family:'Sarabun',sans-serif;font-size:18px;
+  padding:9px 18px;outline:none;cursor:pointer;
+  transition:all .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02);
+  min-width:200px;
+}
+select.dept-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+input.search-emp{
+  background:var(--s1);border:1px solid var(--border2);border-radius:10px;
+  color:var(--text);font-family:'Sarabun',sans-serif;font-size:17px;
+  padding:9px 18px 9px 40px;outline:none;width:260px;
+  transition:all .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:13px center;
+}
+input.search-emp:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.dept-loading{
+  display:none;text-align:center;padding:60px 20px;
+}
+.dept-loading .spin{
+  width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--primary);
+  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;
+}
+.dept-loading p{color:var(--muted);font-size:18px;font-weight:500}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dept-chart-wrap{position:relative;height:420px;overflow:hidden}
+#deptChart{max-height:none !important}
+.tpanel-hdr{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:16px;flex-wrap:wrap;gap:12px;
+}
 .export-overlay{
   display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);
   z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:14px;
@@ -215,14 +244,16 @@ tr:hover td{background:rgba(59,130,246,0.03)}
   border-top-color:#fff;border-radius:50%;
   animation:spin .8s linear infinite;
 }
-@keyframes spin{to{transform:rotate(360deg)}}
-.export-overlay p{color:#fff;font-size:15px;font-weight:600;font-family:'Sarabun',sans-serif}
-
+.export-overlay p{color:#fff;font-size:18px;font-weight:600;font-family:'Sarabun',sans-serif}
+.no-data-row td{
+  text-align:center;color:var(--muted);padding:40px;font-size:18px;
+}
 @media(max-width:700px){
   main,header,.tabs{padding-left:20px;padding-right:20px}
   .cards{grid-template-columns:repeat(2,1fr)}
-  .card-val{font-size:26px}
-  .tab{padding:10px 20px;font-size:13px}
+  .card-val{font-size:28px}
+  .tab{padding:10px 16px;font-size:15px}
+  input.search-emp{width:100%}
 }
 </style>
 </head>
@@ -241,20 +272,22 @@ tr:hover td{background:rgba(59,130,246,0.03)}
 <div class="tabs">
   <button class="tab active" onclick="switchTab('daily',this)">📅 รายวัน</button>
   <button class="tab" onclick="switchTab('monthly',this)">📆 รายเดือน</button>
+  <button class="tab" onclick="switchTab('yearly',this)">📈 รายปี</button>
   <button class="tab" onclick="switchTab('overall',this)">📊 ภาพรวม</button>
+  <button class="tab" onclick="switchTab('dept',this)">🏢 รายแผนก</button>
 </div>
 
 <main>
   <div id="errBox" class="err"></div>
 
-  <!-- DAILY -->
+  <!-- DAILY TAB -->
   <div id="tab-daily" class="tab-content active">
     <div class="cbar">
       <span class="clabel">วันที่</span>
       <input type="date" id="datePicker">
       <button class="btn" onclick="renderDaily()">แสดงข้อมูล</button>
-      <button class="btn-export" id="btn-export-daily-chart" onclick="exportSection('daily','chart')">📊 Export กราฟ</button>
-      <button class="btn-export" id="btn-export-daily-table" onclick="exportSection('daily','table')">📋 Export ตาราง</button>
+      <button class="btn-export" onclick="exportSection('daily','chart')">📊 Export กราฟ</button>
+      <button class="btn-export" onclick="exportSection('daily','table')">📋 Export ตาราง</button>
     </div>
     <div id="export-daily-content">
       <div class="cards">
@@ -276,11 +309,16 @@ tr:hover td{background:rgba(59,130,246,0.03)}
       </div>
       <div class="tpanel" id="daily-table-section">
         <h3>รายละเอียดรายวัน</h3>
+        <div class="hl-legend">
+          <span style="font-weight:700;color:var(--primary);margin-right:4px;">สีแถว OT:</span>
+          <span class="hl-legend-item"><span class="hl-swatch" style="background:#fff9c4"></span><span style="color:#6b4c00;">1–10 คน</span></span>
+          <span class="hl-legend-item"><span class="hl-swatch" style="background:#ffe0b2"></span><span style="color:#7c3400;">11–25 คน</span></span>
+          <span class="hl-legend-item"><span class="hl-swatch" style="background:#ffcdd2"></span><span style="color:#7f0000;">26–50 คน</span></span>
+          <span class="hl-legend-item"><span class="hl-swatch" style="background:#e8a0a8"></span><span style="color:#4a0000;">51+ คน</span></span>
+        </div>
         <div class="tscroll">
           <table>
-            <thead>
-              <tr><th>แผนก</th><th>พนักงานปัจจุบัน</th><th>พนักงานทำ OT</th><th>ชั่วโมง OT</th><th>% OT</th></tr>
-            </thead>
+            <thead><tr><th>แผนก</th><th>พนักงานปัจจุบัน</th><th>พนักงานทำ OT</th><th>ชั่วโมง OT</th><th>% OT</th></tr></thead>
             <tbody id="d-tbody"></tbody>
           </table>
         </div>
@@ -288,14 +326,14 @@ tr:hover td{background:rgba(59,130,246,0.03)}
     </div>
   </div>
 
-  <!-- MONTHLY -->
+  <!-- MONTHLY TAB -->
   <div id="tab-monthly" class="tab-content">
     <div class="cbar">
       <span class="clabel">เดือน</span>
       <input type="month" id="monthPicker">
       <button class="btn" onclick="renderMonthly()">แสดงข้อมูล</button>
-      <button class="btn-export" id="btn-export-monthly-chart" onclick="exportSection('monthly','chart')">📊 Export กราฟ</button>
-      <button class="btn-export" id="btn-export-monthly-table" onclick="exportSection('monthly','table')">📋 Export ตาราง</button>
+      <button class="btn-export" onclick="exportSection('monthly','chart')">📊 Export กราฟ</button>
+      <button class="btn-export" onclick="exportSection('monthly','table')">📋 Export ตาราง</button>
     </div>
     <div id="export-monthly-content">
       <div class="cards">
@@ -325,11 +363,54 @@ tr:hover td{background:rgba(59,130,246,0.03)}
     </div>
   </div>
 
-  <!-- OVERALL -->
+  <!-- YEARLY TAB -->
+  <div id="tab-yearly" class="tab-content">
+    <div class="cbar">
+      <span class="clabel">ปี (พ.ศ.)</span>
+      <input type="number" id="yearPicker" min="2560" max="2580" step="1" style="background:#fff;border:1px solid #cbd5e1;border-radius:10px;color:#1e293b;font-family:'Sarabun',sans-serif;font-size:18px;padding:9px 18px;outline:none;width:120px;">
+      <button class="btn" onclick="renderYearly()">แสดงข้อมูล</button>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="y-toggle-month" onclick="setYearlyMode('month',this)">รายเดือน</button>
+        <button class="toggle-btn" id="y-toggle-dept" onclick="setYearlyMode('dept',this)">รายแผนก</button>
+      </div>
+      <button class="btn-export" onclick="exportSection('yearly','chart')">📊 Export กราฟ</button>
+      <button class="btn-export" onclick="exportSection('yearly','table')">📋 Export ตาราง</button>
+    </div>
+    <div id="export-yearly-content">
+      <div class="cards">
+        <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="y-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
+        <div class="card"><div class="card-lbl">พนักงาน OT รวม</div><div class="card-val" id="y-emp">—</div><div class="card-sub">คน-วัน</div></div>
+        <div class="card"><div class="card-lbl">% OT เฉลี่ย</div><div class="card-val" id="y-pct">—</div><div class="card-sub">ทั้งปี</div></div>
+        <div class="card"><div class="card-lbl">จำนวนวันข้อมูล</div><div class="card-val" id="y-days">—</div><div class="card-sub">วัน</div></div>
+      </div>
+      <div class="panel" id="yearly-chart-section">
+        <div class="panel-hdr">
+          <div><div class="panel-title" id="y-chart-title">OT รายปี</div><div class="panel-sub" id="y-sub">กรุณาเลือกปี</div></div>
+          <div class="legend">
+            <div class="li"><div class="ld" style="background:var(--primary)"></div>พนักงาน OT (คน)</div>
+            <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT</div>
+            <div class="li"><div class="ll" style="background:var(--purple)"></div>% OT</div>
+          </div>
+        </div>
+        <canvas id="yearlyChart"></canvas>
+      </div>
+      <div class="tpanel" id="yearly-table-section">
+        <h3 id="y-table-title">รายละเอียดรายปี</h3>
+        <div class="tscroll">
+          <table>
+            <thead id="y-thead"></thead>
+            <tbody id="y-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERALL TAB -->
   <div id="tab-overall" class="tab-content">
     <div class="cbar">
       <button class="btn" onclick="renderOverall()">🔄 โหลดข้อมูลรวม</button>
-      <button class="btn-export" id="btn-export-overall-chart" onclick="exportSection('overall','chart')">📊 Export กราฟ</button>
+      <button class="btn-export" onclick="exportSection('overall','chart')">📊 Export กราฟ</button>
     </div>
     <div id="export-overall-content">
       <div class="cards">
@@ -351,10 +432,99 @@ tr:hover td{background:rgba(59,130,246,0.03)}
       </div>
     </div>
   </div>
+
+  <!-- DEPT TAB - ปรับปรุงใหม่ -->
+  <div id="tab-dept" class="tab-content">
+    <div class="cbar">
+      <span class="clabel">แผนก</span>
+      <select class="dept-select" id="deptSelector">
+        <option value="">-- เลือกแผนก --</option>
+        <option value="ผสมยาง">ผสมยาง</option>
+        <option value="ยางตีนตะขาบ">ยางตีนตะขาบ</option>
+        <option value="ยางตัน">ยางตัน</option>
+        <option value="วิศวกรรม">วิศวกรรม</option>
+        <option value="บริการยานยนต์">บริการยานยนต์</option>
+        <option value="R&D Compound">R&D Compound</option>
+        <option value="R&D Product Design">R&D Product Design</option>
+        <option value="ควบคุมคุณภาพ">ควบคุมคุณภาพ</option>
+        <option value="Mold Production">Mold Production</option>
+        <option value="วางแผนการผลิต">วางแผนการผลิต</option>
+        <option value="คลังวัตถุดิบฯ">คลังวัตถุดิบฯ</option>
+        <option value="คลังสินค้า">คลังสินค้า</option>
+        <option value="อาคารสถานที่">อาคารสถานที่</option>
+        <option value="สำนักงาน">สำนักงาน</option>
+      </select>
+
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="dept-toggle-daily" onclick="setDeptMode('daily',this)">รายวัน</button>
+        <button class="toggle-btn" id="dept-toggle-monthly" onclick="setDeptMode('monthly',this)">รายเดือน</button>
+        <button class="toggle-btn" id="dept-toggle-yearly" onclick="setDeptMode('yearly',this)">รายปี</button>
+      </div>
+
+      <div id="dept-date-controls">
+        <input type="date" id="deptDatePicker">
+        <input type="month" id="deptMonthPicker" style="display:none">
+        <input type="number" id="deptYearPicker" min="2560" max="2580" step="1" style="display:none;width:120px;">
+      </div>
+
+      <button class="btn" onclick="renderDept()">แสดงข้อมูล</button>
+      <button class="btn-export" onclick="exportSection('dept','chart')">📊 Export กราฟ</button>
+      <button class="btn-export" onclick="exportSection('dept','table')">📋 Export ตาราง</button>
+    </div>
+
+    <div class="dept-loading" id="dept-loading">
+      <div class="spin"></div>
+      <p>กำลังโหลดข้อมูลแผนก...</p>
+    </div>
+
+    <div id="export-dept-content" style="display:none">
+      <div class="cards">
+        <div class="card"><div class="card-lbl">พนักงานทำ OT</div><div class="card-val" id="dept-emp">—</div><div class="card-sub">คน</div></div>
+        <div class="card"><div class="card-lbl">ชั่วโมง OT รวม</div><div class="card-val" id="dept-hrs">—</div><div class="card-sub">ชั่วโมง</div></div>
+        <div class="card"><div class="card-lbl">เฉลี่ย / คน</div><div class="card-val" id="dept-avg">—</div><div class="card-sub">ชั่วโมง</div></div>
+        <div class="card"><div class="card-lbl">สูงสุด / คน</div><div class="card-val" id="dept-max">—</div><div class="card-sub">ชั่วโมง</div></div>
+      </div>
+
+      <div class="panel" id="dept-chart-section">
+        <div class="panel-hdr">
+          <div>
+            <div class="panel-title" id="dept-chart-title">OT รายแผนก</div>
+            <div class="panel-sub" id="dept-sub">กรุณาเลือกแผนกและช่วงเวลา</div>
+          </div>
+          <div class="legend">
+            <div class="li"><div class="ld" style="background:var(--orange)"></div>ชั่วโมง OT</div>
+          </div>
+        </div>
+        <div class="dept-chart-wrap">
+          <canvas id="deptChart"></canvas>
+        </div>
+      </div>
+
+      <div class="tpanel" id="dept-table-section">
+        <div class="tpanel-hdr">
+          <h3 id="dept-table-title">รายละเอียดพนักงาน</h3>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <span id="dept-count-label" style="font-size:16px;color:var(--muted);font-weight:500"></span>
+            <input class="search-emp" type="text" id="empSearch" placeholder="ค้นหา รหัส / ชื่อ..." oninput="filterEmpTable()">
+          </div>
+        </div>
+        <div class="tscroll">
+          <table>
+            <thead id="dept-thead"></thead>
+            <tbody id="dept-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <script>
-const SHEET_ID   = '17_tx5flqRab3nTxoL7hrT227PYlff_XCgmgaCim1ghA';
+/* ============================================
+   CONSTANTS & GLOBALS
+============================================ */
+const SHEET_ID = '17_tx5flqRab3nTxoL7hrT227PYlff_XCgmgaCim1ghA';
+const SHEET_ID_DEPT = '1_cXJYLMwzK_a7krK-viLutKigmsXwVFcLlCNhiRIa0M';
 const SHEET_NAME = 'data';
 
 const DEPT_NAMES = [
@@ -364,15 +534,75 @@ const DEPT_NAMES = [
   'คลังวัตถุดิบฯ','คลังสินค้า','อาคารสถานที่','สำนักงาน'
 ];
 
-let rows   = [];
-let charts = {};
+const MONTH_LABELS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
-Chart.defaults.color       = '#475569';
+let rows = [];
+let charts = {};
+let yearlyMode = 'month';
+
+// Dept tab variables
+let deptMode = 'daily';
+let deptRawData = [];
+let deptCurrentSheet = '';
+
+Chart.defaults.color = '#0C0C0D';
 Chart.defaults.borderColor = '#e2e8f0';
 Chart.defaults.font.family = 'Sarabun';
+Chart.defaults.font.size = 16;
 
-/* ─── Data label plugin (datalabels built-in workaround) ──────────── */
-// We use Chart.js built-in afterDraw to draw custom labels on bars
+/* ============================================
+   HELPER FUNCTIONS
+============================================ */
+function setStatus(t) { document.getElementById('statusTxt').textContent = t; }
+function setErr(msg) { const el = document.getElementById('errBox'); el.textContent = '⚠️ ' + msg; el.style.display = 'block'; }
+function clearErr() { document.getElementById('errBox').style.display = 'none'; }
+function set(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+function fmtDate(d) { const [y,m,day] = d.split('-'); return `${parseInt(day)}/${parseInt(m)}/${parseInt(y)+543}`; }
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function hlClass(otEmp) {
+  if (otEmp <= 0) return '';
+  if (otEmp <= 10) return 'hl-1';
+  if (otEmp <= 25) return 'hl-2';
+  if (otEmp <= 50) return 'hl-3';
+  return 'hl-4';
+}
+
+function num(v) {
+  if (v === undefined || v === null || v === '') return 0;
+  const n = parseFloat(String(v).replace(/,/g, ''));
+  return isNaN(n) ? 0 : n;
+}
+
+function normalizeDate(raw) {
+  const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) {
+    const yr = parseInt(m[3]) > 2400 ? parseInt(m[3]) - 543 : parseInt(m[3]);
+    return `${yr}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  if (/^\d{4,5}$/.test(raw)) {
+    const d = new Date(Date.UTC(1899, 11, 30));
+    d.setUTCDate(d.getUTCDate() + parseInt(raw));
+    return d.toISOString().slice(0, 10);
+  }
+  return null;
+}
+
+function parseCSV(text) {
+  return text.replace(/\r/g, '').split('\n').map(line => {
+    const row = [];
+    let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') inQ = !inQ;
+      else if (ch === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    row.push(cur.trim());
+    return row;
+  });
+}
+
 const dataLabelPlugin = {
   id: 'customDataLabels',
   afterDatasetsDraw(chart) {
@@ -384,23 +614,13 @@ const dataLabelPlugin = {
       meta.data.forEach((point, index) => {
         const value = dataset.data[index];
         if (!value || value === 0) return;
-        const label = isLine
-          ? (value % 1 === 0 ? value + '%' : value.toFixed(2) + '%')
-          : (value % 1 === 0 ? value : value.toFixed(1));
+        const label = isLine ? (value % 1 === 0 ? value + '%' : value.toFixed(2) + '%') : (value % 1 === 0 ? value : value.toFixed(1));
         ctx.save();
-        if (isLine) {
-          ctx.fillStyle = '#4b5563';
-          ctx.font = '700 13px Sarabun, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(label, point.x, point.y - 8);
-        } else {
-          ctx.fillStyle = '#1e293b';
-          ctx.font = '700 13px Sarabun, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(label, point.x, point.y - 4);
-        }
+        ctx.fillStyle = isLine ? '#4b5563' : '#1e293b';
+        ctx.font = '700 13px Sarabun, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(label, point.x, isLine ? point.y - 8 : point.y - 4);
         ctx.restore();
       });
     });
@@ -408,25 +628,14 @@ const dataLabelPlugin = {
 };
 Chart.register(dataLabelPlugin);
 
-/* ─── Fetch & Parse ─────────────────────────────── */
+/* ============================================
+   MAIN DATA FETCH
+============================================ */
 async function fetchData() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return parseCSV(await res.text());
-}
-
-function parseCSV(text) {
-  return text.replace(/\r/g,'').split('\n').map(line => {
-    const row = []; let cur = '', inQ = false;
-    for (const ch of line) {
-      if (ch === '"') inQ = !inQ;
-      else if (ch === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
-      else cur += ch;
-    }
-    row.push(cur.trim());
-    return row;
-  });
 }
 
 function parseAllRows(csvRows) {
@@ -436,84 +645,405 @@ function parseAllRows(csvRows) {
     if (!r || !r[0]) continue;
     const raw = r[0].trim();
     if (!raw || /รวม|total/i.test(raw)) continue;
-
     const date = normalizeDate(raw);
     if (!date) continue;
-
     const totalEmp = num(r[1]);
-    const otEmp    = num(r[2]);
-    const otHrs    = num(r[4]);
-    const pct      = num(r[5]);
-
+    const otEmp = num(r[2]);
+    const otHrs = num(r[4]);
+    const pct = num(r[5]);
     const depts = DEPT_NAMES.map((name, d) => {
-      const base   = 6 + d * 3;
-      const dTotal = num(r[base + 0]);
+      const base = 6 + d * 3;
+      const dTotal = num(r[base]);
       const dOtEmp = num(r[base + 1]);
       const dOtHrs = num(r[base + 2]);
-      const dPct   = dTotal > 0 ? (dOtEmp / dTotal * 100) : 0;
+      const dPct = dTotal > 0 ? (dOtEmp / dTotal * 100) : 0;
       return { name, total: dTotal, otEmp: dOtEmp, otHrs: dOtHrs, pct: dPct };
     });
-
     data.push({ date, totalEmp, otEmp, otHrs, pct, depts });
   }
   return data;
 }
 
-function normalizeDate(raw) {
-  const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m) {
-    const yr = parseInt(m[3]) > 2400 ? parseInt(m[3]) - 543 : parseInt(m[3]);
-    return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+/* ============================================
+   DEPT SHEET FUNCTIONS
+============================================ */
+function findColIn(header, ...keywords) {
+  for (const kw of keywords) {
+    const idx = header.findIndex(h => h && h.toLowerCase().includes(kw.toLowerCase()));
+    if (idx >= 0) return idx;
   }
-  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
-  if (/^\d{4,5}$/.test(raw)) {
-    const d = new Date(Date.UTC(1899,11,30));
-    d.setUTCDate(d.getUTCDate() + parseInt(raw));
-    return d.toISOString().slice(0,10);
-  }
-  return null;
+  return -1;
 }
 
-function num(v) {
-  if (v === undefined || v === null || v === '') return 0;
-  const n = parseFloat(String(v).replace(/,/g,''));
-  return isNaN(n) ? 0 : n;
+function parseDeptRows(csvRows) {
+  if (!csvRows.length) return [];
+  const header = csvRows[0].map(h => (h || '').trim());
+
+  const iDate = findColIn(header, 'วันที่', 'date') >= 0 ? findColIn(header, 'วันที่', 'date') : 0;
+  const iId = findColIn(header, 'รหัส', 'id', 'emp') >= 0 ? findColIn(header, 'รหัส', 'id', 'emp') : 1;
+  const iName = findColIn(header, 'ชื่อ', 'name') >= 0 ? findColIn(header, 'ชื่อ', 'name') : 2;
+  const iStart = findColIn(header, 'เริ่ม', 'start', 'in', 'เข้า') >= 0 ? findColIn(header, 'เริ่ม', 'start', 'in', 'เข้า') : 3;
+  const iEnd = findColIn(header, 'สิ้น', 'end', 'out', 'ออก') >= 0 ? findColIn(header, 'สิ้น', 'end', 'out', 'ออก') : 4;
+  const iHrs = findColIn(header, 'ชั่วโมง', 'hour', 'hrs', 'เวลา') >= 0 ? findColIn(header, 'ชั่วโมง', 'hour', 'hrs', 'เวลา') : 5;
+
+  const data = [];
+  for (let i = 1; i < csvRows.length; i++) {
+    const r = csvRows[i];
+    if (!r || r.every(c => !c)) continue;
+    const rawDate = (r[iDate] || '').trim();
+    if (!rawDate) continue;
+    const date = normalizeDate(rawDate);
+    if (!date) continue;
+    const empId = (r[iId] || '').trim();
+    if (!empId) continue;
+
+    data.push({
+      date: date,
+      id: empId,
+      name: (r[iName] || '').trim(),
+      start: (r[iStart] || '').trim(),
+      end: (r[iEnd] || '').trim(),
+      hrs: num(r[iHrs])
+    });
+  }
+  return data;
 }
 
-/* ─── UI helpers ────────────────────────────────── */
-function setStatus(t) { document.getElementById('statusTxt').textContent = t; }
-function setErr(msg)  { const el = document.getElementById('errBox'); el.textContent = '⚠️ ' + msg; el.style.display = 'block'; }
-function clearErr()   { document.getElementById('errBox').style.display = 'none'; }
-function set(id, v)   { const el = document.getElementById(id); if (el) el.textContent = v; }
-function fmtDate(d)   { const [y,m,day] = d.split('-'); return `${parseInt(day)}/${parseInt(m)}/${parseInt(y)+543}`; }
-function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+async function fetchDeptSheet(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID_DEPT}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return parseCSV(await res.text());
+}
 
-const TT = {
-  backgroundColor:'#ffffff', borderColor:'#e2e8f0', borderWidth:1,
-  titleColor:'#1e293b', bodyColor:'#475569', padding:12,
-  callbacks: {}
-};
+/* ============================================
+   DEPT RENDER FUNCTIONS
+============================================ */
+function setDeptMode(mode, btn) {
+  deptMode = mode;
+  document.querySelectorAll('[id^="dept-toggle-"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  const showDate = mode === 'daily';
+  const showMonth = mode === 'monthly';
+  const showYear = mode === 'yearly';
+  
+  document.getElementById('deptDatePicker').style.display = showDate ? '' : 'none';
+  document.getElementById('deptMonthPicker').style.display = showMonth ? '' : 'none';
+  document.getElementById('deptYearPicker').style.display = showYear ? '' : 'none';
+  
+  // Auto render if dept selected
+  if (document.getElementById('deptSelector').value) {
+    renderDept();
+  }
+}
 
-/* ─── DAILY ─────────────────────────────────────── */
+async function renderDept() {
+  clearErr();
+  const dept = document.getElementById('deptSelector').value;
+  if (!dept) {
+    setErr('กรุณาเลือกแผนก');
+    document.getElementById('export-dept-content').style.display = 'none';
+    return;
+  }
+
+  const loadingDiv = document.getElementById('dept-loading');
+  const contentDiv = document.getElementById('export-dept-content');
+  
+  loadingDiv.style.display = 'block';
+  contentDiv.style.display = 'none';
+  document.getElementById('empSearch').value = '';
+
+  try {
+    if (dept !== deptCurrentSheet) {
+      const csvRows = await fetchDeptSheet(dept);
+      deptRawData = parseDeptRows(csvRows);
+      deptCurrentSheet = dept;
+    }
+
+    if (deptMode === 'daily') renderDeptDaily();
+    else if (deptMode === 'monthly') renderDeptMonthly();
+    else renderDeptYearly();
+
+    contentDiv.style.display = 'block';
+  } catch (e) {
+    setErr('โหลดข้อมูลแผนกไม่สำเร็จ: ' + e.message);
+    contentDiv.style.display = 'none';
+  } finally {
+    loadingDiv.style.display = 'none';
+  }
+}
+
+function renderDeptChart(labels, data, xLabel) {
+  destroyChart('deptChart');
+  const ctx = document.getElementById('deptChart').getContext('2d');
+  const barH = Math.max(420, labels.length * 32);
+  document.querySelector('.dept-chart-wrap').style.height = barH + 'px';
+
+  charts['deptChart'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: xLabel || 'ชั่วโมง OT',
+        data: data,
+        backgroundColor: data.map((_, i) => `hsla(${28 + i * 4}, ${78 - i * 1}%, ${58 - i * 0.5}%, 0.78)`),
+        borderColor: '#e98a3e',
+        borderWidth: 1,
+        borderRadius: 5
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: c => ` ${c.dataset.label}: ${c.parsed.x.toFixed(1)} ชม.`
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          grid: { color: 'rgba(226,232,240,0.6)' },
+          title: { display: true, text: xLabel || 'ชั่วโมง OT (ชม.)', font: { size: 13, weight: '500' }, color: '#e98a3e' }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { font: { size: 13 }, color: '#1e293b' }
+        }
+      }
+    }
+  });
+}
+
+function buildMonthlyTotals(month) {
+  const totals = {};
+  for (const r of deptRawData) {
+    if (!r.date.startsWith(month)) continue;
+    totals[r.id] = (totals[r.id] || 0) + r.hrs;
+  }
+  return totals;
+}
+
+function renderDeptDaily() {
+  const date = document.getElementById('deptDatePicker').value;
+  if (!date) {
+    setErr('กรุณาเลือกวันที่');
+    return;
+  }
+
+  const dayRows = deptRawData.filter(r => r.date === date);
+  const month = date.slice(0, 7);
+  const monthlyTotals = buildMonthlyTotals(month);
+
+  const totalHrs = dayRows.reduce((s, r) => s + r.hrs, 0);
+  const empCount = new Set(dayRows.map(r => r.id)).size;
+  const maxHrs = dayRows.length ? Math.max(...dayRows.map(r => r.hrs)) : 0;
+
+  set('dept-emp', empCount);
+  set('dept-hrs', totalHrs.toFixed(1));
+  set('dept-avg', empCount ? (totalHrs / empCount).toFixed(1) : '0.0');
+  set('dept-max', maxHrs.toFixed(1));
+  set('dept-sub', `วันที่ ${fmtDate(date)} · ${dayRows.length} รายการ`);
+  set('dept-chart-title', `Top ชั่วโมง OT วันที่ ${fmtDate(date)}`);
+  set('dept-table-title', `รายละเอียดพนักงาน — วันที่ ${fmtDate(date)}`);
+  set('dept-count-label', `พบ ${dayRows.length} รายการ`);
+
+  const top = [...dayRows].sort((a, b) => b.hrs - a.hrs).slice(0, 15);
+  renderDeptChart(top.map(r => r.name || r.id), top.map(r => r.hrs), 'ชั่วโมง OT (ชม.)');
+
+  document.getElementById('dept-thead').innerHTML = `
+    <tr>
+      <th>#</th>
+      <th>รหัสพนักงาน</th>
+      <th>ชื่อ-สกุล</th>
+      <th>เวลาเริ่ม</th>
+      <th>เวลาสิ้นสุด</th>
+      <th>ชั่วโมง OT วันนี้</th>
+      <th>ชั่วโมง OT สะสมเดือน</th>
+    </tr>
+  `;
+
+  if (!dayRows.length) {
+    document.getElementById('dept-tbody').innerHTML = `<tr class="no-data-row"><td colspan="7">📭 ไม่พบข้อมูล OT วันที่ ${fmtDate(date)}</td></tr>`;
+    return;
+  }
+
+  document.getElementById('dept-tbody').innerHTML = dayRows.map((r, i) => `
+    <tr data-search="${(r.id + ' ' + r.name).toLowerCase()}">
+      <td style="color:var(--muted);font-size:16px">${i + 1}</td>
+      <td style="font-weight:700;color:var(--primary)">${r.id}</td>
+      <td>${r.name}</td>
+      <td style="font-family:'Kanit',sans-serif">${r.start}</td>
+      <td style="font-family:'Kanit',sans-serif">${r.end}</td>
+      <td><span class="chip chip-o">${r.hrs.toFixed(1)} ชม.</span></td>
+      <td><span class="chip chip-t">${(monthlyTotals[r.id] || 0).toFixed(1)} ชม.</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderDeptMonthly() {
+  const month = document.getElementById('deptMonthPicker').value;
+  if (!month) {
+    setErr('กรุณาเลือกเดือน');
+    return;
+  }
+
+  const monthRows = deptRawData.filter(r => r.date.startsWith(month));
+
+  const empMap = {};
+  for (const r of monthRows) {
+    if (!empMap[r.id]) empMap[r.id] = { id: r.id, name: r.name, days: new Set(), totalHrs: 0 };
+    empMap[r.id].totalHrs += r.hrs;
+    empMap[r.id].days.add(r.date);
+  }
+
+  const emps = Object.values(empMap).sort((a, b) => b.totalHrs - a.totalHrs);
+  const totalHrs = emps.reduce((s, e) => s + e.totalHrs, 0);
+  const maxHrs = emps.length ? Math.max(...emps.map(e => e.totalHrs)) : 0;
+
+  set('dept-emp', emps.length);
+  set('dept-hrs', totalHrs.toFixed(1));
+  set('dept-avg', emps.length ? (totalHrs / emps.length).toFixed(1) : '0.0');
+  set('dept-max', maxHrs.toFixed(1));
+  set('dept-sub', `เดือน ${month.replace('-', '/')} · ${emps.length} คน · ${monthRows.length} รายการ`);
+  set('dept-chart-title', `Top ชั่วโมง OT สะสม — เดือน ${month.replace('-', '/')}`);
+  set('dept-table-title', `สรุปรายพนักงาน — เดือน ${month.replace('-', '/')}`);
+  set('dept-count-label', `พบ ${emps.length} คน`);
+
+  const top = emps.slice(0, 15);
+  renderDeptChart(top.map(e => e.name || e.id), top.map(e => e.totalHrs), 'ชั่วโมง OT รวมเดือน (ชม.)');
+
+  document.getElementById('dept-thead').innerHTML = `
+    <tr>
+      <th>#</th>
+      <th>รหัสพนักงาน</th>
+      <th>ชื่อ-สกุล</th>
+      <th>จำนวนวัน OT</th>
+      <th>ชั่วโมง OT รวมเดือน</th>
+      <th>เฉลี่ย / วัน</th>
+    </tr>
+  `;
+
+  if (!emps.length) {
+    document.getElementById('dept-tbody').innerHTML = `<tr class="no-data-row"><td colspan="6">📭 ไม่พบข้อมูล OT เดือน ${month.replace('-', '/')}</td></tr>`;
+    return;
+  }
+
+  document.getElementById('dept-tbody').innerHTML = emps.map((e, i) => `
+    <tr data-search="${(e.id + ' ' + e.name).toLowerCase()}">
+      <td style="color:var(--muted);font-size:16px">${i + 1}</td>
+      <td style="font-weight:700;color:var(--primary)">${e.id}</td>
+      <td>${e.name}</td>
+      <td><span class="chip chip-p">${e.days.size} วัน</span></td>
+      <td><span class="chip chip-t">${e.totalHrs.toFixed(1)} ชม.</span></td>
+      <td><span class="chip chip-o">${(e.totalHrs / Math.max(1, e.days.size)).toFixed(1)} ชม.</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderDeptYearly() {
+  const buddhistYear = parseInt(document.getElementById('deptYearPicker').value);
+  if (!buddhistYear) {
+    setErr('กรุณาเลือกปี');
+    return;
+  }
+  const ceYear = buddhistYear - 543;
+
+  const yearRows = deptRawData.filter(r => parseInt(r.date.slice(0, 4)) === ceYear);
+
+  const empMap = {};
+  for (const r of yearRows) {
+    if (!empMap[r.id]) empMap[r.id] = { id: r.id, name: r.name, days: new Set(), months: new Set(), totalHrs: 0 };
+    empMap[r.id].totalHrs += r.hrs;
+    empMap[r.id].days.add(r.date);
+    const mo = r.date.slice(5, 7);
+    empMap[r.id].months.add(mo);
+  }
+
+  const emps = Object.values(empMap).sort((a, b) => b.totalHrs - a.totalHrs);
+  const totalHrs = emps.reduce((s, e) => s + e.totalHrs, 0);
+  const maxHrs = emps.length ? Math.max(...emps.map(e => e.totalHrs)) : 0;
+
+  set('dept-emp', emps.length);
+  set('dept-hrs', totalHrs.toFixed(1));
+  set('dept-avg', emps.length ? (totalHrs / emps.length).toFixed(1) : '0.0');
+  set('dept-max', maxHrs.toFixed(1));
+  set('dept-sub', `ปี พ.ศ. ${buddhistYear} · ${emps.length} คน · ${yearRows.length} รายการ`);
+  set('dept-chart-title', `Top ชั่วโมง OT สะสม — ปี พ.ศ. ${buddhistYear}`);
+  set('dept-table-title', `สรุปรายพนักงาน — ปี พ.ศ. ${buddhistYear}`);
+  set('dept-count-label', `พบ ${emps.length} คน`);
+
+  const top = emps.slice(0, 15);
+  renderDeptChart(top.map(e => e.name || e.id), top.map(e => e.totalHrs), 'ชั่วโมง OT รวมปี (ชม.)');
+
+  document.getElementById('dept-thead').innerHTML = `
+    <tr>
+      <th>#</th>
+      <th>รหัสพนักงาน</th>
+      <th>ชื่อ-สกุล</th>
+      <th>จำนวนวัน OT</th>
+      <th>จำนวนเดือนที่ทำ OT</th>
+      <th>ชั่วโมง OT รวมปี</th>
+      <th>เฉลี่ย / เดือน</th>
+    </tr>
+  `;
+
+  if (!emps.length) {
+    document.getElementById('dept-tbody').innerHTML = `<tr class="no-data-row"><td colspan="7">📭 ไม่พบข้อมูล OT ปี พ.ศ. ${buddhistYear}</td></tr>`;
+    return;
+  }
+
+  document.getElementById('dept-tbody').innerHTML = emps.map((e, i) => `
+    <tr data-search="${(e.id + ' ' + e.name).toLowerCase()}">
+      <td style="color:var(--muted);font-size:16px">${i + 1}</td>
+      <td style="font-weight:700;color:var(--primary)">${e.id}</td>
+      <td>${e.name}</td>
+      <td><span class="chip chip-p">${e.days.size} วัน</span></td>
+      <td><span class="chip chip-g">${e.months.size} เดือน</span></td>
+      <td><span class="chip chip-t">${e.totalHrs.toFixed(1)} ชม.</span></td>
+      <td><span class="chip chip-o">${(e.totalHrs / Math.max(1, e.months.size)).toFixed(1)} ชม.</span></td>
+    </tr>
+  `).join('');
+}
+
+function filterEmpTable() {
+  const q = document.getElementById('empSearch').value.toLowerCase().trim();
+  const rows = document.querySelectorAll('#dept-tbody tr[data-search]');
+  let visible = 0;
+  rows.forEach(tr => {
+    const match = !q || tr.dataset.search.includes(q);
+    tr.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+  const total = rows.length;
+  set('dept-count-label', q ? `แสดง ${visible} / ${total} รายการ` : `พบ ${total} รายการ`);
+}
+
+/* ============================================
+   DAILY, MONTHLY, YEARLY, OVERALL RENDERS
+============================================ */
 function renderDaily() {
   clearErr();
   const date = document.getElementById('datePicker').value;
   if (!date) { setErr('กรุณาเลือกวันที่'); return; }
   const row = rows.find(r => r.date === date);
-  if (!row)  { setErr(`ไม่พบข้อมูลวันที่ ${fmtDate(date)}`); return; }
+  if (!row) { setErr(`ไม่พบข้อมูลวันที่ ${fmtDate(date)}`); return; }
 
-  set('d-sub',   `วันที่ ${fmtDate(date)}`);
+  set('d-sub', `วันที่ ${fmtDate(date)}`);
   set('d-otEmp', row.otEmp);
-  set('d-hrs',   row.otHrs.toFixed(1));
+  set('d-hrs', row.otHrs.toFixed(1));
 
   const active = row.depts.filter(d => d.total > 0);
-  const avgPct = active.length
-    ? (active.reduce((s,d) => s + d.pct, 0) / active.length).toFixed(2)
-    : '0.00';
-  set('d-pct',  avgPct + '%');
+  const avgPct = active.length ? (active.reduce((s, d) => s + d.pct, 0) / active.length).toFixed(2) : '0.00';
+  set('d-pct', avgPct + '%');
   set('d-dept', row.depts.length);
 
-  const labels  = row.depts.map(d => d.name);
+  const labels = row.depts.map(d => d.name);
   const empData = row.depts.map(d => d.otEmp);
   const hrsData = row.depts.map(d => d.otHrs);
   const pctData = row.depts.map(d => d.pct);
@@ -521,44 +1051,38 @@ function renderDaily() {
   destroyChart('dailyChart');
   const ctx = document.getElementById('dailyChart').getContext('2d');
   charts['dailyChart'] = new Chart(ctx, {
-    data: { labels, datasets: [
-      { label:'พนักงาน OT (คน)', data:empData, type:'bar',  backgroundColor:'rgba(44,126,160,0.7)',   borderColor:'#2c7da0', borderWidth:1, borderRadius:6, yAxisID:'yL' },
-      { label:'ชั่วโมง OT',      data:hrsData, type:'bar',  backgroundColor:'rgba(233,138,62,0.7)',  borderColor:'#e98a3e', borderWidth:1, borderRadius:6, yAxisID:'yR' },
-      { label:'% OT',            data:pctData, type:'line', borderColor:'#6b7280', backgroundColor:'rgba(107,114,128,0.05)', borderWidth:2.5, pointBackgroundColor:'#6b7280', pointRadius:4, tension:.3, yAxisID:'yPct' }
-    ]},
+    data: {
+      labels, datasets: [
+        { label: 'พนักงาน OT (คน)', data: empData, type: 'bar', backgroundColor: 'rgba(44,126,160,0.7)', borderColor: '#2c7da0', borderWidth: 1, borderRadius: 6, yAxisID: 'yL' },
+        { label: 'ชั่วโมง OT', data: hrsData, type: 'bar', backgroundColor: 'rgba(233,138,62,0.7)', borderColor: '#e98a3e', borderWidth: 1, borderRadius: 6, yAxisID: 'yR' },
+        { label: '% OT', data: pctData, type: 'line', borderColor: '#6b7280', backgroundColor: 'rgba(107,114,128,0.05)', borderWidth: 2.5, pointBackgroundColor: '#6b7280', pointRadius: 4, tension: .3, yAxisID: 'yPct' }
+      ]
+    },
     options: {
-      responsive:true, maintainAspectRatio:true,
-      interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{display:false},
-        tooltip:{ ...TT,
-          callbacks:{ label: c => {
-            const v = c.parsed.y;
-            const suf = c.datasetIndex===2 ? '%' : c.datasetIndex===0 ? ' คน' : ' ชม.';
-            return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
-          }}
-        }
-      },
-      scales:{
-        x:    { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:40,font:{size:11}} },
-        yL:   { type:'linear', position:'left',  min:0, max:100, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'พนักงาน OT (คน)',color:'#2c7da0',font:{size:11,weight:'500'}} },
-        yR:   { type:'linear', position:'right', min:0, max:200, grid:{drawOnChartArea:false}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
-        yPct: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'}, offset:true }
+      responsive: true, maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(226,232,240,0.6)' }, ticks: { maxRotation: 40, font: { size: 13 } } },
+        yL: { type: 'linear', position: 'left', min: 0, max: 100, grid: { color: 'rgba(226,232,240,0.5)' }, title: { display: true, text: 'พนักงาน OT (คน)', color: '#2c7da0', font: { size: 13, weight: '500' } } },
+        yR: { type: 'linear', position: 'right', min: 0, max: 200, grid: { drawOnChartArea: false }, title: { display: true, text: 'ชั่วโมง OT', color: '#e98a3e', font: { size: 13, weight: '500' } } },
+        yPct: { type: 'linear', position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: '% OT', color: '#6b7280', font: { size: 13, weight: '500' } }, ticks: { callback: v => v + '%' }, offset: true }
       }
     }
   });
 
-  document.getElementById('d-tbody').innerHTML = row.depts.map(d => `
-    <tr>
-      <td style="font-weight:500;">${d.name}</td>
+  document.getElementById('d-tbody').innerHTML = row.depts.map(d => {
+    const cls = hlClass(d.otEmp);
+    return `<tr class="${cls}">
+      <td style="font-weight:600;">${d.name}</td>
       <td>${d.total}</td>
       <td><span class="chip chip-t">${d.otEmp}</span></td>
       <td><span class="chip chip-o">${d.otHrs.toFixed(1)}</span></td>
       <td><span class="chip chip-p">${d.pct.toFixed(2)}%</span></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
-/* ─── MONTHLY ───────────────────────────────────── */
 function renderMonthly() {
   clearErr();
   const month = document.getElementById('monthPicker').value;
@@ -566,7 +1090,7 @@ function renderMonthly() {
   const filtered = rows.filter(r => r.date.startsWith(month));
   if (!filtered.length) { setErr(`ไม่พบข้อมูลเดือน ${month}`); return; }
 
-  set('m-sub', `เดือน ${month.replace('-','/')} (${filtered.length} วัน)`);
+  set('m-sub', `เดือน ${month.replace('-', '/')} (${filtered.length} วัน)`);
 
   const deptAgg = DEPT_NAMES.map(name => {
     let otHrs = 0, otEmp = 0, totalEmp = 0;
@@ -578,110 +1102,206 @@ function renderMonthly() {
     return { name, otHrs, otEmp, totalEmp, pct };
   });
 
-  const totalHrs = deptAgg.reduce((s,d) => s + d.otHrs, 0);
-  const active   = deptAgg.filter(d => d.totalEmp > 0);
-  const avgPct   = active.length ? active.reduce((s,d) => s + d.pct, 0) / active.length : 0;
+  const totalHrs = deptAgg.reduce((s, d) => s + d.otHrs, 0);
+  const active = deptAgg.filter(d => d.totalEmp > 0);
+  const avgPct = active.length ? active.reduce((s, d) => s + d.pct, 0) / active.length : 0;
 
-  set('m-hrs',  totalHrs.toFixed(1));
-  set('m-pct',  avgPct.toFixed(2) + '%');
+  set('m-hrs', totalHrs.toFixed(1));
+  set('m-pct', avgPct.toFixed(2) + '%');
   set('m-dept', DEPT_NAMES.length);
 
   destroyChart('monthlyChart');
   const ctx = document.getElementById('monthlyChart').getContext('2d');
   charts['monthlyChart'] = new Chart(ctx, {
-    data:{ labels: deptAgg.map(d=>d.name), datasets:[
-      { label:'ชั่วโมง OT', data:deptAgg.map(d=>d.otHrs), type:'bar',  backgroundColor:'rgba(233,138,62,0.7)', borderColor:'#e98a3e', borderWidth:1, borderRadius:6, yAxisID:'yL' },
-      { label:'% OT',       data:deptAgg.map(d=>d.pct),   type:'line', borderColor:'#6b7280', backgroundColor:'rgba(107,114,128,0.05)', borderWidth:2.5, pointBackgroundColor:'#6b7280', pointRadius:4, tension:.3, yAxisID:'yR' }
-    ]},
-    options:{
-      responsive:true, maintainAspectRatio:true,
-      interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{display:false},
-        tooltip:{ ...TT,
-          callbacks:{ label: c => {
-            const v = c.parsed.y, suf = c.datasetIndex===1 ? '%' : ' ชม.';
-            return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
-          }}
-        }
-      },
-      scales:{
-        x:  { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:40,font:{size:11}} },
-        yL: { type:'linear', position:'left',  min:0, max:200, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'ชั่วโมง OT',color:'#e98a3e',font:{size:11,weight:'500'}} },
-        yR: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'} }
+    data: {
+      labels: deptAgg.map(d => d.name), datasets: [
+        { label: 'ชั่วโมง OT', data: deptAgg.map(d => d.otHrs), type: 'bar', backgroundColor: 'rgba(233,138,62,0.7)', borderColor: '#e98a3e', borderWidth: 1, borderRadius: 6, yAxisID: 'yL' },
+        { label: '% OT', data: deptAgg.map(d => d.pct), type: 'line', borderColor: '#6b7280', backgroundColor: 'rgba(107,114,128,0.05)', borderWidth: 2.5, pointBackgroundColor: '#6b7280', pointRadius: 4, tension: .3, yAxisID: 'yR' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(226,232,240,0.6)' }, ticks: { maxRotation: 40, font: { size: 13 } } },
+        yL: { type: 'linear', position: 'left', min: 0, max: 2000, grid: { color: 'rgba(226,232,240,0.5)' }, title: { display: true, text: 'ชั่วโมง OT', color: '#e98a3e', font: { size: 13, weight: '500' } } },
+        yR: { type: 'linear', position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: '% OT', color: '#6b7280', font: { size: 13, weight: '500' } }, ticks: { callback: v => v + '%' } }
       }
     }
   });
 
-  document.getElementById('m-tbody').innerHTML = deptAgg.map(d=>`
+  document.getElementById('m-tbody').innerHTML = deptAgg.map(d => `
     <tr>
-      <td style="font-weight:500;">${d.name}</td>
+      <td style="font-weight:600;">${d.name}</td>
       <td><span class="chip chip-o">${d.otHrs.toFixed(1)}</span></td>
       <td><span class="chip chip-p">${d.pct.toFixed(2)}%</span></td>
-    </tr>`).join('');
+    </tr>
+  `).join('');
 }
 
-/* ─── OVERALL ───────────────────────────────────── */
 function renderOverall() {
   clearErr();
   if (!rows.length) { setErr('ไม่มีข้อมูล'); return; }
 
-  const dates   = rows.map(r => fmtDate(r.date));
+  const dates = rows.map(r => fmtDate(r.date));
   const empData = rows.map(r => r.otEmp);
   const hrsData = rows.map(r => r.otHrs);
   const pctData = rows.map(r => r.pct);
 
   set('o-days', rows.length);
-  set('o-hrs',  hrsData.reduce((a,b)=>a+b,0).toFixed(1));
-  set('o-emp',  empData.reduce((a,b)=>a+b,0));
-  set('o-pct',  (pctData.reduce((a,b)=>a+b,0) / Math.max(1,rows.length)).toFixed(2) + '%');
+  set('o-hrs', hrsData.reduce((a, b) => a + b, 0).toFixed(1));
+  set('o-emp', empData.reduce((a, b) => a + b, 0));
+  set('o-pct', (pctData.reduce((a, b) => a + b, 0) / Math.max(1, rows.length)).toFixed(2) + '%');
 
   destroyChart('overallChart');
   const ctx = document.getElementById('overallChart').getContext('2d');
   charts['overallChart'] = new Chart(ctx, {
-    data:{ labels:dates, datasets:[
-      { label:'พนักงาน OT (คน)', data:empData, type:'bar',  backgroundColor:'rgba(44,126,160,0.6)',  borderColor:'#2c7da0', borderWidth:1, borderRadius:4, yAxisID:'yL' },
-      { label:'ชั่วโมง OT',      data:hrsData, type:'bar',  backgroundColor:'rgba(233,138,62,0.6)', borderColor:'#e98a3e', borderWidth:1, borderRadius:4, yAxisID:'yL' },
-      { label:'% OT',            data:pctData, type:'line', borderColor:'#6b7280', backgroundColor:'rgba(107,114,128,0.05)', borderWidth:2.5, pointBackgroundColor:'#6b7280', pointRadius:3, tension:.3, yAxisID:'yR' }
-    ]},
-    options:{
-      responsive:true, maintainAspectRatio:true,
-      interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{display:false},
-        tooltip:{ ...TT,
-          callbacks:{ label: c => {
-            const v = c.parsed.y, suf = c.datasetIndex===2 ? '%' : '';
-            return ` ${c.dataset.label}: ${v%1===0 ? v : v.toFixed(2)}${suf}`;
-          }}
-        }
-      },
-      scales:{
-        x:  { grid:{color:'rgba(226,232,240,0.6)'}, ticks:{maxRotation:45,font:{size:10}} },
-        yL: { type:'linear', position:'left',  min:0, max:200, grid:{color:'rgba(226,232,240,0.5)'}, title:{display:true,text:'จำนวน / ชั่วโมง',color:'#475569',font:{size:11,weight:'500'}} },
-        yR: { type:'linear', position:'right', min:0, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'% OT',color:'#6b7280',font:{size:11,weight:'500'}}, ticks:{callback:v=>v+'%'} }
+    data: {
+      labels: dates, datasets: [
+        { label: 'พนักงาน OT (คน)', data: empData, type: 'bar', backgroundColor: 'rgba(44,126,160,0.6)', borderColor: '#2c7da0', borderWidth: 1, borderRadius: 4, yAxisID: 'yL' },
+        { label: 'ชั่วโมง OT', data: hrsData, type: 'bar', backgroundColor: 'rgba(233,138,62,0.6)', borderColor: '#e98a3e', borderWidth: 1, borderRadius: 4, yAxisID: 'yL' },
+        { label: '% OT', data: pctData, type: 'line', borderColor: '#6b7280', backgroundColor: 'rgba(107,114,128,0.05)', borderWidth: 2.5, pointBackgroundColor: '#6b7280', pointRadius: 3, tension: .3, yAxisID: 'yR' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(226,232,240,0.6)' }, ticks: { maxRotation: 45, font: { size: 12 } } },
+        yL: { type: 'linear', position: 'left', min: 0, max: 500, grid: { color: 'rgba(226,232,240,0.5)' }, title: { display: true, text: 'จำนวน / ชั่วโมง', color: '#475569', font: { size: 13, weight: '500' } } },
+        yR: { type: 'linear', position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: '% OT', color: '#6b7280', font: { size: 13, weight: '500' } }, ticks: { callback: v => v + '%' } }
       }
     }
   });
 }
 
-/* ─── EXPORT JPEG ───────────────────────────────── */
+function setYearlyMode(mode, btn) {
+  yearlyMode = mode;
+  document.querySelectorAll('#yearly .toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderYearly();
+}
+
+function renderYearly() {
+  clearErr();
+  const buddhistYear = parseInt(document.getElementById('yearPicker').value);
+  if (!buddhistYear) { setErr('กรุณาเลือกปี'); return; }
+  const ceYear = buddhistYear - 543;
+  const filtered = rows.filter(r => parseInt(r.date.slice(0, 4)) === ceYear);
+  if (!filtered.length) { setErr(`ไม่พบข้อมูลปี พ.ศ. ${buddhistYear}`); return; }
+
+  const totalHrs = filtered.reduce((s, r) => s + r.otHrs, 0);
+  const totalEmp = filtered.reduce((s, r) => s + r.otEmp, 0);
+  const avgPct = filtered.length ? filtered.reduce((s, r) => s + r.pct, 0) / filtered.length : 0;
+  set('y-hrs', totalHrs.toFixed(1));
+  set('y-emp', totalEmp);
+  set('y-pct', avgPct.toFixed(2) + '%');
+  set('y-days', filtered.length);
+  set('y-sub', `ปี พ.ศ. ${buddhistYear} · ${filtered.length} วัน`);
+
+  let labels, empData, hrsData, pctData, tableRows;
+
+  if (yearlyMode === 'month') {
+    set('y-chart-title', `OT รายปี ${buddhistYear} แยกตามเดือน`);
+    set('y-table-title', `รายละเอียดรายปี ${buddhistYear} แยกตามเดือน`);
+    const months = Array.from({ length: 12 }, (_, i) => {
+      const m = String(i + 1).padStart(2, '0');
+      const mRows = filtered.filter(r => r.date.slice(5, 7) === m);
+      const hrs = mRows.reduce((s, r) => s + r.otHrs, 0);
+      const emp = mRows.reduce((s, r) => s + r.otEmp, 0);
+      const pct = mRows.length ? mRows.reduce((s, r) => s + r.pct, 0) / mRows.length : 0;
+      return { label: MONTH_LABELS[i], hrs, emp, pct, days: mRows.length };
+    });
+    labels = months.map(m => m.label);
+    empData = months.map(m => m.emp);
+    hrsData = months.map(m => m.hrs);
+    pctData = months.map(m => parseFloat(m.pct.toFixed(2)));
+    document.getElementById('y-thead').innerHTML = '<tr><th>เดือน</th><th>จำนวนวัน</th><th>พนักงาน OT (คน-วัน)</th><th>ชั่วโมง OT รวม</th><th>% OT เฉลี่ย</th></tr>';
+    tableRows = months.map(m => `
+      <tr>
+        <td style="font-weight:700">${m.label}</td>
+        <td>${m.days}</td>
+        <td><span class="chip chip-t">${m.emp}</span></td>
+        <td><span class="chip chip-o">${m.hrs.toFixed(1)}</span></td>
+        <td><span class="chip chip-p">${m.pct.toFixed(2)}%</span></td>
+      </tr>
+    `);
+  } else {
+    set('y-chart-title', `OT รายปี ${buddhistYear} แยกตามแผนก`);
+    set('y-table-title', `รายละเอียดรายปี ${buddhistYear} แยกตามแผนก`);
+    const depts = DEPT_NAMES.map(name => {
+      let hrs = 0, emp = 0, total = 0;
+      for (const r of filtered) {
+        const d = r.depts.find(x => x.name === name);
+        if (d) { hrs += d.otHrs; emp += d.otEmp; total += d.total; }
+      }
+      const pct = total > 0 ? (emp / total * 100) : 0;
+      return { name, hrs, emp, pct };
+    });
+    labels = depts.map(d => d.name);
+    empData = depts.map(d => d.emp);
+    hrsData = depts.map(d => d.hrs);
+    pctData = depts.map(d => parseFloat(d.pct.toFixed(2)));
+    document.getElementById('y-thead').innerHTML = '<tr><th>แผนก</th><th>พนักงาน OT (คน-วัน)</th><th>ชั่วโมง OT รวม</th><th>% OT เฉลี่ย</th></tr>';
+    tableRows = depts.map(d => `
+      <tr>
+        <td style="font-weight:700">${d.name}</td>
+        <td><span class="chip chip-t">${d.emp}</span></td>
+        <td><span class="chip chip-o">${d.hrs.toFixed(1)}</span></td>
+        <td><span class="chip chip-p">${d.pct.toFixed(2)}%</span></td>
+      </tr>
+    `);
+  }
+
+  document.getElementById('y-tbody').innerHTML = tableRows.join('');
+
+  destroyChart('yearlyChart');
+  const ctx = document.getElementById('yearlyChart').getContext('2d');
+  charts['yearlyChart'] = new Chart(ctx, {
+    data: {
+      labels, datasets: [
+        { label: 'พนักงาน OT (คน)', data: empData, type: 'bar', backgroundColor: 'rgba(44,126,160,0.7)', borderColor: '#2c7da0', borderWidth: 1, borderRadius: 6, yAxisID: 'yL' },
+        { label: 'ชั่วโมง OT', data: hrsData, type: 'bar', backgroundColor: 'rgba(233,138,62,0.7)', borderColor: '#e98a3e', borderWidth: 1, borderRadius: 6, yAxisID: 'yR' },
+        { label: '% OT', data: pctData, type: 'line', borderColor: '#6b7280', backgroundColor: 'rgba(107,114,128,0.05)', borderWidth: 2.5, pointBackgroundColor: '#6b7280', pointRadius: 5, tension: .3, yAxisID: 'yPct' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(226,232,240,0.6)' }, ticks: { maxRotation: 40, font: { size: 13 } } },
+        yL: { type: 'linear', position: 'left', min: 0, grid: { color: 'rgba(226,232,240,0.5)' }, title: { display: true, text: 'พนักงาน OT (คน)', color: '#2c7da0', font: { size: 13, weight: '500' } } },
+        yR: { type: 'linear', position: 'right', min: 0, grid: { drawOnChartArea: false }, title: { display: true, text: 'ชั่วโมง OT', color: '#e98a3e', font: { size: 13, weight: '500' } } },
+        yPct: { type: 'linear', position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: '% OT', color: '#6b7280', font: { size: 13, weight: '500' } }, ticks: { callback: v => v + '%' }, offset: true }
+      }
+    }
+  });
+}
+
+/* ============================================
+   EXPORT FUNCTIONS
+============================================ */
 const SECTION_IDS = {
-  daily:   { chart: 'daily-chart-section',   table: 'daily-table-section'   },
+  daily: { chart: 'daily-chart-section', table: 'daily-table-section' },
   monthly: { chart: 'monthly-chart-section', table: 'monthly-table-section' },
-  overall: { chart: 'overall-chart-section'                                  },
+  yearly: { chart: 'yearly-chart-section', table: 'yearly-table-section' },
+  overall: { chart: 'overall-chart-section' },
+  dept: { chart: 'dept-chart-section', table: 'dept-table-section' },
 };
 
 async function exportSection(tabName, section) {
-  const btnId = `btn-export-${tabName}-${section}`;
-  const btn = document.getElementById(btnId);
   const overlay = document.getElementById('exportOverlay');
   const elId = SECTION_IDS[tabName]?.[section];
   const contentEl = elId ? document.getElementById(elId) : null;
+  
+  if (!contentEl) {
+    alert('ไม่พบเนื้อหาสำหรับ Export');
+    return;
+  }
 
-  if (!contentEl) { alert('ไม่พบเนื้อหาสำหรับ Export'); return; }
-
-  btn.disabled = true;
   overlay.classList.add('show');
   await new Promise(r => setTimeout(r, 80));
 
@@ -693,31 +1313,35 @@ async function exportSection(tabName, section) {
     } else if (tabName === 'monthly') {
       const m = document.getElementById('monthPicker').value;
       if (m) label = 'monthly_' + m;
-    } else {
-      label = 'overall';
+    } else if (tabName === 'yearly') {
+      const y = document.getElementById('yearPicker').value;
+      if (y) label = 'yearly_' + y;
+    } else if (tabName === 'dept') {
+      const dept = document.getElementById('deptSelector').value;
+      label = 'dept_' + (dept || 'unknown');
     }
-    const suffix = section === 'chart' ? 'chart' : 'table';
 
     const canvas = await html2canvas(contentEl, {
       scale: 2,
       useCORS: true,
       backgroundColor: '#ffffff',
-      logging: false,
+      logging: false
     });
-
+    
     const link = document.createElement('a');
-    link.download = `OT_${label}_${suffix}.jpg`;
+    link.download = `OT_${label}_${section}.jpg`;
     link.href = canvas.toDataURL('image/jpeg', 0.92);
     link.click();
-  } catch(e) {
+  } catch (e) {
     alert('Export ไม่สำเร็จ: ' + e.message);
   } finally {
     overlay.classList.remove('show');
-    btn.disabled = false;
   }
 }
 
-/* ─── Tab switch ────────────────────────────────── */
+/* ============================================
+   TAB SWITCH
+============================================ */
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
@@ -725,28 +1349,51 @@ function switchTab(name, btn) {
   btn.classList.add('active');
 }
 
-/* ─── Init ──────────────────────────────────────── */
+/* ============================================
+   INITIALIZATION
+============================================ */
 async function init() {
+  // Set today's date for all pickers
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  const monthStr = todayStr.slice(0, 7);
+  const yearBudd = today.getFullYear() + 543;
+  
+  document.getElementById('deptDatePicker').value = todayStr;
+  document.getElementById('deptMonthPicker').value = monthStr;
+  document.getElementById('deptYearPicker').value = yearBudd;
+  document.getElementById('datePicker').value = todayStr;
+  document.getElementById('monthPicker').value = monthStr;
+  document.getElementById('yearPicker').value = yearBudd;
+
+  // Add event listener for dept selector
+  document.getElementById('deptSelector').addEventListener('change', () => {
+    deptCurrentSheet = '';
+    renderDept();
+  });
+
   try {
     const csvRows = await fetchData();
     rows = parseAllRows(csvRows);
-
+    
     if (!rows.length) {
       setErr('โหลดข้อมูลได้แต่ไม่พบแถวข้อมูลที่ถูกต้อง');
       setStatus('ไม่มีข้อมูล');
       return;
     }
-
+    
     const lastDate = rows[rows.length - 1].date;
     setStatus(`อัปเดตล่าสุด ${new Date().toLocaleTimeString('th-TH')} · ${rows.length} วัน`);
     clearErr();
-
-    document.getElementById('datePicker').value  = lastDate;
+    
+    // Set last date for daily and monthly
+    document.getElementById('datePicker').value = lastDate;
     document.getElementById('monthPicker').value = lastDate.slice(0, 7);
-
+    document.getElementById('yearPicker').value = parseInt(lastDate.slice(0, 4)) + 543;
+    
     renderDaily();
     renderOverall();
-  } catch(e) {
+  } catch (e) {
     setErr('โหลดข้อมูลไม่สำเร็จ: ' + e.message);
     setStatus('โหลดไม่สำเร็จ');
   }
