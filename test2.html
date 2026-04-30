@@ -3,981 +3,545 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HR Dashboard - รายงานเวลาทำงาน</title>
+<title>HR Dashboard — รายงานเวลาทำงาน</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --primary:#1e40af;--primary-light:#dbeafe;--primary-mid:#3b82f6;
+  --accent:#0ea5e9;--success:#059669;--success-light:#d1fae5;
+  --warning:#d97706;--warning-light:#fef3c7;
+  --danger:#dc2626;
+  --ot:#7c3aed;--ot-light:#ede9fe;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --r:10px;--rl:14px;--sh:0 1px 3px rgba(0,0,0,.08)
+}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.hdr{background:var(--primary);color:#fff;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(30,64,175,.35)}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.hdr-ic{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px}
+.hdr-t{font-size:16px;font-weight:700}
+.hdr-s{font-size:11px;opacity:.7;margin-top:1px}
+.upd-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:4px 10px;font-size:11px}
 
-  :root {
-    --bg: #f0f4f8;
-    --surface: #ffffff;
-    --surface2: #f8fafc;
-    --border: #e2e8f0;
-    --border2: #cbd5e1;
-    --primary: #1e40af;
-    --primary-light: #dbeafe;
-    --primary-mid: #3b82f6;
-    --accent: #0ea5e9;
-    --success: #059669;
-    --success-light: #d1fae5;
-    --warning: #d97706;
-    --warning-light: #fef3c7;
-    --danger: #dc2626;
-    --danger-light: #fee2e2;
-    --text: #0f172a;
-    --text2: #475569;
-    --text3: #94a3b8;
-    --radius: 10px;
-    --radius-lg: 16px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  }
+.wrap{max-width:1500px;margin:0 auto;padding:18px 22px}
 
-  body {
-    font-family: 'Sarabun', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 14px;
-    min-height: 100vh;
-  }
+/* DEPT TABS */
+.dept-scroll{overflow-x:auto;margin-bottom:16px;padding-bottom:2px}
+.dept-scroll::-webkit-scrollbar{height:3px}
+.dept-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.dept-tabs{display:flex;gap:5px;width:max-content}
+.dept-tab{padding:6px 15px;border:1px solid var(--border2);border-radius:20px;background:var(--surface);cursor:pointer;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:500;color:var(--text2);white-space:nowrap;transition:all .15s}
+.dept-tab:hover{border-color:var(--primary-mid);color:var(--primary);background:var(--primary-light)}
+.dept-tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
 
-  /* ===== HEADER ===== */
-  .header {
-    background: var(--primary);
-    color: white;
-    padding: 0 24px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgba(30,64,175,0.3);
-  }
-  .header-left { display: flex; align-items: center; gap: 12px; }
-  .header-icon {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: rgba(255,255,255,0.2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
-  .header-title { font-size: 18px; font-weight: 700; }
-  .header-sub { font-size: 12px; opacity: 0.75; margin-top: 1px; }
-  .header-right { display: flex; align-items: center; gap: 8px; }
-  .sheet-badge {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 500;
-  }
+/* CONTROLS */
+.ctrl{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:13px 18px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;box-shadow:var(--sh)}
+.cg{display:flex;flex-direction:column;gap:4px}
+.cg label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2)}
+.cg select,.cg input{border:1px solid var(--border2);border-radius:7px;padding:7px 11px;font-family:'Sarabun',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .2s;min-width:145px}
+.cg select:focus,.cg input:focus{border-color:var(--primary-mid);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.period-tabs{display:flex}
+.pt{padding:7px 15px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px;color:var(--text2);transition:all .15s;font-weight:500}
+.pt:first-child{border-radius:7px 0 0 7px}
+.pt:last-child{border-radius:0 7px 7px 0}
+.pt:not(:first-child){border-left:none}
+.pt.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.pt:hover:not(.active){background:var(--primary-light);color:var(--primary)}
+.btn-ref{padding:7px 16px;background:var(--primary);color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;transition:background .2s;margin-left:auto}
+.btn-ref:hover{background:#1d4ed8}
 
-  /* ===== LAYOUT ===== */
-  .container { max-width: 1400px; margin: 0 auto; padding: 20px 24px; }
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:11px;margin-bottom:16px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:15px 17px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc.blue::before{background:var(--primary-mid)}.sc.green::before{background:var(--success)}.sc.amber::before{background:var(--warning)}.sc.purple::before{background:var(--ot)}.sc.sky::before{background:var(--accent)}
+.sc-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:8px}
+.sc-ic.blue{background:var(--primary-light)}.sc-ic.green{background:var(--success-light)}.sc-ic.amber{background:var(--warning-light)}.sc-ic.purple{background:var(--ot-light)}.sc-ic.sky{background:#e0f2fe}
+.sc-val{font-size:24px;font-weight:700;line-height:1;margin-bottom:3px}
+.sc-lbl{font-size:11px;color:var(--text2);font-weight:500}
 
-  /* ===== CONTROLS ===== */
-  .controls-bar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 16px 20px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-items: flex-end;
-    box-shadow: var(--shadow);
-  }
-  .control-group { display: flex; flex-direction: column; gap: 6px; }
-  .control-group label {
-    font-size: 11px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.05em;
-    color: var(--text2);
-  }
-  .control-group select, .control-group input {
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-family: 'Sarabun', sans-serif;
-    font-size: 13px;
-    color: var(--text);
-    background: var(--surface);
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
-    min-width: 160px;
-  }
-  .control-group select:focus, .control-group input:focus {
-    border-color: var(--primary-mid);
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
-  }
-  .period-tabs { display: flex; gap: 0; }
-  .period-tab {
-    padding: 8px 16px;
-    border: 1px solid var(--border2);
-    background: var(--surface);
-    cursor: pointer;
-    font-family: 'Sarabun', sans-serif;
-    font-size: 13px;
-    color: var(--text2);
-    transition: all 0.15s;
-    font-weight: 500;
-  }
-  .period-tab:first-child { border-radius: 8px 0 0 8px; }
-  .period-tab:last-child { border-radius: 0 8px 8px 0; }
-  .period-tab:not(:first-child) { border-left: none; }
-  .period-tab.active {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: white;
-  }
-  .period-tab:hover:not(.active) { background: var(--primary-light); color: var(--primary); }
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+@media(max-width:860px){.two-col{grid-template-columns:1fr}}
 
-  .btn-refresh {
-    padding: 8px 18px;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: 'Sarabun', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    display: flex; align-items: center; gap: 6px;
-    transition: background 0.2s;
-    margin-left: auto;
-  }
-  .btn-refresh:hover { background: #1d4ed8; }
-  .btn-refresh:active { transform: scale(0.98); }
+/* CHART */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;box-shadow:var(--sh)}
+.cc-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px}
+.bar-chart{display:flex;flex-direction:column;gap:6px}
+.bar-row{display:flex;align-items:center;gap:7px}
+.bar-lbl{width:100px;font-size:11px;color:var(--text2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.bar-track{flex:1;height:16px;background:var(--bg);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;min-width:4px;transition:width .5s ease}
+.bar-fill.bw{background:linear-gradient(90deg,var(--primary-mid),var(--accent))}
+.bar-fill.bo{background:linear-gradient(90deg,var(--ot),#a78bfa)}
+.bar-val{font-size:10px;font-weight:700;color:#fff;white-space:nowrap}
+.bar-val-out{font-size:10px;color:var(--text2);margin-left:4px;white-space:nowrap}
 
-  /* ===== SUMMARY CARDS ===== */
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 14px;
-    margin-bottom: 20px;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 18px 20px;
-    box-shadow: var(--shadow);
-    position: relative;
-    overflow: hidden;
-  }
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-  }
-  .stat-card.blue::before { background: var(--primary-mid); }
-  .stat-card.green::before { background: var(--success); }
-  .stat-card.amber::before { background: var(--warning); }
-  .stat-card.sky::before { background: var(--accent); }
-  .stat-icon {
-    width: 36px; height: 36px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; margin-bottom: 10px;
-  }
-  .stat-icon.blue { background: var(--primary-light); }
-  .stat-icon.green { background: var(--success-light); }
-  .stat-icon.amber { background: var(--warning-light); }
-  .stat-icon.sky { background: #e0f2fe; }
-  .stat-value { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-  .stat-label { font-size: 12px; color: var(--text2); font-weight: 500; }
+/* TABLE */
+.tbl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh);overflow:hidden}
+.tbl-hdr{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;background:var(--surface2)}
+.tbl-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
+.cnt-badge{background:var(--primary-light);color:var(--primary);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700}
+.srch{border:1px solid var(--border2);border-radius:7px;padding:6px 11px;font-family:'Sarabun',sans-serif;font-size:13px;outline:none;width:180px;transition:border-color .2s}
+.srch:focus{border-color:var(--primary-mid);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--surface2);padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{color:var(--primary)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f8faff}
+tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
+.emp-id{font-family:monospace;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text2);white-space:nowrap}
+.emp-name{font-weight:600}
+.tc{font-size:12px;color:var(--text2);white-space:nowrap}
+.h-work{font-weight:600;color:var(--primary);font-size:13px}
+.h-ot{font-weight:700;color:var(--ot)}
+.h-month{font-weight:700;color:var(--success)}
+.note-chip{background:#f1f5f9;border-radius:4px;padding:2px 7px;font-size:11px;color:var(--text2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+.no-data{text-align:center;padding:56px 20px;color:var(--text3)}
+.no-data-ic{font-size:36px;margin-bottom:8px}
 
-  /* ===== TABLE ===== */
-  .table-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-  .table-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--surface2);
-  }
-  .table-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-  .table-count {
-    background: var(--primary-light);
-    color: var(--primary);
-    border-radius: 20px;
-    padding: 2px 10px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-  .table-search {
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-family: 'Sarabun', sans-serif;
-    font-size: 13px;
-    outline: none;
-    width: 200px;
-    transition: border-color 0.2s;
-  }
-  .table-search:focus {
-    border-color: var(--primary-mid);
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
-  }
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    background: var(--surface2);
-    padding: 11px 14px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text2);
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-    cursor: pointer;
-    user-select: none;
-    position: sticky; top: 0;
-  }
-  thead th:hover { color: var(--primary); }
-  thead th .sort-icon { margin-left: 4px; opacity: 0.5; }
-  thead th.sort-asc .sort-icon::after { content: ' ▲'; }
-  thead th.sort-desc .sort-icon::after { content: ' ▼'; }
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background 0.1s;
-  }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: #f8faff; }
-  tbody td {
-    padding: 11px 14px;
-    font-size: 13px;
-    vertical-align: middle;
-  }
-  .emp-id {
-    font-family: monospace;
-    font-size: 12px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 2px 7px;
-    color: var(--text2);
-    white-space: nowrap;
-  }
-  .emp-name { font-weight: 600; color: var(--text); }
-  .time-chip {
-    font-size: 12px;
-    color: var(--text2);
-    font-feature-settings: "tnum";
-    white-space: nowrap;
-  }
-  .hours-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--primary);
-  }
-  .month-hours {
-    font-weight: 700;
-    color: var(--success);
-    font-size: 14px;
-  }
-  .no-data {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text3);
-  }
-  .no-data-icon { font-size: 40px; margin-bottom: 10px; }
+/* PAGINATION */
+.pgn{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);background:var(--surface2)}
+.pgn-info{font-size:11px;color:var(--text2)}
+.pgn-btns{display:flex;gap:3px}
+.pgn-btn{padding:4px 9px;border:1px solid var(--border2);border-radius:5px;background:var(--surface);cursor:pointer;font-family:'Sarabun',sans-serif;font-size:11px;color:var(--text2);transition:all .15s}
+.pgn-btn:hover:not(:disabled):not(.active){background:var(--primary-light);color:var(--primary);border-color:var(--primary-mid)}
+.pgn-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pgn-btn:disabled{opacity:.35;cursor:not-allowed}
 
-  /* ===== LOADING ===== */
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(255,255,255,0.85);
-    z-index: 999;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .loading-overlay.show { display: flex; }
-  .spinner {
-    width: 44px; height: 44px;
-    border: 3px solid var(--border);
-    border-top-color: var(--primary);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { color: var(--text2); font-size: 14px; font-weight: 500; }
+/* LOADING */
+.lov{display:none;position:fixed;inset:0;background:rgba(240,244,248,.9);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.lov.show{display:flex}
+.spin{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.lov-txt{color:var(--text2);font-size:13px;font-weight:500}
 
-  /* ===== ERROR ===== */
-  .error-box {
-    background: #fff5f5;
-    border: 1px solid #fed7d7;
-    border-radius: var(--radius-lg);
-    padding: 20px 24px;
-    color: var(--danger);
-    margin-bottom: 20px;
-    display: none;
-  }
-  .error-box.show { display: block; }
-
-  /* ===== CHART BAR ===== */
-  .chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-  }
-  .chart-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
-  .bar-chart { display: flex; flex-direction: column; gap: 8px; }
-  .bar-row { display: flex; align-items: center; gap: 10px; }
-  .bar-label { width: 130px; font-size: 12px; color: var(--text2); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
-  .bar-track { flex: 1; height: 20px; background: var(--bg); border-radius: 4px; overflow: hidden; }
-  .bar-fill {
-    height: 100%; border-radius: 4px;
-    background: linear-gradient(90deg, var(--primary-mid), var(--accent));
-    transition: width 0.6s ease;
-    display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
-  }
-  .bar-val { font-size: 11px; font-weight: 700; color: white; white-space: nowrap; }
-  .bar-val-out { font-size: 11px; color: var(--text2); margin-left: 6px; white-space: nowrap; }
-
-  /* ===== PAGINATION ===== */
-  .pagination {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 20px;
-    border-top: 1px solid var(--border);
-    background: var(--surface2);
-  }
-  .page-info { font-size: 12px; color: var(--text2); }
-  .page-btns { display: flex; gap: 4px; }
-  .page-btn {
-    padding: 5px 10px;
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    background: var(--surface);
-    cursor: pointer;
-    font-family: 'Sarabun', sans-serif;
-    font-size: 12px;
-    color: var(--text2);
-    transition: all 0.15s;
-  }
-  .page-btn:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary-mid); }
-  .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .dept-badge {
-    background: var(--primary-light);
-    color: var(--primary);
-    border-radius: 6px;
-    padding: 3px 8px;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 768px) {
-    .container { padding: 12px; }
-    .controls-bar { gap: 10px; }
-    .summary-grid { grid-template-columns: repeat(2, 1fr); }
-    .header-title { font-size: 14px; }
-    .table-search { width: 140px; }
-  }
+/* ERROR */
+.err{background:#fff5f5;border:1px solid #fed7d7;border-radius:var(--rl);padding:14px 18px;color:var(--danger);margin-bottom:14px;display:none;font-size:13px;line-height:1.7}
+.err.show{display:block}
 </style>
 </head>
 <body>
 
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loadingText">กำลังโหลดข้อมูล...</div>
+<div class="lov" id="lov">
+  <div class="spin"></div>
+  <div class="lov-txt" id="lovTxt">กำลังโหลดข้อมูล...</div>
 </div>
 
-<div class="header">
-  <div class="header-left">
-    <div class="header-icon">📊</div>
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="hdr-ic">📊</div>
     <div>
-      <div class="header-title">HR Dashboard — รายงานเวลาทำงาน</div>
-      <div class="header-sub">ระบบติดตามชั่วโมงทำงานรายแผนก</div>
+      <div class="hdr-t">HR Dashboard — รายงานเวลาทำงาน</div>
+      <div class="hdr-s">ติดตามชั่วโมงทำงาน + OT รายแผนก · 14 แผนก</div>
     </div>
   </div>
-  <div class="header-right">
-    <div class="sheet-badge">Google Sheets</div>
-  </div>
+  <div class="upd-badge" id="updBadge">—</div>
 </div>
 
-<div class="container">
+<div class="wrap">
+  <div class="err" id="errBox"></div>
 
-  <div class="error-box" id="errorBox"></div>
+  <!-- DEPT TABS -->
+  <div class="dept-scroll">
+    <div class="dept-tabs" id="deptTabs"></div>
+  </div>
 
-  <!-- Controls -->
-  <div class="controls-bar">
-    <div class="control-group">
-      <label>แผนก (Sheet)</label>
-      <select id="deptSelect" onchange="onDeptChange()">
-        <option value="">— เลือกแผนก —</option>
-      </select>
-    </div>
-
-    <div class="control-group">
+  <!-- CONTROLS -->
+  <div class="ctrl">
+    <div class="cg">
       <label>ช่วงเวลา</label>
       <div class="period-tabs">
-        <button class="period-tab active" onclick="setPeriod('day')">รายวัน</button>
-        <button class="period-tab" onclick="setPeriod('month')">รายเดือน</button>
-        <button class="period-tab" onclick="setPeriod('year')">รายปี</button>
+        <button class="pt active" onclick="setPeriod('day')">รายวัน</button>
+        <button class="pt" onclick="setPeriod('month')">รายเดือน</button>
+        <button class="pt" onclick="setPeriod('year')">รายปี</button>
       </div>
     </div>
-
-    <div class="control-group" id="dateGroup">
-      <label id="dateLabel">วันที่</label>
-      <input type="date" id="dateInput" onchange="applyFilters()">
+    <div class="cg" id="grpDay">
+      <label>วันที่</label>
+      <input type="date" id="inDay" onchange="applyFilters()">
     </div>
-
-    <div class="control-group" id="monthGroup" style="display:none;">
+    <div class="cg" id="grpMonth" style="display:none">
       <label>เดือน</label>
-      <input type="month" id="monthInput" onchange="applyFilters()">
+      <input type="month" id="inMonth" onchange="applyFilters()">
     </div>
-
-    <div class="control-group" id="yearGroup" style="display:none;">
+    <div class="cg" id="grpYear" style="display:none">
       <label>ปี</label>
-      <select id="yearSelect" onchange="applyFilters()"></select>
+      <select id="inYear" onchange="applyFilters()"></select>
     </div>
-
-    <button class="btn-refresh" onclick="loadAllSheets()">
-      🔄 รีเฟรช
-    </button>
+    <button class="btn-ref" onclick="reloadCurrent()">🔄 รีเฟรช</button>
   </div>
 
-  <!-- Summary Cards -->
-  <div class="summary-grid">
-    <div class="stat-card blue">
-      <div class="stat-icon blue">👥</div>
-      <div class="stat-value" id="statEmp">—</div>
-      <div class="stat-label">จำนวนพนักงาน</div>
+  <!-- STATS -->
+  <div class="stat-grid">
+    <div class="sc blue"><div class="sc-ic blue">👥</div><div class="sc-val" id="stEmp">—</div><div class="sc-lbl">จำนวนพนักงาน</div></div>
+    <div class="sc green"><div class="sc-ic green">⏱</div><div class="sc-val" id="stHrs">—</div><div class="sc-lbl">รวมชั่วโมงทำงาน</div></div>
+    <div class="sc purple"><div class="sc-ic purple">⚡</div><div class="sc-val" id="stOT">—</div><div class="sc-lbl">รวมชั่วโมง OT</div></div>
+    <div class="sc amber"><div class="sc-ic amber">📈</div><div class="sc-val" id="stAvg">—</div><div class="sc-lbl">เฉลี่ยชม./คน</div></div>
+    <div class="sc sky"><div class="sc-ic sky">🏆</div><div class="sc-val" id="stTop">—</div><div class="sc-lbl">ชม.รวมเดือนสูงสุด</div></div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="two-col">
+    <div class="chart-card">
+      <div class="cc-title">⏱ ชั่วโมงทำงานสะสม/เดือน (Top 10)</div>
+      <div class="bar-chart" id="chartWork"></div>
     </div>
-    <div class="stat-card green">
-      <div class="stat-icon green">⏱</div>
-      <div class="stat-value" id="statHours">—</div>
-      <div class="stat-label">รวมชั่วโมงทำงาน (ช่วงนี้)</div>
-    </div>
-    <div class="stat-card amber">
-      <div class="stat-icon amber">📅</div>
-      <div class="stat-value" id="statAvg">—</div>
-      <div class="stat-label">เฉลี่ย ชม./คน</div>
-    </div>
-    <div class="stat-card sky">
-      <div class="stat-icon sky">🏆</div>
-      <div class="stat-value" id="statTop">—</div>
-      <div class="stat-label">พนักงานชั่วโมงสูงสุด (เดือน)</div>
+    <div class="chart-card">
+      <div class="cc-title">⚡ ชั่วโมง OT สะสม/เดือน (Top 10)</div>
+      <div class="bar-chart" id="chartOT"></div>
     </div>
   </div>
 
-  <!-- Bar Chart -->
-  <div class="chart-card" id="chartCard" style="display:none;">
-    <div class="chart-title">📊 ชั่วโมงรวมรายพนักงาน (ทั้งเดือน)</div>
-    <div class="bar-chart" id="barChart"></div>
-  </div>
-
-  <!-- Table -->
-  <div class="table-card">
-    <div class="table-header">
-      <div class="table-title">
-        📋 ข้อมูลการทำงาน
-        <span class="table-count" id="rowCount">0 รายการ</span>
+  <!-- TABLE -->
+  <div class="tbl-card">
+    <div class="tbl-hdr">
+      <div class="tbl-title">
+        📋 รายละเอียดการทำงาน
+        <span class="cnt-badge" id="rowCnt">0 รายการ</span>
       </div>
-      <input type="text" class="table-search" placeholder="🔍 ค้นหาชื่อ / รหัส" id="searchBox" oninput="applyFilters()">
+      <input class="srch" type="text" placeholder="🔍 ค้นหา ชื่อ / รหัส" id="srch" oninput="applyFilters()">
     </div>
-    <div class="table-wrap">
+    <div class="tbl-wrap">
       <table>
         <thead>
           <tr>
-            <th onclick="sortTable('empId')">รหัสพนักงาน <span class="sort-icon"></span></th>
-            <th onclick="sortTable('name')">ชื่อ - นามสกุล <span class="sort-icon"></span></th>
-            <th onclick="sortTable('date')">วันที่ <span class="sort-icon"></span></th>
-            <th onclick="sortTable('start')">เวลาเริ่ม <span class="sort-icon"></span></th>
-            <th onclick="sortTable('end')">เวลาสิ้นสุด <span class="sort-icon"></span></th>
-            <th onclick="sortTable('dayHours')">ชม. (วันนั้น) <span class="sort-icon"></span></th>
-            <th onclick="sortTable('monthHours')">ชม. รวม (เดือน) <span class="sort-icon"></span></th>
+            <th onclick="sortBy('date')">วันที่ ↕</th>
+            <th onclick="sortBy('empId')">รหัสพนักงาน ↕</th>
+            <th onclick="sortBy('name')">ชื่อ - นามสกุล ↕</th>
+            <th onclick="sortBy('start')">เวลาเริ่ม ↕</th>
+            <th onclick="sortBy('end')">เวลาสิ้นสุด ↕</th>
+            <th onclick="sortBy('workHrs')">ชม.ทำงาน (วัน) ↕</th>
+            <th onclick="sortBy('otHrs')">ชม. OT (วัน) ↕</th>
+            <th onclick="sortBy('monthWork')">ชม.รวม/เดือน ↕</th>
+            <th onclick="sortBy('monthOT')">OT รวม/เดือน ↕</th>
+            <th>หมายเหตุ</th>
           </tr>
         </thead>
-        <tbody id="tableBody">
-          <tr><td colspan="7" class="no-data">
-            <div class="no-data-icon">🏢</div>
-            <div>กรุณาเลือกแผนกและช่วงเวลา</div>
+        <tbody id="tbody">
+          <tr><td colspan="10" class="no-data">
+            <div class="no-data-ic">🏢</div>
+            <div>กำลังโหลดข้อมูล...</div>
           </td></tr>
         </tbody>
       </table>
     </div>
-    <div class="pagination" id="pagination" style="display:none;">
-      <div class="page-info" id="pageInfo"></div>
-      <div class="page-btns" id="pageBtns"></div>
+    <div class="pgn" id="pgn" style="display:none">
+      <div class="pgn-info" id="pgnInfo"></div>
+      <div class="pgn-btns" id="pgnBtns"></div>
     </div>
   </div>
-
 </div>
 
 <script>
-// ===== CONFIG =====
 const SHEET_ID = '1_cXJYLMwzK_a7krK-viLutKigmsXwVFcLlCNhiRIa0M';
-const BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
-const PAGE_SIZE = 25;
+const SHEETS = ['AMS','FG','FST','HQ','MA','MAT&ST','Mould','PD1','PD2','Place','PN','Qaulity','RD Compound','RD Product Design'];
+// Col indices (0-based): A=0,B=1,C=2,D=3,E=4,F=5,G=6,H=7
+const C = {date:0,empId:1,name:2,start:3,end:4,workHrs:5,otHrs:6,note:7};
+const PAGE_SZ = 30;
 
-// ===== STATE =====
-let allSheets = [];       // [{name, gid}]
-let rawData = {};         // {sheetName: [{empId, name, date, start, end, ...}]}
-let currentPeriod = 'day';
-let currentDept = '';
-let filteredRows = [];
-let sortCol = 'date';
-let sortAsc = false;
-let currentPage = 1;
-let monthlyHoursMap = {}; // {empId: totalMonthHours}
+let cache = {};
+let dept = SHEETS[0];
+let period = 'day';
+let sCol = 'date', sAsc = false;
+let page = 1;
+let filtered = [];
 
-// ===== INIT =====
-window.addEventListener('DOMContentLoaded', async () => {
-  setDefaultDates();
-  await loadAllSheets();
-});
+window.onload = async () => {
+  initDefaults();
+  buildTabs();
+  await loadSheet(dept);
+  applyFilters();
+};
 
-function setDefaultDates() {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth()+1).padStart(2,'0');
-  const dd = String(today.getDate()).padStart(2,'0');
-  document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
-  document.getElementById('monthInput').value = `${yyyy}-${mm}`;
-  const ySel = document.getElementById('yearSelect');
-  for (let y = yyyy; y >= yyyy-5; y--) {
+function initDefaults() {
+  const n = new Date();
+  const y = n.getFullYear(), m = String(n.getMonth()+1).padStart(2,'0'), d = String(n.getDate()).padStart(2,'0');
+  document.getElementById('inDay').value = `${y}-${m}-${d}`;
+  document.getElementById('inMonth').value = `${y}-${m}`;
+  const sel = document.getElementById('inYear');
+  for (let yr=y; yr>=y-4; yr--) {
     const o = document.createElement('option');
-    o.value = y; o.textContent = `${y} (พ.ศ. ${y+543})`;
-    if (y === yyyy) o.selected = true;
-    ySel.appendChild(o);
+    o.value=yr; o.textContent=`${yr} (พ.ศ. ${yr+543})`; if(yr===y)o.selected=true;
+    sel.appendChild(o);
   }
 }
 
-// ===== LOAD SHEETS LIST =====
-async function loadAllSheets() {
-  showLoading('กำลังโหลดรายชื่อแผนก...');
-  hideError();
-  try {
-    // Fetch sheet metadata via gviz (sheet 0 by default)
-    const res = await fetch(`${BASE_URL}&sheet=`);
-    const txt = await res.text();
-    const json = JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-
-    // Grab sheet tabs from the "sheetNames" or try to enumerate
-    // We'll use the spreadsheet export page to list tabs
-    await fetchSheetsList();
-  } catch(e) {
-    hideLoading();
-    showError('ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบว่า Google Sheet มีการแชร์แบบ "ทุกคนที่มีลิงก์" และรีเฟรชใหม่อีกครั้ง<br><small>' + e.message + '</small>');
-  }
+function buildTabs() {
+  const cont = document.getElementById('deptTabs');
+  SHEETS.forEach(n => {
+    const b = document.createElement('button');
+    b.className = 'dept-tab' + (n===dept?' active':'');
+    b.textContent = n;
+    b.onclick = () => selDept(n);
+    cont.appendChild(b);
+  });
 }
 
-async function fetchSheetsList() {
-  // Use sheets.googleapis.com metadata
-  showLoading('กำลังดึงรายชื่อชีต...');
-  try {
-    const url = `https://spreadsheets.google.com/feeds/worksheets/${SHEET_ID}/public/basic?alt=json`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    const entries = data.feed.entry || [];
-    allSheets = entries.map(e => ({
-      name: e.title.$t,
-      gid: e.id.$t.split('/').pop()
-    }));
-
-    const sel = document.getElementById('deptSelect');
-    sel.innerHTML = '<option value="">— เลือกแผนก —</option>';
-    allSheets.forEach((s, i) => {
-      const o = document.createElement('option');
-      o.value = s.name;
-      o.textContent = s.name;
-      sel.appendChild(o);
-    });
-
-    // Auto-select first sheet
-    if (allSheets.length > 0) {
-      sel.value = allSheets[0].name;
-      await onDeptChange();
-    } else {
-      hideLoading();
-    }
-  } catch(e) {
-    hideLoading();
-    showError('ไม่สามารถโหลดรายชื่อชีตได้ กรุณาตรวจสอบว่า Google Sheet ถูกตั้งค่าเป็น "สาธารณะ" หรือ "ทุกคนที่มีลิงก์สามารถดู"<br><br><b>วิธีแก้ไข:</b> เปิด Google Sheet → แชร์ → เปลี่ยนเป็น "ทุกคนที่มีลิงก์" → บันทึก<br><small style="color:#999">' + e.message + '</small>');
-  }
-}
-
-async function onDeptChange() {
-  currentDept = document.getElementById('deptSelect').value;
-  if (!currentDept) { filteredRows = []; renderTable(); return; }
-  if (!rawData[currentDept]) {
-    await loadSheetData(currentDept);
-  }
+async function selDept(n) {
+  dept = n;
+  document.querySelectorAll('.dept-tab').forEach(b => b.classList.toggle('active', b.textContent===n));
+  if (!cache[n]) await loadSheet(n);
   applyFilters();
 }
 
-// ===== LOAD SHEET DATA =====
-async function loadSheetData(sheetName) {
-  showLoading(`กำลังโหลดข้อมูลแผนก: ${sheetName}...`);
-  try {
-    const sheet = allSheets.find(s => s.name === sheetName);
-    const gid = sheet ? sheet.gid : '';
-    const url = `${BASE_URL}&gid=${gid}`;
-    const res = await fetch(url);
-    const txt = await res.text();
-    const json = JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+async function reloadCurrent() { delete cache[dept]; await loadSheet(dept); applyFilters(); }
 
-    const rows = parseGvizResponse(json);
-    rawData[sheetName] = rows;
-    hideLoading();
+async function loadSheet(name) {
+  showLov(`กำลังโหลด "${name}"...`);
+  hideErr();
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const txt = await res.text();
+    const m = txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+    if (!m) throw new Error('รูปแบบข้อมูลผิดพลาด');
+    const json = JSON.parse(m[1]);
+    cache[name] = parseSheet(json);
+    document.getElementById('updBadge').textContent = 'อัปเดต '+new Date().toLocaleTimeString('th-TH');
   } catch(e) {
-    hideLoading();
-    showError(`โหลดข้อมูล "${sheetName}" ไม่สำเร็จ: ` + e.message);
-    rawData[sheetName] = [];
+    showErr(`โหลด "${name}" ไม่สำเร็จ: ${e.message}<br><b>แก้ไข:</b> ไปที่ Google Sheet → แชร์ → เปลี่ยนเป็น "ทุกคนที่มีลิงก์สามารถดู" → บันทึก`);
+    cache[name] = [];
   }
+  hideLov();
 }
 
-// ===== PARSE GVIZ =====
-function parseGvizResponse(json) {
-  const cols = json.table.cols;
-  const rows = json.table.rows || [];
-  if (!rows.length) return [];
+function parseSheet(json) {
+  const rows = json.table?.rows || [];
+  const out = [];
 
-  // Find column indices by header label (case-insensitive, Thai or English)
-  const headers = cols.map(c => (c.label || '').toLowerCase().trim());
-
-  const findCol = (...keywords) => {
-    for (const kw of keywords) {
-      const idx = headers.findIndex(h => h.includes(kw));
-      if (idx >= 0) return idx;
-    }
-    return -1;
-  };
-
-  const iEmpId   = findCol('รหัส', 'id', 'emp', 'employee', 'เลขที่');
-  const iName    = findCol('ชื่อ', 'name', 'fullname', 'นามสกุล');
-  const iDate    = findCol('วัน', 'date', 'วันที่');
-  const iStart   = findCol('เริ่ม', 'start', 'check in', 'in', 'เข้า');
-  const iEnd     = findCol('สิ้นสุด', 'end', 'check out', 'out', 'ออก');
-
-  const getCellVal = (cell) => {
-    if (!cell) return '';
-    if (cell.v === null || cell.v === undefined) return '';
-    return cell.f || String(cell.v);
-  };
-
-  const result = [];
-  rows.forEach((row, ri) => {
+  rows.forEach(row => {
     if (!row.c) return;
-    const get = (i) => i >= 0 && row.c[i] ? getCellVal(row.c[i]) : '';
-    const getRaw = (i) => i >= 0 && row.c[i] ? row.c[i].v : null;
-
-    const empId   = get(iEmpId)   || `R${ri+2}`;
-    const name    = get(iName)    || '—';
-    const dateStr = get(iDate)    || '';
-    const start   = get(iStart)   || '';
-    const end     = get(iEnd)     || '';
+    const g = (i) => { const c=row.c[i]; if(!c||c.v===null||c.v===undefined) return ''; return c.f||String(c.v); };
+    const rv = (i) => row.c?.[i]?.v ?? null;
 
     // Parse date
     let dateObj = null;
-    let dateRaw = getRaw(iDate);
-    if (dateRaw instanceof Date) {
-      dateObj = dateRaw;
-    } else if (typeof dateRaw === 'string' || typeof dateRaw === 'number') {
-      // gviz dates come as "Date(yyyy,mm,dd)"
-      const m = String(dateRaw).match(/Date\((\d+),(\d+),(\d+)/);
-      if (m) dateObj = new Date(+m[1], +m[2], +m[3]);
-      else dateObj = new Date(dateStr);
+    const dv = rv(C.date);
+    if (dv !== null) {
+      const dm = String(dv).match(/Date\((\d+),(\d+),(\d+)/);
+      if (dm) dateObj = new Date(+dm[1],+dm[2],+dm[3]);
     }
-    if (!dateObj || isNaN(dateObj)) {
-      // Try parsing dateStr directly
-      dateObj = parseThaiDate(dateStr);
-    }
+    if (!dateObj || isNaN(dateObj)) dateObj = parseDate(g(C.date));
+    if (!dateObj || isNaN(dateObj)) return;
 
-    // Parse hours
-    const dayHours = calcHours(start, end);
+    const empId   = g(C.empId).trim();
+    const name    = g(C.name).trim();
+    const start   = g(C.start).trim();
+    const end     = g(C.end).trim();
+    const note    = g(C.note).trim();
 
-    if (empId && name && name !== '—') {
-      result.push({ empId, name, date: dateObj, dateStr: dateObj ? formatDate(dateObj) : dateStr, start, end, dayHours });
-    }
+    // Col F: รวมจำนวนชั่วโมงทำงาน
+    let workHrs = parseFloat(g(C.workHrs).replace(/[^\d.]/g,''));
+    if (isNaN(workHrs)) workHrs = calcHrs(start, end);
+
+    // Col G: รวมชั่วโมงโอที
+    let otHrs = parseFloat(g(C.otHrs).replace(/[^\d.]/g,''));
+    if (isNaN(otHrs)) otHrs = 0;
+
+    if (!empId && !name) return;
+
+    out.push({ date:dateObj, dateStr:fmtDate(dateObj), empId, name, start, end, workHrs, otHrs, note });
   });
 
-  // Compute monthly hours per employee
-  const mMap = {};
-  result.forEach(r => {
-    if (!r.date) return;
-    const key = `${r.empId}_${r.date.getFullYear()}_${r.date.getMonth()}`;
-    mMap[key] = (mMap[key] || 0) + r.dayHours;
+  // Monthly totals per employee (same month+year)
+  const mW={}, mO={};
+  out.forEach(r => {
+    const k = `${r.empId}|${r.date.getFullYear()}|${r.date.getMonth()}`;
+    mW[k] = (mW[k]||0) + r.workHrs;
+    mO[k] = (mO[k]||0) + r.otHrs;
   });
-  result.forEach(r => {
-    if (!r.date) { r.monthHours = 0; return; }
-    const key = `${r.empId}_${r.date.getFullYear()}_${r.date.getMonth()}`;
-    r.monthHours = mMap[key] || 0;
+  out.forEach(r => {
+    const k = `${r.empId}|${r.date.getFullYear()}|${r.date.getMonth()}`;
+    r.monthWork = mW[k]||0;
+    r.monthOT   = mO[k]||0;
   });
 
-  return result;
+  return out;
 }
 
-function parseThaiDate(str) {
-  if (!str) return null;
-  // Try common formats: dd/mm/yyyy, yyyy-mm-dd
+function parseDate(s) {
+  if (!s) return null;
   let m;
-  m = String(str).match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
-  m = String(str).match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
-  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
-  return null;
+  // d/m/yyyy or d-m-yyyy
+  m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (m) return new Date(+m[3],+m[2]-1,+m[1]);
+  // yyyy-mm-dd
+  m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+  if (m) return new Date(+m[1],+m[2]-1,+m[3]);
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
 }
 
-function calcHours(start, end) {
-  if (!start || !end) return 0;
-  const toMin = s => {
-    const m = s.match(/(\d+):(\d+)/);
-    if (!m) return null;
-    return +m[1]*60 + +m[2];
-  };
-  const s = toMin(start), e = toMin(end);
-  if (s === null || e === null) return 0;
-  const diff = e - s;
-  return diff > 0 ? Math.round(diff/60*100)/100 : 0;
+function calcHrs(s,e) {
+  const p = v => { const m=v.match(/(\d+):(\d+)/); return m?+m[1]*60+(+m[2]):null; };
+  const sm=p(s),em=p(e);
+  if(sm===null||em===null) return 0;
+  const d=em-sm; return d>0?Math.round(d/60*100)/100:0;
 }
 
-function formatDate(d) {
-  if (!d || isNaN(d)) return '—';
-  return d.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+function fmtDate(d) {
+  if(!d||isNaN(d)) return '—';
+  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'});
 }
 
-// ===== PERIOD =====
 function setPeriod(p) {
-  currentPeriod = p;
-  document.querySelectorAll('.period-tab').forEach((t, i) => {
-    t.classList.toggle('active', ['day','month','year'][i] === p);
-  });
-  document.getElementById('dateGroup').style.display  = p==='day'   ? '' : 'none';
-  document.getElementById('monthGroup').style.display = p==='month' ? '' : 'none';
-  document.getElementById('yearGroup').style.display  = p==='year'  ? '' : 'none';
+  period = p;
+  document.querySelectorAll('.pt').forEach((t,i)=>t.classList.toggle('active',['day','month','year'][i]===p));
+  document.getElementById('grpDay').style.display   = p==='day'  ?'':'none';
+  document.getElementById('grpMonth').style.display = p==='month'?'':'none';
+  document.getElementById('grpYear').style.display  = p==='year' ?'':'none';
   applyFilters();
 }
 
-// ===== FILTER =====
 function applyFilters() {
-  const dept = document.getElementById('deptSelect').value;
-  if (!dept || !rawData[dept]) { filteredRows = []; renderTable(); updateStats([]); return; }
+  let rows = cache[dept]||[];
 
-  let rows = [...rawData[dept]];
-
-  // Period filter
-  if (currentPeriod === 'day') {
-    const val = document.getElementById('dateInput').value;
-    if (val) {
-      const [y,m,d] = val.split('-').map(Number);
-      rows = rows.filter(r => r.date && r.date.getFullYear()===y && r.date.getMonth()===m-1 && r.date.getDate()===d);
-    }
-  } else if (currentPeriod === 'month') {
-    const val = document.getElementById('monthInput').value;
-    if (val) {
-      const [y,m] = val.split('-').map(Number);
-      rows = rows.filter(r => r.date && r.date.getFullYear()===y && r.date.getMonth()===m-1);
-    }
-  } else if (currentPeriod === 'year') {
-    const y = +document.getElementById('yearSelect').value;
-    rows = rows.filter(r => r.date && r.date.getFullYear()===y);
+  if (period==='day') {
+    const v=document.getElementById('inDay').value;
+    if(v){const[y,mo,d]=v.split('-').map(Number);rows=rows.filter(r=>r.date.getFullYear()===y&&r.date.getMonth()===mo-1&&r.date.getDate()===d);}
+  } else if (period==='month') {
+    const v=document.getElementById('inMonth').value;
+    if(v){const[y,mo]=v.split('-').map(Number);rows=rows.filter(r=>r.date.getFullYear()===y&&r.date.getMonth()===mo-1);}
+  } else {
+    const y=+document.getElementById('inYear').value;
+    rows=rows.filter(r=>r.date.getFullYear()===y);
   }
 
-  // Search
-  const q = document.getElementById('searchBox').value.trim().toLowerCase();
-  if (q) {
-    rows = rows.filter(r =>
-      r.empId.toLowerCase().includes(q) ||
-      r.name.toLowerCase().includes(q)
-    );
-  }
+  const q=document.getElementById('srch').value.trim().toLowerCase();
+  if(q) rows=rows.filter(r=>r.empId.toLowerCase().includes(q)||r.name.toLowerCase().includes(q));
 
-  // Sort
-  rows.sort((a, b) => {
-    let va = a[sortCol], vb = b[sortCol];
-    if (sortCol === 'date') { va = a.date; vb = b.date; }
-    if (va === null || va === undefined) va = '';
-    if (vb === null || vb === undefined) vb = '';
-    if (typeof va === 'number') return sortAsc ? va-vb : vb-va;
-    if (va instanceof Date) return sortAsc ? va-vb : vb-va;
-    return sortAsc ? String(va).localeCompare(String(vb),'th') : String(vb).localeCompare(String(va),'th');
+  rows=[...rows].sort((a,b)=>{
+    let va=a[sCol],vb=b[sCol];
+    if(va instanceof Date) return sAsc?va-vb:vb-va;
+    if(typeof va==='number') return sAsc?va-vb:vb-va;
+    return sAsc?String(va).localeCompare(String(vb),'th'):String(vb).localeCompare(String(va),'th');
   });
 
-  filteredRows = rows;
-  currentPage = 1;
-  updateStats(rows);
-  renderBarChart(dept);
+  filtered=rows; page=1;
+  renderStats(rows);
+  renderCharts();
   renderTable();
 }
 
-// ===== STATS =====
-function updateStats(rows) {
-  const empSet = new Set(rows.map(r => r.empId));
-  const totalH = rows.reduce((s,r) => s+r.dayHours, 0);
-  const avg = empSet.size ? totalH/empSet.size : 0;
+function renderStats(rows) {
+  const emps=new Set(rows.map(r=>r.empId));
+  const totW=rows.reduce((s,r)=>s+r.workHrs,0);
+  const totOT=rows.reduce((s,r)=>s+r.otHrs,0);
+  const avg=emps.size?totW/emps.size:0;
 
-  // Top monthly hours
-  let topVal = 0, topName = '—';
-  const dept = document.getElementById('deptSelect').value;
-  if (dept && rawData[dept]) {
-    const empMonthly = {};
-    rawData[dept].forEach(r => {
-      if (!empMonthly[r.empId] || empMonthly[r.empId].h < r.monthHours) {
-        empMonthly[r.empId] = { name: r.name, h: r.monthHours };
-      }
-    });
-    Object.values(empMonthly).forEach(e => { if (e.h > topVal) { topVal = e.h; topName = e.name.split(' ')[0]; } });
-  }
+  // Top monthly from full cache
+  const all=cache[dept]||[];
+  const em={};
+  all.forEach(r=>{if(!em[r.empId]||em[r.empId].w<r.monthWork)em[r.empId]={name:r.name,w:r.monthWork};});
+  const top=Object.values(em).sort((a,b)=>b.w-a.w)[0];
 
-  document.getElementById('statEmp').textContent = empSet.size;
-  document.getElementById('statHours').textContent = totalH.toFixed(1);
-  document.getElementById('statAvg').textContent = avg.toFixed(1);
-  document.getElementById('statTop').textContent = topName + (topVal ? ` (${topVal.toFixed(0)}ชม.)` : '');
+  document.getElementById('stEmp').textContent=emps.size;
+  document.getElementById('stHrs').textContent=totW.toFixed(1);
+  document.getElementById('stOT').textContent=totOT.toFixed(1);
+  document.getElementById('stAvg').textContent=avg.toFixed(1);
+  document.getElementById('stTop').textContent=top?`${top.name.split(' ')[0].slice(0,10)} (${top.w.toFixed(0)} ชม.)`:'—';
 }
 
-// ===== BAR CHART =====
-function renderBarChart(dept) {
-  if (!rawData[dept]) return;
-  const empMap = {};
-  rawData[dept].forEach(r => {
-    if (!empMap[r.empId]) empMap[r.empId] = { name: r.name, hours: r.monthHours };
+function renderCharts() {
+  const all=cache[dept]||[];
+  const em={};
+  all.forEach(r=>{
+    if(!em[r.empId])em[r.empId]={name:r.name,w:r.monthWork,ot:r.monthOT};
   });
-  const sorted = Object.entries(empMap).sort((a,b) => b[1].hours - a[1].hours).slice(0,10);
-  if (!sorted.length) { document.getElementById('chartCard').style.display='none'; return; }
-
-  document.getElementById('chartCard').style.display = '';
-  const maxH = Math.max(...sorted.map(e => e[1].hours), 1);
-  const bc = document.getElementById('barChart');
-  bc.innerHTML = sorted.map(([id, d]) => `
-    <div class="bar-row">
-      <div class="bar-label" title="${d.name}">${d.name.split(' ')[0]} (${id})</div>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:${(d.hours/maxH*100).toFixed(1)}%">
-          ${d.hours > maxH*0.15 ? `<span class="bar-val">${d.hours.toFixed(0)}</span>` : ''}
-        </div>
-      </div>
-      ${d.hours <= maxH*0.15 ? `<span class="bar-val-out">${d.hours.toFixed(0)} ชม.</span>` : ''}
-    </div>
-  `).join('');
+  const arr=Object.values(em);
+  drawBars('chartWork',[...arr].sort((a,b)=>b.w-a.w).slice(0,10),'w','bw');
+  drawBars('chartOT',[...arr].sort((a,b)=>b.ot-a.ot).slice(0,10),'ot','bo');
 }
 
-// ===== TABLE =====
-function renderTable() {
-  const tbody = document.getElementById('tableBody');
-  const total = filteredRows.length;
-  document.getElementById('rowCount').textContent = `${total.toLocaleString()} รายการ`;
+function drawBars(id,items,key,cls) {
+  const max=Math.max(...items.map(i=>i[key]),1);
+  document.getElementById(id).innerHTML=items.length
+    ? items.map(i=>`
+      <div class="bar-row">
+        <div class="bar-lbl" title="${i.name}">${i.name.replace(/^(นาย|น\.ส\.|นาง)\s*/,'').split(' ')[0].slice(0,10)}</div>
+        <div class="bar-track">
+          <div class="bar-fill ${cls}" style="width:${(i[key]/max*100).toFixed(1)}%">
+            ${i[key]/max>0.18?`<span class="bar-val">${i[key].toFixed(0)}</span>`:''}
+          </div>
+        </div>
+        ${i[key]/max<=0.18?`<span class="bar-val-out">${i[key].toFixed(0)}</span>`:''}
+      </div>`).join('')
+    : '<div style="color:var(--text3);font-size:12px;padding:6px 0">ไม่มีข้อมูล</div>';
+}
 
-  if (!total) {
-    tbody.innerHTML = `<tr><td colspan="7" class="no-data">
-      <div class="no-data-icon">📭</div>
-      <div>ไม่พบข้อมูลในช่วงที่เลือก</div>
-    </td></tr>`;
-    document.getElementById('pagination').style.display = 'none';
+function renderTable() {
+  const tbody=document.getElementById('tbody');
+  document.getElementById('rowCnt').textContent=`${filtered.length.toLocaleString()} รายการ`;
+
+  if(!filtered.length){
+    tbody.innerHTML=`<tr><td colspan="10" class="no-data"><div class="no-data-ic">📭</div><div>ไม่พบข้อมูลในช่วงที่เลือก</div></td></tr>`;
+    document.getElementById('pgn').style.display='none';
     return;
   }
 
-  const totalPages = Math.ceil(total/PAGE_SIZE);
-  if (currentPage > totalPages) currentPage = totalPages;
-  const start = (currentPage-1)*PAGE_SIZE;
-  const pageRows = filteredRows.slice(start, start+PAGE_SIZE);
+  const tot=Math.ceil(filtered.length/PAGE_SZ);
+  if(page>tot)page=tot;
+  const s=(page-1)*PAGE_SZ;
+  const pr=filtered.slice(s,s+PAGE_SZ);
 
-  tbody.innerHTML = pageRows.map(r => `
+  tbody.innerHTML=pr.map(r=>`
     <tr>
-      <td><span class="emp-id">${escHtml(r.empId)}</span></td>
-      <td><span class="emp-name">${escHtml(r.name)}</span></td>
-      <td><span class="time-chip">${escHtml(r.dateStr)}</span></td>
-      <td><span class="time-chip">${escHtml(r.start) || '—'}</span></td>
-      <td><span class="time-chip">${escHtml(r.end) || '—'}</span></td>
-      <td><span class="hours-badge">⏱ ${r.dayHours.toFixed(2)} ชม.</span></td>
-      <td><span class="month-hours">${r.monthHours.toFixed(1)} ชม.</span></td>
-    </tr>
-  `).join('');
+      <td><span class="tc">${r.dateStr}</span></td>
+      <td><span class="emp-id">${esc(r.empId)}</span></td>
+      <td><span class="emp-name">${esc(r.name)}</span></td>
+      <td><span class="tc">${esc(r.start)||'—'}</span></td>
+      <td><span class="tc">${esc(r.end)||'—'}</span></td>
+      <td><span class="h-work">${r.workHrs.toFixed(2)} ชม.</span></td>
+      <td><span class="h-ot">${r.otHrs>0?r.otHrs.toFixed(2)+' ชม.':'—'}</span></td>
+      <td><span class="h-month">${r.monthWork.toFixed(1)} ชม.</span></td>
+      <td>${r.monthOT>0?`<span class="h-ot">${r.monthOT.toFixed(1)} ชม.</span>`:'<span style="color:var(--text3)">—</span>'}</td>
+      <td>${r.note?`<span class="note-chip" title="${esc(r.note)}">${esc(r.note)}</span>`:'<span style="color:var(--text3)">—</span>'}</td>
+    </tr>`).join('');
 
-  renderPagination(totalPages);
+  renderPgn(tot);
 }
 
-function renderPagination(totalPages) {
-  const pg = document.getElementById('pagination');
-  const start = (currentPage-1)*PAGE_SIZE + 1;
-  const end = Math.min(currentPage*PAGE_SIZE, filteredRows.length);
-  document.getElementById('pageInfo').textContent = `แสดง ${start}–${end} จาก ${filteredRows.length.toLocaleString()} รายการ`;
-
-  if (totalPages <= 1) { pg.style.display = 'none'; return; }
-  pg.style.display = 'flex';
-
-  const btns = document.getElementById('pageBtns');
-  const pages = [];
-  pages.push('<button class="page-btn" onclick="goPage(currentPage-1)" '+(currentPage===1?'disabled':'')+'">◀</button>');
-
-  let start2 = Math.max(1, currentPage-2), end2 = Math.min(totalPages, currentPage+2);
-  if (start2 > 1) pages.push('<button class="page-btn" onclick="goPage(1)">1</button>');
-  if (start2 > 2) pages.push('<span style="padding:0 4px;color:var(--text3)">…</span>');
-  for (let i=start2; i<=end2; i++) {
-    pages.push(`<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`);
-  }
-  if (end2 < totalPages-1) pages.push('<span style="padding:0 4px;color:var(--text3)">…</span>');
-  if (end2 < totalPages) pages.push(`<button class="page-btn" onclick="goPage(${totalPages})">${totalPages}</button>`);
-  pages.push('<button class="page-btn" onclick="goPage(currentPage+1)" '+(currentPage===totalPages?'disabled':'')+'">▶</button>');
-
-  btns.innerHTML = pages.join('');
+function renderPgn(tot) {
+  const pgn=document.getElementById('pgn');
+  if(tot<=1){pgn.style.display='none';return;}
+  pgn.style.display='flex';
+  const s=(page-1)*PAGE_SZ+1,e=Math.min(page*PAGE_SZ,filtered.length);
+  document.getElementById('pgnInfo').textContent=`แสดง ${s}–${e} จาก ${filtered.length.toLocaleString()} รายการ`;
+  let h=`<button class="pgn-btn" onclick="goPage(${page-1})" ${page===1?'disabled':''}>◀</button>`;
+  let s2=Math.max(1,page-2),e2=Math.min(tot,page+2);
+  if(s2>1)h+=`<button class="pgn-btn" onclick="goPage(1)">1</button>`;
+  if(s2>2)h+=`<span style="padding:0 3px;color:var(--text3)">…</span>`;
+  for(let i=s2;i<=e2;i++)h+=`<button class="pgn-btn${i===page?' active':''}" onclick="goPage(${i})">${i}</button>`;
+  if(e2<tot-1)h+=`<span style="padding:0 3px;color:var(--text3)">…</span>`;
+  if(e2<tot)h+=`<button class="pgn-btn" onclick="goPage(${tot})">${tot}</button>`;
+  h+=`<button class="pgn-btn" onclick="goPage(${page+1})" ${page===tot?'disabled':''}>▶</button>`;
+  document.getElementById('pgnBtns').innerHTML=h;
 }
 
 function goPage(p) {
-  const total = Math.ceil(filteredRows.length/PAGE_SIZE);
-  if (p < 1 || p > total) return;
-  currentPage = p;
-  renderTable();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const tot=Math.ceil(filtered.length/PAGE_SZ);
+  if(p<1||p>tot)return;
+  page=p; renderTable();
 }
 
-// ===== SORT =====
-function sortTable(col) {
-  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
-  document.querySelectorAll('thead th').forEach(th => {
-    th.classList.remove('sort-asc','sort-desc');
-    const txt = th.textContent.trim().replace(/[▲▼]/g,'');
-  });
+function sortBy(col) {
+  if(sCol===col)sAsc=!sAsc;else{sCol=col;sAsc=true;}
   applyFilters();
 }
 
-// ===== UTILS =====
-function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function showLoading(msg) {
-  document.getElementById('loadingText').textContent = msg||'กำลังโหลด...';
-  document.getElementById('loadingOverlay').classList.add('show');
-}
-function hideLoading() {
-  document.getElementById('loadingOverlay').classList.remove('show');
-}
-function showError(msg) {
-  const el = document.getElementById('errorBox');
-  el.innerHTML = '⚠️ ' + msg;
-  el.classList.add('show');
-}
-function hideError() {
-  document.getElementById('errorBox').classList.remove('show');
-}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function showLov(t){document.getElementById('lovTxt').textContent=t;document.getElementById('lov').classList.add('show')}
+function hideLov(){document.getElementById('lov').classList.remove('show')}
+function showErr(m){const el=document.getElementById('errBox');el.innerHTML='⚠️ '+m;el.classList.add('show')}
+function hideErr(){document.getElementById('errBox').classList.remove('show')}
 </script>
 </body>
 </html>
