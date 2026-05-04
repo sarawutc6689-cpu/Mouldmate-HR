@@ -139,7 +139,7 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
     <div class="hdr-ic">📊</div>
     <div>
       <div class="hdr-t">HR Dashboard — รายงานเวลาทำงาน</div>
-      <div class="hdr-s">ติดตามชั่วโมงทำงาน + OT รายแผนก · 14 แผนก</div>
+      <div class="hdr-s">ติดตามชั่วโมงทำงานรายแผนก · 14 แผนก</div>
     </div>
   </div>
   <div class="upd-badge" id="updBadge">—</div>
@@ -174,28 +174,24 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
       <label>ปี</label>
       <select id="inYear" onchange="applyFilters()"></select>
     </div>
-    <button class="btn-ref" onclick="reloadCurrent()">🔄 รีเฟรช</button>
+    <div style="display:flex;gap:7px;margin-left:auto">
+      <button class="btn-ref" onclick="reloadCurrent()">🔄 รีเฟรช</button>
+      <button class="btn-ref" style="background:#059669" onclick="exportCSV()">⬇️ CSV</button>
+      <button class="btn-ref" style="background:#dc2626" onclick="exportPDF()">🖨️ PDF</button>
+    </div>
   </div>
 
   <!-- STATS -->
   <div class="stat-grid">
     <div class="sc blue"><div class="sc-ic blue">👥</div><div class="sc-val" id="stEmp">—</div><div class="sc-lbl">จำนวนพนักงาน</div></div>
     <div class="sc green"><div class="sc-ic green">⏱</div><div class="sc-val" id="stHrs">—</div><div class="sc-lbl">รวมชั่วโมงทำงาน</div></div>
-    <div class="sc purple"><div class="sc-ic purple">⚡</div><div class="sc-val" id="stOT">—</div><div class="sc-lbl">รวมชั่วโมง OT</div></div>
     <div class="sc amber"><div class="sc-ic amber">📈</div><div class="sc-val" id="stAvg">—</div><div class="sc-lbl">เฉลี่ยชม./คน</div></div>
-    <div class="sc sky"><div class="sc-ic sky">🏆</div><div class="sc-val" id="stTop">—</div><div class="sc-lbl">ชม.รวมเดือนสูงสุด</div></div>
   </div>
 
   <!-- CHARTS -->
-  <div class="two-col">
-    <div class="chart-card">
-      <div class="cc-title">⏱ ชั่วโมงทำงานสะสม/เดือน (Top 10)</div>
-      <div class="bar-chart" id="chartWork"></div>
-    </div>
-    <div class="chart-card">
-      <div class="cc-title">⚡ ชั่วโมง OT สะสม/เดือน (Top 10)</div>
-      <div class="bar-chart" id="chartOT"></div>
-    </div>
+  <div class="chart-card" style="margin-bottom:16px">
+    <div class="cc-title">⏱ ชั่วโมงทำงานสะสม/เดือน (Top 10)</div>
+    <div class="bar-chart" id="chartWork"></div>
   </div>
 
   <!-- TABLE -->
@@ -356,7 +352,6 @@ function parseSheet(json) {
   out.forEach(r => {
     const k = `${r.empId}|${r.date.getFullYear()}|${r.date.getMonth()}`;
     r.monthWork = mW[k]||0;
-    r.monthOT   = mO[k]||0;
   });
 
   return out;
@@ -429,31 +424,22 @@ function applyFilters() {
 function renderStats(rows) {
   const emps=new Set(rows.map(r=>r.empId));
   const totW=rows.reduce((s,r)=>s+r.workHrs,0);
-  const totOT=rows.reduce((s,r)=>s+r.otHrs,0);
   const avg=emps.size?totW/emps.size:0;
 
-  // Top monthly from full cache
-  const all=cache[dept]||[];
-  const em={};
-  all.forEach(r=>{if(!em[r.empId]||em[r.empId].w<r.monthWork)em[r.empId]={name:r.name,w:r.monthWork};});
-  const top=Object.values(em).sort((a,b)=>b.w-a.w)[0];
 
   document.getElementById('stEmp').textContent=emps.size;
   document.getElementById('stHrs').textContent=totW.toFixed(1);
-  document.getElementById('stOT').textContent=totOT.toFixed(1);
   document.getElementById('stAvg').textContent=avg.toFixed(1);
-  document.getElementById('stTop').textContent=top?`${top.name.split(' ')[0].slice(0,10)} (${top.w.toFixed(0)} ชม.)`:'—';
 }
 
 function renderCharts() {
   const all=cache[dept]||[];
   const em={};
   all.forEach(r=>{
-    if(!em[r.empId])em[r.empId]={name:r.name,w:r.monthWork,ot:r.monthOT};
+    if(!em[r.empId])em[r.empId]={name:r.name,w:r.monthWork};
   });
   const arr=Object.values(em);
   drawBars('chartWork',[...arr].sort((a,b)=>b.w-a.w).slice(0,10),'w','bw');
-  drawBars('chartOT',[...arr].sort((a,b)=>b.ot-a.ot).slice(0,10),'ot','bo');
 }
 
 function drawBars(id,items,key,cls) {
@@ -535,6 +521,76 @@ function showLov(t){document.getElementById('lovTxt').textContent=t;document.get
 function hideLov(){document.getElementById('lov').classList.remove('show')}
 function showErr(m){const el=document.getElementById('errBox');el.innerHTML='⚠️ '+m;el.classList.add('show')}
 function hideErr(){document.getElementById('errBox').classList.remove('show')}
+
+// ===== EXPORT CSV =====
+function exportCSV() {
+  if (!filtered.length) { alert('ไม่มีข้อมูลสำหรับ Export'); return; }
+  const BOM = '\uFEFF';
+  const headers = ['วันที่','รหัสพนักงาน','ชื่อ-นามสกุล','เวลาเริ่ม','เวลาสิ้นสุด','ชม.ทำงาน(วัน)','ชม.รวม/เดือน','หมายเหตุ'];
+  const rows = filtered.map(r => [
+    r.dateStr, r.empId, r.name, r.start, r.end,
+    r.workHrs.toFixed(2), r.monthWork.toFixed(1), r.note
+  ].map(v => '"' + String(v||'').replace(/"/g,'""') + '"').join(','));
+  const csv = BOM + [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const deptName = document.getElementById('deptSelect').value;
+  a.href = url;
+  a.download = 'HR_' + deptName + '_' + new Date().toLocaleDateString('th-TH').replace(/\//g,'-') + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== EXPORT PDF =====
+function exportPDF() {
+  if (!filtered.length) { alert('ไม่มีข้อมูลสำหรับ Export'); return; }
+  const deptName = document.getElementById('deptSelect').value;
+  const dateLabel = period==='day'   ? document.getElementById('inDay').value
+                  : period==='month' ? document.getElementById('inMonth').value
+                  : document.getElementById('inYear').value;
+  const empCount = new Set(filtered.map(r => r.empId)).size;
+  const totW = filtered.reduce((s,r) => s+r.workHrs, 0);
+  const rows = filtered.map(r =>
+    '<tr><td>' + r.dateStr + '</td><td>' + r.empId + '</td><td>' + r.name +
+    '</td><td>' + (r.start||'—') + '</td><td>' + (r.end||'—') +
+    '</td><td style="text-align:center">' + r.workHrs.toFixed(2) +
+    '</td><td style="text-align:center">' + r.monthWork.toFixed(1) +
+    '</td><td>' + (r.note||'—') + '</td></tr>'
+  ).join('');
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<title>HR Report - ' + deptName + '</title>' +
+    '<style>' +
+    'body{font-family:sans-serif;font-size:11px;padding:24px;color:#111}' +
+    'h2{font-size:15px;margin-bottom:2px;color:#1e40af}' +
+    '.meta{font-size:10px;color:#555;margin-bottom:14px;display:flex;gap:20px}' +
+    '.meta span{background:#f1f5f9;padding:3px 8px;border-radius:4px}' +
+    'table{width:100%;border-collapse:collapse}' +
+    'th{background:#1e40af;color:#fff;padding:7px 9px;text-align:left;font-size:10px;letter-spacing:.04em}' +
+    'td{padding:6px 9px;border-bottom:1px solid #e2e8f0;font-size:10px}' +
+    'tr:nth-child(even) td{background:#f8fafc}' +
+    '.footer{margin-top:14px;font-size:9px;color:#aaa;text-align:right}' +
+    '@media print{body{padding:10px}}' +
+    '</style></head><body>' +
+    '<h2>รายงานเวลาทำงาน — แผนก ' + deptName + '</h2>' +
+    '<div class="meta">' +
+    '<span>ช่วงเวลา: ' + dateLabel + '</span>' +
+    '<span>พนักงาน: ' + empCount + ' คน</span>' +
+    '<span>รายการ: ' + filtered.length + '</span>' +
+    '<span>รวมชม.: ' + totW.toFixed(1) + ' ชม.</span>' +
+    '</div>' +
+    '<table><thead><tr>' +
+    '<th>วันที่</th><th>รหัสพนักงาน</th><th>ชื่อ-นามสกุล</th>' +
+    '<th>เวลาเริ่ม</th><th>เวลาสิ้นสุด</th><th>ชม.(วัน)</th><th>ชม.รวม/เดือน</th><th>หมายเหตุ</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<div class="footer">พิมพ์เมื่อ: ' + new Date().toLocaleString('th-TH') + '</div>' +
+    '<script>window.onload=function(){window.print();}<\/script>' +
+    '</body></html>';
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
 </script>
 </body>
 </html>
