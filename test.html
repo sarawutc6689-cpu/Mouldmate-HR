@@ -65,21 +65,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);fon
 .sc-lbl{font-size:11px;color:var(--text2);font-weight:500}
 
 /* TWO COL */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
-@media(max-width:860px){.two-col{grid-template-columns:1fr}}
 
 /* CHART */
-.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;box-shadow:var(--sh)}
-.cc-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px}
-.bar-chart{display:flex;flex-direction:column;gap:6px}
-.bar-row{display:flex;align-items:center;gap:7px}
-.bar-lbl{width:100px;font-size:11px;color:var(--text2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
-.bar-track{flex:1;height:16px;background:var(--bg);border-radius:3px;overflow:hidden}
-.bar-fill{height:100%;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;min-width:4px;transition:width .5s ease}
-.bar-fill.bw{background:linear-gradient(90deg,var(--primary-mid),var(--accent))}
-.bar-fill.bo{background:linear-gradient(90deg,var(--ot),#a78bfa)}
-.bar-val{font-size:10px;font-weight:700;color:#fff;white-space:nowrap}
-.bar-val-out{font-size:10px;color:var(--text2);margin-left:4px;white-space:nowrap}
 
 /* TABLE */
 .tbl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh);overflow:hidden}
@@ -139,7 +126,7 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
     <div class="hdr-ic">📊</div>
     <div>
       <div class="hdr-t">HR Dashboard — รายงานเวลาทำงาน</div>
-      <div class="hdr-s">ติดตามชั่วโมงทำงาน + OT รายแผนก · 14 แผนก</div>
+      <div class="hdr-s">ติดตามชั่วโมงทำงานรายแผนก · 14 แผนก</div>
     </div>
   </div>
   <div class="upd-badge" id="updBadge">—</div>
@@ -185,22 +172,11 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
   <div class="stat-grid">
     <div class="sc blue"><div class="sc-ic blue">👥</div><div class="sc-val" id="stEmp">—</div><div class="sc-lbl">จำนวนพนักงาน</div></div>
     <div class="sc green"><div class="sc-ic green">⏱</div><div class="sc-val" id="stHrs">—</div><div class="sc-lbl">รวมชั่วโมงทำงาน</div></div>
-    <div class="sc purple"><div class="sc-ic purple">⚡</div><div class="sc-val" id="stOT">—</div><div class="sc-lbl">รวมชั่วโมง OT</div></div>
     <div class="sc amber"><div class="sc-ic amber">📈</div><div class="sc-val" id="stAvg">—</div><div class="sc-lbl">เฉลี่ยชม./คน</div></div>
-    <div class="sc sky"><div class="sc-ic sky">🏆</div><div class="sc-val" id="stTop">—</div><div class="sc-lbl">ชม.รวมเดือนสูงสุด</div></div>
   </div>
 
   <!-- CHARTS -->
-  <div class="two-col">
-    <div class="chart-card">
-      <div class="cc-title">⏱ ชั่วโมงทำงานสะสม/เดือน (Top 10)</div>
-      <div class="bar-chart" id="chartWork"></div>
-    </div>
-    <div class="chart-card">
-      <div class="cc-title">⚡ ชั่วโมง OT สะสม/เดือน (Top 10)</div>
-      <div class="bar-chart" id="chartOT"></div>
-    </div>
-  </div>
+
 
   <!-- TABLE -->
   <div class="tbl-card">
@@ -276,6 +252,9 @@ function initDefaults() {
 
 function buildTabs() {
   const sel = document.getElementById("deptSelect");
+  const all = document.createElement("option");
+  all.value = "__ALL__"; all.textContent = "🏢 ทุกแผนก";
+  sel.appendChild(all);
   SHEETS.forEach(n => {
     const o = document.createElement("option");
     o.value = n; o.textContent = n;
@@ -286,11 +265,27 @@ function buildTabs() {
 
 async function selDept(n) {
   dept = n;
-  if (!cache[n]) await loadSheet(n);
+  if (n === '__ALL__') {
+    // Load all sheets not yet cached
+    for (const s of SHEETS) {
+      if (!cache[s]) await loadSheet(s);
+    }
+  } else {
+    if (!cache[n]) await loadSheet(n);
+  }
   applyFilters();
 }
 
-async function reloadCurrent() { delete cache[dept]; await loadSheet(dept); applyFilters(); }
+async function reloadCurrent() {
+  if (dept === '__ALL__') {
+    SHEETS.forEach(s => delete cache[s]);
+    for (const s of SHEETS) await loadSheet(s);
+  } else {
+    delete cache[dept];
+    await loadSheet(dept);
+  }
+  applyFilters();
+}
 
 async function loadSheet(name) {
   showLov(`กำลังโหลด "${name}"...`);
@@ -360,7 +355,6 @@ function parseSheet(json) {
   out.forEach(r => {
     const k = `${r.empId}|${r.date.getFullYear()}|${r.date.getMonth()}`;
     r.monthWork = mW[k]||0;
-    r.monthOT   = mO[k]||0;
   });
 
   return out;
@@ -401,7 +395,9 @@ function setPeriod(p) {
 }
 
 function applyFilters() {
-  let rows = cache[dept]||[];
+  let rows = dept === '__ALL__'
+    ? SHEETS.flatMap(s => cache[s] || [])
+    : cache[dept] || [];
 
   if (period==='day') {
     const v=document.getElementById('inDay').value;
@@ -426,54 +422,18 @@ function applyFilters() {
 
   filtered=rows; page=1;
   renderStats(rows);
-  renderCharts();
   renderTable();
 }
 
 function renderStats(rows) {
   const emps=new Set(rows.map(r=>r.empId));
   const totW=rows.reduce((s,r)=>s+r.workHrs,0);
-  const totOT=rows.reduce((s,r)=>s+r.otHrs,0);
   const avg=emps.size?totW/emps.size:0;
 
-  // Top monthly from full cache
-  const all=cache[dept]||[];
-  const em={};
-  all.forEach(r=>{if(!em[r.empId]||em[r.empId].w<r.monthWork)em[r.empId]={name:r.name,w:r.monthWork};});
-  const top=Object.values(em).sort((a,b)=>b.w-a.w)[0];
 
   document.getElementById('stEmp').textContent=emps.size;
   document.getElementById('stHrs').textContent=totW.toFixed(1);
-  document.getElementById('stOT').textContent=totOT.toFixed(1);
   document.getElementById('stAvg').textContent=avg.toFixed(1);
-  document.getElementById('stTop').textContent=top?`${top.name.split(' ')[0].slice(0,10)} (${top.w.toFixed(0)} ชม.)`:'—';
-}
-
-function renderCharts() {
-  const all=cache[dept]||[];
-  const em={};
-  all.forEach(r=>{
-    if(!em[r.empId])em[r.empId]={name:r.name,w:r.monthWork,ot:r.monthOT};
-  });
-  const arr=Object.values(em);
-  drawBars('chartWork',[...arr].sort((a,b)=>b.w-a.w).slice(0,10),'w','bw');
-  drawBars('chartOT',[...arr].sort((a,b)=>b.ot-a.ot).slice(0,10),'ot','bo');
-}
-
-function drawBars(id,items,key,cls) {
-  const max=Math.max(...items.map(i=>i[key]),1);
-  document.getElementById(id).innerHTML=items.length
-    ? items.map(i=>`
-      <div class="bar-row">
-        <div class="bar-lbl" title="${i.name}">${i.name.replace(/^(นาย|น\.ส\.|นาง)\s*/,'').split(' ')[0].slice(0,10)}</div>
-        <div class="bar-track">
-          <div class="bar-fill ${cls}" style="width:${(i[key]/max*100).toFixed(1)}%">
-            ${i[key]/max>0.18?`<span class="bar-val">${i[key].toFixed(0)}</span>`:''}
-          </div>
-        </div>
-        ${i[key]/max<=0.18?`<span class="bar-val-out">${i[key].toFixed(0)}</span>`:''}
-      </div>`).join('')
-    : '<div style="color:var(--text3);font-size:12px;padding:6px 0">ไม่มีข้อมูล</div>';
 }
 
 function renderTable() {
