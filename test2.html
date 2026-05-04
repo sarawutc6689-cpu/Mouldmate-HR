@@ -148,13 +148,12 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
 <div class="wrap">
   <div class="err" id="errBox"></div>
 
-  <!-- DEPT TABS -->
-  <div class="dept-scroll">
-    <div class="dept-tabs" id="deptTabs"></div>
-  </div>
-
   <!-- CONTROLS -->
   <div class="ctrl">
+    <div class="cg">
+      <label>แผนก</label>
+      <select id="deptSelect" onchange="selDept(this.value)"></select>
+    </div>
     <div class="cg">
       <label>ช่วงเวลา</label>
       <div class="period-tabs">
@@ -218,14 +217,12 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
             <th onclick="sortBy('start')">เวลาเริ่ม ↕</th>
             <th onclick="sortBy('end')">เวลาสิ้นสุด ↕</th>
             <th onclick="sortBy('workHrs')">ชม.ทำงาน (วัน) ↕</th>
-            <th onclick="sortBy('otHrs')">ชม. OT (วัน) ↕</th>
             <th onclick="sortBy('monthWork')">ชม.รวม/เดือน ↕</th>
-            <th onclick="sortBy('monthOT')">OT รวม/เดือน ↕</th>
             <th>หมายเหตุ</th>
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr><td colspan="10" class="no-data">
+          <tr><td colspan="8" class="no-data">
             <div class="no-data-ic">🏢</div>
             <div>กำลังโหลดข้อมูล...</div>
           </td></tr>
@@ -274,19 +271,17 @@ function initDefaults() {
 }
 
 function buildTabs() {
-  const cont = document.getElementById('deptTabs');
+  const sel = document.getElementById("deptSelect");
   SHEETS.forEach(n => {
-    const b = document.createElement('button');
-    b.className = 'dept-tab' + (n===dept?' active':'');
-    b.textContent = n;
-    b.onclick = () => selDept(n);
-    cont.appendChild(b);
+    const o = document.createElement("option");
+    o.value = n; o.textContent = n;
+    if (n === dept) o.selected = true;
+    sel.appendChild(o);
   });
 }
 
 async function selDept(n) {
   dept = n;
-  document.querySelectorAll('.dept-tab').forEach(b => b.classList.toggle('active', b.textContent===n));
   if (!cache[n]) await loadSheet(n);
   applyFilters();
 }
@@ -482,7 +477,7 @@ function renderTable() {
   document.getElementById('rowCnt').textContent=`${filtered.length.toLocaleString()} รายการ`;
 
   if(!filtered.length){
-    tbody.innerHTML=`<tr><td colspan="10" class="no-data"><div class="no-data-ic">📭</div><div>ไม่พบข้อมูลในช่วงที่เลือก</div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="8" class="no-data"><div class="no-data-ic">📭</div><div>ไม่พบข้อมูลในช่วงที่เลือก</div></td></tr>`;
     document.getElementById('pgn').style.display='none';
     return;
   }
@@ -500,9 +495,7 @@ function renderTable() {
       <td><span class="tc">${esc(r.start)||'—'}</span></td>
       <td><span class="tc">${esc(r.end)||'—'}</span></td>
       <td><span class="h-work">${r.workHrs.toFixed(2)} ชม.</span></td>
-      <td><span class="h-ot">${r.otHrs>0?r.otHrs.toFixed(2)+' ชม.':'—'}</span></td>
       <td><span class="h-month">${r.monthWork.toFixed(1)} ชม.</span></td>
-      <td>${r.monthOT>0?`<span class="h-ot">${r.monthOT.toFixed(1)} ชม.</span>`:'<span style="color:var(--text3)">—</span>'}</td>
       <td>${r.note?`<span class="note-chip" title="${esc(r.note)}">${esc(r.note)}</span>`:'<span style="color:var(--text3)">—</span>'}</td>
     </tr>`).join('');
 
