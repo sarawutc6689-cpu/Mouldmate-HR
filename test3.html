@@ -126,7 +126,7 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
     <div class="hdr-ic">📊</div>
     <div>
       <div class="hdr-t">HR Dashboard — รายงานเวลาทำงาน</div>
-      <div class="hdr-s">ติดตามชั่วโมงทำงานรายแผนก</div>
+      <div class="hdr-s">ติดตามชั่วโมงทำงานรายแผนก · 14 แผนก</div>
     </div>
   </div>
   <div class="upd-badge" id="updBadge">—</div>
@@ -173,6 +173,7 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
     <div class="sc blue"><div class="sc-ic blue">👥</div><div class="sc-val" id="stEmp">—</div><div class="sc-lbl">จำนวนพนักงาน</div></div>
     <div class="sc green"><div class="sc-ic green">⏱</div><div class="sc-val" id="stHrs">—</div><div class="sc-lbl">รวมชั่วโมงทำงาน</div></div>
     <div class="sc amber"><div class="sc-ic amber">📈</div><div class="sc-val" id="stAvg">—</div><div class="sc-lbl">เฉลี่ยชม./คน</div></div>
+    <div class="sc sky"><div class="sc-ic sky">📆</div><div class="sc-val" id="stYear">—</div><div class="sc-lbl">ชม.รวม/ปี (ทุกพนักงาน)</div></div>
   </div>
 
   <!-- CHARTS -->
@@ -198,11 +199,12 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
             <th onclick="sortBy('end')">เวลาสิ้นสุด ↕</th>
             <th onclick="sortBy('workHrs')">ชม.ทำงาน (วัน) ↕</th>
             <th onclick="sortBy('monthWork')">ชม.รวม/เดือน ↕</th>
+            <th onclick="sortBy('yearWork')">ชม.รวม/ปี ↕</th>
             <th>หมายเหตุ</th>
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr><td colspan="8" class="no-data">
+          <tr><td colspan="9" class="no-data">
             <div class="no-data-ic">🏢</div>
             <div>กำลังโหลดข้อมูล...</div>
           </td></tr>
@@ -218,7 +220,7 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
 
 <script>
 const SHEET_ID = '1_cXJYLMwzK_a7krK-viLutKigmsXwVFcLlCNhiRIa0M';
-const SHEETS = ['AMS','FG','FST','HQ','MA','MAT&ST','Mould','PD1','PD2','Place','PN','Quality','RD Compound','RD Product Design'];
+const SHEETS = ['AMS','FG','FST','HQ','MA','MAT&ST','Mould','PD1','PD2','Place','PN','Qaulity','RD Compound','RD Product Design'];
 // Col indices (0-based): A=0,B=1,C=2,D=3,E=4,F=5,G=6,H=7
 const C = {date:0,empId:1,name:2,start:3,end:4,workHrs:5,otHrs:6,note:7};
 const PAGE_SZ = 30;
@@ -252,6 +254,9 @@ function initDefaults() {
 
 function buildTabs() {
   const sel = document.getElementById("deptSelect");
+  const all = document.createElement("option");
+  all.value = "__ALL__"; all.textContent = "🏢 ทุกแผนก";
+  sel.appendChild(all);
   SHEETS.forEach(n => {
     const o = document.createElement("option");
     o.value = n; o.textContent = n;
@@ -262,11 +267,27 @@ function buildTabs() {
 
 async function selDept(n) {
   dept = n;
-  if (!cache[n]) await loadSheet(n);
+  if (n === '__ALL__') {
+    // Load all sheets not yet cached
+    for (const s of SHEETS) {
+      if (!cache[s]) await loadSheet(s);
+    }
+  } else {
+    if (!cache[n]) await loadSheet(n);
+  }
   applyFilters();
 }
 
-async function reloadCurrent() { delete cache[dept]; await loadSheet(dept); applyFilters(); }
+async function reloadCurrent() {
+  if (dept === '__ALL__') {
+    SHEETS.forEach(s => delete cache[s]);
+    for (const s of SHEETS) await loadSheet(s);
+  } else {
+    delete cache[dept];
+    await loadSheet(dept);
+  }
+  applyFilters();
+}
 
 async function loadSheet(name) {
   showLov(`กำลังโหลด "${name}"...`);
@@ -326,16 +347,19 @@ function parseSheet(json) {
     out.push({ date:dateObj, dateStr:fmtDate(dateObj), empId, name, start, end, workHrs, otHrs, note });
   });
 
-  // Monthly totals per employee (same month+year)
-  const mW={}, mO={};
+  // Monthly + yearly totals per employee
+  const mW={}, yW={};
   out.forEach(r => {
-    const k = `${r.empId}|${r.date.getFullYear()}|${r.date.getMonth()}`;
-    mW[k] = (mW[k]||0) + r.workHrs;
-    mO[k] = (mO[k]||0) + r.otHrs;
+    const mk = `${r.empId}|${r.date.getFullYear()}|${r.date.getMonth()}`;
+    const yk = `${r.empId}|${r.date.getFullYear()}`;
+    mW[mk] = (mW[mk]||0) + r.workHrs;
+    yW[yk] = (yW[yk]||0) + r.workHrs;
   });
   out.forEach(r => {
-    const k = `${r.empId}|${r.date.getFullYear()}|${r.date.getMonth()}`;
-    r.monthWork = mW[k]||0;
+    const mk = `${r.empId}|${r.date.getFullYear()}|${r.date.getMonth()}`;
+    const yk = `${r.empId}|${r.date.getFullYear()}`;
+    r.monthWork = mW[mk]||0;
+    r.yearWork  = yW[yk]||0;
   });
 
   return out;
@@ -376,7 +400,9 @@ function setPeriod(p) {
 }
 
 function applyFilters() {
-  let rows = cache[dept]||[];
+  let rows = dept === '__ALL__'
+    ? SHEETS.flatMap(s => cache[s] || [])
+    : cache[dept] || [];
 
   if (period==='day') {
     const v=document.getElementById('inDay').value;
@@ -410,9 +436,16 @@ function renderStats(rows) {
   const avg=emps.size?totW/emps.size:0;
 
 
+  // Yearly total from full cache (current selected year or all years)
+  const allRows = dept === '__ALL__' ? SHEETS.flatMap(s => cache[s]||[]) : cache[dept]||[];
+  const selYear = period==='year' ? +document.getElementById('inYear').value : null;
+  const yearRows = selYear ? allRows.filter(r => r.date.getFullYear()===selYear) : allRows;
+  const totYear = yearRows.reduce((s,r) => s+r.workHrs, 0);
+
   document.getElementById('stEmp').textContent=emps.size;
   document.getElementById('stHrs').textContent=totW.toFixed(1);
   document.getElementById('stAvg').textContent=avg.toFixed(1);
+  document.getElementById('stYear').textContent=totYear.toFixed(1);
 }
 
 function renderTable() {
@@ -420,7 +453,7 @@ function renderTable() {
   document.getElementById('rowCnt').textContent=`${filtered.length.toLocaleString()} รายการ`;
 
   if(!filtered.length){
-    tbody.innerHTML=`<tr><td colspan="8" class="no-data"><div class="no-data-ic">📭</div><div>ไม่พบข้อมูลในช่วงที่เลือก</div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="9" class="no-data"><div class="no-data-ic">📭</div><div>ไม่พบข้อมูลในช่วงที่เลือก</div></td></tr>`;
     document.getElementById('pgn').style.display='none';
     return;
   }
@@ -439,6 +472,7 @@ function renderTable() {
       <td><span class="tc">${esc(r.end)||'—'}</span></td>
       <td><span class="h-work">${r.workHrs.toFixed(2)} ชม.</span></td>
       <td><span class="h-month">${r.monthWork.toFixed(1)} ชม.</span></td>
+      <td><span style="font-weight:700;color:#0369a1;font-size:14px">${r.yearWork.toFixed(1)} ชม.</span></td>
       <td>${r.note?`<span class="note-chip" title="${esc(r.note)}">${esc(r.note)}</span>`:'<span style="color:var(--text3)">—</span>'}</td>
     </tr>`).join('');
 
@@ -483,10 +517,10 @@ function hideErr(){document.getElementById('errBox').classList.remove('show')}
 function exportCSV() {
   if (!filtered.length) { alert('ไม่มีข้อมูลสำหรับ Export'); return; }
   const BOM = '\uFEFF';
-  const headers = ['วันที่','รหัสพนักงาน','ชื่อ-นามสกุล','เวลาเริ่ม','เวลาสิ้นสุด','ชม.ทำงาน(วัน)','ชม.รวม/เดือน','หมายเหตุ'];
+  const headers = ['วันที่','รหัสพนักงาน','ชื่อ-นามสกุล','เวลาเริ่ม','เวลาสิ้นสุด','ชม.ทำงาน(วัน)','ชม.รวม/เดือน','ชม.รวม/ปี','หมายเหตุ'];
   const rows = filtered.map(r => [
     r.dateStr, r.empId, r.name, r.start, r.end,
-    r.workHrs.toFixed(2), r.monthWork.toFixed(1), r.note
+    r.workHrs.toFixed(2), r.monthWork.toFixed(1), r.yearWork.toFixed(1), r.note
   ].map(v => '"' + String(v||'').replace(/"/g,'""') + '"').join(','));
   const csv = BOM + [headers.join(','), ...rows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -513,6 +547,7 @@ function exportPDF() {
     '</td><td>' + (r.start||'—') + '</td><td>' + (r.end||'—') +
     '</td><td style="text-align:center">' + r.workHrs.toFixed(2) +
     '</td><td style="text-align:center">' + r.monthWork.toFixed(1) +
+    '</td><td style="text-align:center">' + r.yearWork.toFixed(1) +
     '</td><td>' + (r.note||'—') + '</td></tr>'
   ).join('');
   const html = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
@@ -538,7 +573,7 @@ function exportPDF() {
     '</div>' +
     '<table><thead><tr>' +
     '<th>วันที่</th><th>รหัสพนักงาน</th><th>ชื่อ-นามสกุล</th>' +
-    '<th>เวลาเริ่ม</th><th>เวลาสิ้นสุด</th><th>ชม.(วัน)</th><th>ชม.รวม/เดือน</th><th>หมายเหตุ</th>' +
+    '<th>เวลาเริ่ม</th><th>เวลาสิ้นสุด</th><th>ชม.(วัน)</th><th>ชม.รวม/เดือน</th><th>ชม.รวม/ปี</th><th>หมายเหตุ</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
     '<div class="footer">พิมพ์เมื่อ: ' + new Date().toLocaleString('th-TH') + '</div>' +
     '<script>window.onload=function(){window.print();}<\/script>' +
