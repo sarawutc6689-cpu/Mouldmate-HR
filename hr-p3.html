@@ -173,9 +173,10 @@
             background: linear-gradient(to right, #34495e, #2c3e50);
         }
 
-         .icon-check {
+        .icon-check {
             background: linear-gradient(to right, #34495e, #2c3e50);
         }
+
         .card-title {
             font-size: 1.4rem;
             color: var(--primary);
@@ -258,6 +259,7 @@
             font-size: 0.8rem;
             font-weight: 600;
             margin-top: 10px;
+            margin-bottom: 15px;
         }
         
         @media (max-width: 768px) {
@@ -276,115 +278,115 @@
             }
         }
 
-        <!-- เพิ่ม CSS นี้ใน <style> -->
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
-}
+        /* ===== Modal ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
 
-.modal-overlay.active {
-    display: flex;
-}
+        .modal-overlay.active {
+            display: flex;
+        }
 
-.modal-box {
-    background: white;
-    border-radius: 15px;
-    padding: 35px 30px;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    text-align: center;
-    position: relative;
-}
+        .modal-box {
+            background: white;
+            border-radius: 15px;
+            padding: 35px 30px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+        }
 
-.modal-box::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 5px;
-    background: linear-gradient(to right, #34495e, #2c3e50);
-    border-radius: 15px 15px 0 0;
-}
+        .modal-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 5px;
+            background: linear-gradient(to right, #34495e, #2c3e50);
+            border-radius: 15px 15px 0 0;
+        }
 
-.modal-icon {
-    width: 65px; height: 65px;
-    background: linear-gradient(to right, #34495e, #2c3e50);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px; color: white;
-    margin: 0 auto 20px;
-}
+        .modal-icon {
+            width: 65px; height: 65px;
+            background: linear-gradient(to right, #34495e, #2c3e50);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; color: white;
+            margin: 0 auto 20px;
+        }
 
-.modal-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 8px;
-}
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
 
-.modal-subtitle {
-    color: #7f8c8d;
-    font-size: 0.9rem;
-    margin-bottom: 25px;
-}
+        .modal-subtitle {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
 
-.modal-input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    text-align: center;
-    letter-spacing: 2px;
-    outline: none;
-    transition: border-color 0.3s;
-    margin-bottom: 10px;
-}
+        .modal-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 2px;
+            outline: none;
+            transition: border-color 0.3s;
+            margin-bottom: 10px;
+        }
 
-.modal-input:focus {
-    border-color: var(--secondary);
-}
+        .modal-input:focus {
+            border-color: var(--secondary);
+        }
 
-.modal-input.error {
-    border-color: var(--danger);
-    animation: shake 0.3s ease;
-}
+        .modal-input.error {
+            border-color: var(--danger);
+            animation: shake 0.3s ease;
+        }
 
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    75% { transform: translateX(8px); }
-}
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
 
-.modal-error {
-    color: var(--danger);
-    font-size: 0.85rem;
-    margin-bottom: 15px;
-    min-height: 20px;
-}
+        .modal-error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            min-height: 20px;
+        }
 
-.modal-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
 
-.btn-cancel {
-    background: #ecf0f1;
-    color: var(--dark);
-}
+        .btn-cancel {
+            background: #ecf0f1;
+            color: var(--dark);
+        }
 
-.btn-cancel:hover {
-    background: #bdc3c7;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
+        .btn-cancel:hover {
+            background: #bdc3c7;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -416,9 +418,8 @@
                     <a href="https://script.google.com/macros/s/AKfycbyUBMLSVcYcZQNg5tzUaV1B0LN5IjxKOw0Kf3On439_4KQYrPGMRM4NcllmMBor1C5YLQ/exec" target="_blank" class="btn">
                         <i class="fas fa-external-link-alt"></i> เข้าดู
                     </a>
-                
                     <a href="https://drive.google.com/file/d/1hE_Z3edd-rHbhGF-Hyr1VwWscrkn7znw/view?usp=sharing" target="_blank" class="btn">
-                        <i class="fas fa-external-link-alt"></i>คู่มือการใช้
+                        <i class="fas fa-external-link-alt"></i> คู่มือการใช้
                     </a>
                 </div>
             </div>
@@ -450,15 +451,13 @@
                 <div class="card-body">
                     <p class="card-description">ระบบสำหรับเจ้าหน้าที่ฝ่ายทรัพยากรบุคคลในการจัดการข้อมูลพนักงาน ตรวจสอบรายงาน และบริหารงานบุคคล</p>
                     <div class="card-badge">สำหรับ HR เท่านั้น</div>
-                   <!-- แก้ปุ่มในการ์ด HR จาก <a href> เป็น -->
-<button onclick="openHRModal()" class="btn">
-    <i class="fas fa-external-link-alt"></i> เข้าดู
-</button>
+                    <button onclick="openHRModal()" class="btn">
+                        <i class="fas fa-external-link-alt"></i> เข้าดู
+                    </button>
                 </div>
             </div>
 
-
-              <!-- FaceLogin -->
+            <!-- FaceLogin -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-icon icon-register">
@@ -468,29 +467,48 @@
                 </div>
                 <div class="card-body">
                     <p class="card-description">ลงเวลาทำงานนอกสถานที่</p>
-                    
                     <a href="https://sarawutc6689-cpu.github.io/FaceLogin/index.html" target="_blank" class="btn">
                         <i class="fas fa-external-link-alt"></i> เข้าดู
                     </a>
                 </div>
             </div>
-            
-
-                
-            </div>
-
-      
         </main>
         
         <footer class="footer">
-            <p>ระบบจัดการทรัพยากรบุคคล - © 2026 HR Mouldmate </p>
+            <p>ระบบจัดการทรัพยากรบุคคล - © 2026 HR Mouldmate</p>
             <p>ออกแบบเพื่อให้พนักงานใช้งานได้สะดวกและมีประสิทธิภาพ</p>
-            <span> พัฒนาระบบโดย Sarawut.C </span>
+            <span>พัฒนาระบบโดย Sarawut.C</span>
             <div class="footer-links">
-                
                 <a href="mailto:hr@tokaisolidtire.com">ติดต่อฝ่ายทรัพยากรบุคคล</a>
             </div>
         </footer>
+    </div>
+
+    <!-- HR Modal -->
+    <div class="modal-overlay" id="hrModal">
+        <div class="modal-box">
+            <div class="modal-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <div class="modal-title">เข้าสู่ระบบ HR</div>
+            <div class="modal-subtitle">กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน<br>เฉพาะเจ้าหน้าที่ฝ่ายทรัพยากรบุคคลเท่านั้น</div>
+            <input 
+                type="password" 
+                class="modal-input" 
+                id="hrPassword" 
+                placeholder="กรอกรหัสผ่าน"
+                onkeydown="if(event.key==='Enter') checkHRPassword()"
+            >
+            <div class="modal-error" id="hrError"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-cancel" onclick="closeHRModal()">
+                    <i class="fas fa-times"></i> ยกเลิก
+                </button>
+                <button class="btn" onclick="checkHRPassword()">
+                    <i class="fas fa-unlock"></i> เข้าสู่ระบบ
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -507,23 +525,20 @@
                 second: '2-digit',
                 hour12: false
             };
-            
             const thaiDateTime = now.toLocaleDateString('th-TH', options);
             document.getElementById('datetime').textContent = thaiDateTime;
         }
-        
+
         // อัพเดตทุกวินาที
         updateDateTime();
         setInterval(updateDateTime, 1000);
-        
+
         // เพิ่มเอฟเฟกต์เมื่อโหลดหน้าเว็บ
         document.addEventListener('DOMContentLoaded', function() {
-            // เพิ่ม animation ให้กับการ์ดแต่ละอัน
             const cards = document.querySelectorAll('.card');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(20px)';
-                
                 setTimeout(() => {
                     card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
                     card.style.opacity = '1';
@@ -531,87 +546,39 @@
                 }, 100 * index);
             });
         });
-        <script>
-  // เพิ่มฟังก์ชันนี้ใน <script> ที่มีอยู่แล้ว
-  function trackClick(linkName, url) {
-    // บันทึกสถิติ
-    google.script.run.logClick(linkName);
-    
-    // เปิดลิงก์
-    window.open(url, '_blank');
-    
-    // หรือรอให้บันทึกเสร็จก่อนค่อยเปิด
-    // google.script.run
-    //   .withSuccessHandler(function() {
-    //     window.open(url, '_blank');
-    //   })
-    //   .logClick(linkName);
-  }
-  
-  // แก้ไขปุ่มลิงก์ให้เรียกฟังก์ชันนี้
-  // ตัวอย่างสำหรับปุ่มแรก:
-  // <a href="#" onclick="trackClick('จองห้องประชุม', 'https://sites.google.com/...')" class="btn">
-</script>
 
-    // เพิ่ม JavaScript นี้ใน <script>
-function openHRModal() {
-    document.getElementById('hrModal').classList.add('active');
-    document.getElementById('hrPassword').value = '';
-    document.getElementById('hrError').textContent = '';
-    document.getElementById('hrPassword').classList.remove('error');
-    setTimeout(() => document.getElementById('hrPassword').focus(), 100);
-}
+        // ===== HR Modal Functions =====
+        function openHRModal() {
+            document.getElementById('hrModal').classList.add('active');
+            document.getElementById('hrPassword').value = '';
+            document.getElementById('hrError').textContent = '';
+            document.getElementById('hrPassword').classList.remove('error');
+            setTimeout(() => document.getElementById('hrPassword').focus(), 100);
+        }
 
-function closeHRModal() {
-    document.getElementById('hrModal').classList.remove('active');
-}
+        function closeHRModal() {
+            document.getElementById('hrModal').classList.remove('active');
+        }
 
-function checkHRPassword() {
-    const input = document.getElementById('hrPassword');
-    const error = document.getElementById('hrError');
-    
-    if (input.value === 'mm169Moo4') {
-        closeHRModal();
-        window.open('https://sarawutc6689-cpu.github.io/Mouldmate-HR/hr-only.html', '_blank');
-    } else {
-        input.classList.add('error');
-        error.textContent = '❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง';
-        input.value = '';
-        setTimeout(() => input.classList.remove('error'), 500);
-    }
-}
+        function checkHRPassword() {
+            const input = document.getElementById('hrPassword');
+            const error = document.getElementById('hrError');
+            
+            if (input.value === 'mm169Moo4') {
+                closeHRModal();
+                window.open('https://sarawutc6689-cpu.github.io/Mouldmate-HR/hr-only.html', '_blank');
+            } else {
+                input.classList.add('error');
+                error.textContent = '❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง';
+                input.value = '';
+                setTimeout(() => input.classList.remove('error'), 500);
+            }
+        }
 
-// ปิด modal เมื่อคลิกพื้นหลัง
-document.getElementById('hrModal').addEventListener('click', function(e) {
-    if (e.target === this) closeHRModal();
-});
+        // ปิด modal เมื่อคลิกพื้นหลัง
+        document.getElementById('hrModal').addEventListener('click', function(e) {
+            if (e.target === this) closeHRModal();
+        });
     </script>
-
-    <!-- เพิ่ม Modal HTML นี้ก่อนปิด </body> -->
-<div class="modal-overlay" id="hrModal">
-    <div class="modal-box">
-        <div class="modal-icon">
-            <i class="fas fa-lock"></i>
-        </div>
-        <div class="modal-title">เข้าสู่ระบบ HR</div>
-        <div class="modal-subtitle">กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน<br>เฉพาะเจ้าหน้าที่ฝ่ายทรัพยากรบุคคลเท่านั้น</div>
-        <input 
-            type="password" 
-            class="modal-input" 
-            id="hrPassword" 
-            placeholder="กรอกรหัสผ่าน"
-            onkeydown="if(event.key==='Enter') checkHRPassword()"
-        >
-        <div class="modal-error" id="hrError"></div>
-        <div class="modal-buttons">
-            <button class="btn btn-cancel" onclick="closeHRModal()">
-                <i class="fas fa-times"></i> ยกเลิก
-            </button>
-            <button class="btn" onclick="checkHRPassword()">
-                <i class="fas fa-unlock"></i> เข้าสู่ระบบ
-            </button>
-        </div>
-    </div>
-</div>
 </body>
 </html>
