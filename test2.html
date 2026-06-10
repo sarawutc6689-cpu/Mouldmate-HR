@@ -19,10 +19,8 @@
       line-height: 1.45;
     }
 
-    /* ===== HEADER MODERN ===== */
     .app-header {
       background: #0F3B6F;
-      backdrop-filter: blur(0px);
       padding: 0 28px;
       height: 64px;
       display: flex;
@@ -46,13 +44,11 @@
       letter-spacing: 1px;
       padding: 6px 14px;
       border-radius: 40px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
     }
     .company-text {
       font-weight: 600;
       font-size: 18px;
       color: #E1F0FA;
-      letter-spacing: -0.2px;
     }
     .report-label {
       background: rgba(255,255,255,0.12);
@@ -69,17 +65,14 @@
       font-size: 13px;
       font-weight: 500;
       color: #CBE0F9;
-      backdrop-filter: blur(2px);
     }
 
-    /* container */
     .report-container {
       max-width: 1360px;
       margin: 0 auto;
       padding: 28px 24px 56px;
     }
 
-    /* filter bar */
     .filter-bar {
       background: white;
       border-radius: 24px;
@@ -111,7 +104,6 @@
       font-size: 14px;
       font-weight: 600;
       color: #4F7EA3;
-      letter-spacing: 0.3px;
     }
     .btn-outline-icon {
       background: white;
@@ -130,7 +122,6 @@
     .btn-outline-icon:hover {
       background: #F0F7FF;
       border-color: #8FB9E2;
-      transform: translateY(-1px);
     }
     .filter-tag {
       background: #EAF2FA;
@@ -141,7 +132,6 @@
       color: #1D6AB3;
     }
 
-    /* KPI cards */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -190,7 +180,6 @@
       justify-content: center;
     }
 
-    /* main table card */
     .table-card {
       background: white;
       border-radius: 28px;
@@ -245,7 +234,6 @@
     .icon-btn:hover {
       background: #F1F8FF;
       border-color: #8FB8E0;
-      transform: translateY(-1px);
     }
 
     .data-table {
@@ -261,7 +249,6 @@
       color: #1A5785;
       border-bottom: 1.5px solid #E0ECF6;
       font-size: 13px;
-      letter-spacing: 0.3px;
     }
     .data-table td {
       padding: 14px 20px;
@@ -293,7 +280,6 @@
       color: #7A9BC2;
     }
 
-    /* MODAL (filter) */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -316,7 +302,6 @@
       width: 520px;
       max-width: calc(100vw - 32px);
       border-radius: 32px;
-      box-shadow: 0 25px 45px -12px rgba(0,0,0,0.3);
       overflow: hidden;
       transform: scale(0.96);
       transition: transform 0.2s;
@@ -390,13 +375,19 @@
       font-size: 14px;
       background: white;
     }
+    .date-range-group {
+      display: flex;
+      gap: 12px;
+    }
+    .date-range-group > div {
+      flex: 1;
+    }
     .dept-select {
       width: 100%;
       padding: 12px 14px;
       border-radius: 18px;
       border: 1.5px solid #D8E6F2;
       font-family: inherit;
-      background: white;
     }
     .modal-actions {
       display: flex;
@@ -412,6 +403,7 @@
       border: 1px solid #BDD6EB;
       background: white;
       font-weight: 600;
+      cursor: pointer;
     }
     .btn-primary-filter {
       background: #1A6BBF;
@@ -423,6 +415,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      cursor: pointer;
     }
     footer {
       text-align: center;
@@ -435,6 +428,7 @@
     @media (max-width: 700px) {
       .kpi-grid { grid-template-columns: repeat(2,1fr); }
       .view-type-grid { grid-template-columns: repeat(2,1fr); }
+      .date-range-group { flex-direction: column; gap: 8px; }
     }
   </style>
 </head>
@@ -450,7 +444,6 @@
 </header>
 
 <div class="report-container">
-  <!-- FILTER BAR -->
   <div class="filter-bar">
     <div class="filter-left">
       <div class="filter-badge-icon">
@@ -465,7 +458,6 @@
     </button>
   </div>
 
-  <!-- KPI Cards -->
   <div class="kpi-grid">
     <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">รายการทั้งหมด</span><div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><path d="M21 12v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3"/><path d="M12 2v8M9 7l3 3 3-3"/></svg></div></div><div class="kpi-value" id="totalRecords">—</div><div class="kpi-sub">รายการโอนย้ายทั้งหมด</div></div>
     <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">พนักงานที่ย้าย</span><div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div></div><div class="kpi-value" id="uniqueEmployees">—</div><div class="kpi-sub">คน (ไม่ซ้ำ)</div></div>
@@ -473,7 +465,6 @@
     <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">ช่วงข้อมูล</span><div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div></div><div class="kpi-value" id="dateRangeLabel">-</div><div class="kpi-sub">จากตัวกรอง</div></div>
   </div>
 
-  <!-- TABLE SECTION -->
   <div class="table-card">
     <div class="table-header">
       <div class="table-title">
@@ -500,13 +491,12 @@
         <tbody id="reportTableBody">
           <tr><td colspan="7"><div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="#A2C2DF"/></svg><p style="margin-top:10px">กรุณาเลือกตัวกรองและกดค้นหา</p></div></td></tr>
         </tbody>
-      </table>
+       </table>
     </div>
   </div>
   <footer>TOKAI SOLID TIRE · ระบบรายงานการโอนย้ายบุคลากร | พัฒนาโดย Sarawut.C © <span id="yearSpan"></span></footer>
 </div>
 
-<!-- MODAL FILTER -->
 <div id="filterModal" class="modal-overlay">
   <div class="modal-panel">
     <div class="modal-header"><h3>ตั้งค่าตัวกรองข้อมูล</h3><button class="close-modal" onclick="closeFilterModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -538,8 +528,36 @@
   let rawRecords = [];
   let allDepartments = [];
 
-  // date states
   let dayVal = '', weekStartVal = '', weekEndVal = '', monthVal = '', yearVal = '';
+
+  function formatDateToYYYYMMDD(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function formatDateThai(dateStr) {
+    if (!dateStr) return '-';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear() + 543;
+      return `${day}/${month}/${year}`;
+    } catch(e) { return dateStr; }
+  }
+
+  function getTodayThaiFormat() {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    return `${yyyy}-${mm}-${dd}`;
+  }
 
   async function fetchDepartments() {
     try {
@@ -553,23 +571,30 @@
 
   function renderDynamicFields() {
     const container = document.getElementById('dynamicFields');
-    const today = new Date().toISOString().slice(0,10);
-    const currentYear = new Date().getFullYear();
+    const todayISO = getTodayThaiFormat();
+    
     if (currentView === 'day') {
-      container.innerHTML = `<label>เลือกวันที่</label><input type="date" id="dayPicker" value="${dayVal || today}" style="border-radius:18px;padding:10px;">`;
+      const dayValue = dayVal || todayISO;
+      container.innerHTML = `<label>เลือกวันที่</label><input type="date" id="dayPicker" value="${dayValue}" style="border-radius:18px;padding:10px;">`;
     } else if (currentView === 'week') {
-      const mon = new Date(); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
-      const sun = new Date(mon); sun.setDate(sun.getDate() + 6);
-      const mStr = weekStartVal || mon.toISOString().slice(0,10);
-      const sStr = weekEndVal || sun.toISOString().slice(0,10);
-      container.innerHTML = `<div style="display:flex;gap:12px;"><div style="flex:1"><label>เริ่มต้น</label><input type="date" id="weekStart" value="${mStr}"></div><div style="flex:1"><label>สิ้นสุด</label><input type="date" id="weekEnd" value="${sStr}"></div></div>`;
+      const start = weekStartVal || todayISO;
+      const end = weekEndVal || todayISO;
+      container.innerHTML = `
+        <label>ช่วงวันที่ (dd/mm/yyyy)</label>
+        <div class="date-range-group">
+          <div><input type="date" id="weekStart" value="${start}" placeholder="เริ่มต้น"></div>
+          <div><input type="date" id="weekEnd" value="${end}" placeholder="สิ้นสุด"></div>
+        </div>
+        <div style="font-size:12px; color:#6F99BF; margin-top:6px;">ⓘ ระบบจะส่งค่าเป็น YYYY-MM-DD ให้อัตโนมัติ</div>
+      `;
     } else if (currentView === 'month') {
-      const ym = monthVal || `${currentYear}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+      const ym = monthVal || `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
       container.innerHTML = `<label>เลือกเดือน-ปี</label><input type="month" id="monthPicker" value="${ym}">`;
     } else if (currentView === 'year') {
-      const y = yearVal || currentYear;
-      container.innerHTML = `<label>เลือกปี</label><select id="yearPicker"><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option></select>`;
-      document.getElementById('yearPicker') && (document.getElementById('yearPicker').value = y);
+      const y = yearVal || new Date().getFullYear();
+      container.innerHTML = `<label>เลือกปี</label><select id="yearPicker"><option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select>`;
+      const yearSelect = document.getElementById('yearPicker');
+      if (yearSelect) yearSelect.value = y;
     } else {
       container.innerHTML = '<span style="font-size:13px;color:#6F99BF">แสดงข้อมูลทั้งหมด (ไม่จำกัดช่วง)</span>';
     }
@@ -597,6 +622,7 @@
     const activeCard = document.querySelector('.view-card.active');
     if (activeCard) currentView = activeCard.dataset.view;
     selectedDept = document.getElementById('deptFilterSelect').value;
+    
     if (currentView === 'day') {
       dayVal = document.getElementById('dayPicker')?.value || '';
     } else if (currentView === 'week') {
@@ -616,22 +642,32 @@
     setTableLoading();
     try {
       const params = new URLSearchParams({ action: 'getData', view: currentView });
-      if (currentView === 'day') params.set('date', dayVal);
-      if (currentView === 'week') { params.set('weekStart', weekStartVal); params.set('weekEnd', weekEndVal); }
-      if (currentView === 'month') params.set('month', monthVal);
-      if (currentView === 'year') params.set('year', yearVal);
+      if (currentView === 'day' && dayVal) params.set('date', dayVal);
+      if (currentView === 'week') { 
+        if (weekStartVal) params.set('weekStart', weekStartVal);
+        if (weekEndVal) params.set('weekEnd', weekEndVal);
+      }
+      if (currentView === 'month' && monthVal) params.set('month', monthVal);
+      if (currentView === 'year' && yearVal) params.set('year', yearVal);
 
       const res = await fetch(`${API_BASE}?${params.toString()}`);
       const data = await res.json();
       rawRecords = data.records || [];
+      
       if (data.departments) {
         allDepartments = [...new Set([...allDepartments, ...data.departments])];
         const deptSel = document.getElementById('deptFilterSelect');
-        if (deptSel && allDepartments.length) deptSel.innerHTML = '<option value="">— ทุกแผนก —</option>' + allDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
+        if (deptSel && allDepartments.length) {
+          deptSel.innerHTML = '<option value="">— ทุกแผนก —</option>' + allDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
+          deptSel.value = selectedDept;
+        }
       }
       renderTableWithFilter();
       updateKPIs(data);
-    } catch (err) { showErrorTable(); }
+    } catch (err) { 
+      console.error(err);
+      showErrorTable(); 
+    }
   }
 
   function renderTableWithFilter() {
@@ -639,20 +675,23 @@
     if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
     const tbody = document.getElementById('reportTableBody');
     document.getElementById('rowCount').innerText = filtered.length + ' รายการ';
+    
     if (!filtered.length) {
       tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg><p>ไม่มีข้อมูลในช่วงที่เลือก</p></div></td></tr>';
       return;
     }
+    
     tbody.innerHTML = filtered.map((rec, idx) => `
       <tr>
-        <td>${idx+1}</td>
-        <td style="white-space:nowrap">${formatDate(rec.date)}</td>
+        <td>${idx + 1}</td>
+        <td style="white-space:nowrap">${formatDateThai(rec.date)}</td>
         <td>${rec.empId || '-'}</td>
         <td style="font-weight:500">${rec.name || '-'}</td>
         <td><span class="dept-pill dept-from">${rec.deptFrom || '-'}</span></td>
         <td><span class="dept-pill dept-to">${rec.deptTo || '-'}</span></td>
         <td style="color:#7E9EC2">${rec.note || '-'}</td>
-      </tr>`).join('');
+      </tr>
+    `).join('');
   }
 
   function updateKPIs(data) {
@@ -673,7 +712,9 @@
     const chip = document.getElementById('activeFilterChip');
     if (selectedDept || currentView !== 'dept') {
       let txt = [];
-      if (currentView !== 'dept') txt.push(currentView === 'day' ? 'รายวัน' : currentView === 'week' ? 'รายสัปดาห์' : currentView === 'month' ? 'รายเดือน' : 'รายปี');
+      if (currentView !== 'dept') {
+        txt.push(currentView === 'day' ? 'รายวัน' : currentView === 'week' ? 'รายสัปดาห์' : currentView === 'month' ? 'รายเดือน' : 'รายปี');
+      }
       if (selectedDept) txt.push(`แผนก: ${selectedDept}`);
       chip.innerText = txt.join(' · ');
       chip.style.display = 'inline-block';
@@ -684,19 +725,23 @@
     let filtered = [...rawRecords];
     if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
     if (!filtered.length) return alert('ไม่มีข้อมูลสำหรับส่งออก');
-    const headers = ['ลำดับ','วันที่','รหัสพนักงาน','ชื่อ','แผนกต้นทาง','แผนกปลายทาง','หมายเหตุ'];
-    const rows = filtered.map((r,i) => [i+1, r.date, r.empId, r.name, r.deptFrom, r.deptTo, r.note || '']);
+    const headers = ['ลำดับ', 'วันที่', 'รหัสพนักงาน', 'ชื่อ', 'แผนกต้นทาง', 'แผนกปลายทาง', 'หมายเหตุ'];
+    const rows = filtered.map((r, i) => [i+1, formatDateThai(r.date), r.empId, r.name, r.deptFrom, r.deptTo, r.note || '']);
     let csv = headers.join(',') + '\n' + rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob(["\uFEFF" + csv], {type: 'text/csv;charset=utf-8;'});
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `TST_transfer_${new Date().toISOString().slice(0,19)}.csv`;
-    link.click(); URL.revokeObjectURL(link.href);
+    link.click();
+    URL.revokeObjectURL(link.href);
   }
 
-  function setTableLoading() { document.getElementById('reportTableBody').innerHTML = `<tr><td colspan="7"><div class="empty-state">⏳ กำลังโหลด...</div></td></tr>`; }
-  function showErrorTable() { document.getElementById('reportTableBody').innerHTML = `<tr><td colspan="7"><div class="empty-state">⚠️ โหลดข้อมูลไม่สำเร็จ</div></td></tr>`; }
-  function formatDate(d) { if(!d) return '-'; try{ return new Date(d).toLocaleDateString('th-TH'); }catch{ return d; } }
+  function setTableLoading() { 
+    document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="7"><div class="empty-state">⏳ กำลังโหลดข้อมูล...</div></td></tr>'; 
+  }
+  function showErrorTable() { 
+    document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="7"><div class="empty-state">⚠️ โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</div></td></tr>'; 
+  }
 
   document.querySelectorAll('.view-card').forEach(card => {
     card.addEventListener('click', function() {
@@ -706,13 +751,19 @@
       renderDynamicFields();
     });
   });
+  
   fetchDepartments();
   fetchDataAndRender();
   document.getElementById('yearSpan').innerText = new Date().getFullYear();
   setInterval(() => {
     document.getElementById('liveTimestamp').innerHTML = '🕘 ' + new Date().toLocaleString('th-TH');
   }, 1000);
-  window.openFilterModal = openFilterModal; window.closeFilterModal = closeFilterModal; window.resetAllFilters = resetAllFilters; window.applyFilters = applyFilters; window.exportToCSV = exportToCSV;
+  
+  window.openFilterModal = openFilterModal;
+  window.closeFilterModal = closeFilterModal;
+  window.resetAllFilters = resetAllFilters;
+  window.applyFilters = applyFilters;
+  window.exportToCSV = exportToCSV;
 </script>
 </body>
 </html>
