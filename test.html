@@ -282,27 +282,7 @@
 
   <!-- VIEW BAR -->
   <div class="view-bar">
-    <span class="view-bar-label">ดูข้อมูล</span>
-    <button class="vbtn active" id="btn-dept"  onclick="openModal('dept',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><path d="M8 7V5a2 2 0 0 0-4 0v2"/></svg>
-      แยกตามแผนก
-    </button>
-    <button class="vbtn" id="btn-day"   onclick="openModal('day',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      รายวัน
-    </button>
-    <button class="vbtn" id="btn-week"  onclick="openModal('week',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-      รายสัปดาห์
-    </button>
-    <button class="vbtn" id="btn-month" onclick="openModal('month',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      รายเดือน
-    </button>
-    <button class="vbtn" id="btn-year"  onclick="openModal('year',this)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
-      รายปี
-    </button>
+    <span class="view-bar-label">เลือกดูข้อมูลจากตัวกรอง</span>
     <button class="vbtn" style="margin-left:auto" onclick="openModal(currentView,null)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
       ตัวกรอง
@@ -695,5 +675,10 @@
 
   renderDynFields();
 </script>
+
+  <footer style="background:var(--header);color:rgba(255,255,255,0.7);text-align:center;padding:14px 24px;font-size:13px;font-family:'Sarabun',sans-serif;">
+  ระบบบันทึกข้อมูลการโอนย้ายการทำงาน &nbsp;|&nbsp; พัฒนาโดย Sarawut.C
+  &nbsp;&nbsp;©&nbsp;<span id="footerYear"></span>&nbsp;All rights reserved.
+</footer>
 </body>
 </html>
