@@ -29,6 +29,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Sarabun', 'Tahoma', 'Leelawadee UI', sans-serif;
+      font-size: 15px;
       background: var(--snow);
       color: var(--ink);
       min-height: 100vh;
@@ -51,15 +52,15 @@
     .badge-tst {
       background: var(--accent);
       color: #fff;
-      font-size: 11px;
+      font-size: 15px;
       font-weight: 600;
       letter-spacing: .08em;
       padding: 2px 9px;
       border-radius: 4px;
     }
-    .brand-title { font-size: 14px; font-weight: 600; color: #D4E6F7; letter-spacing: .04em; }
-    .brand-sub   { font-size: 12px; color: #85B7EB; margin-left: 8px; }
-    .header-time { font-size: 11px; color: #6B9FCE; }
+    .brand-title { font-size: 15px; font-weight: 600; color: #D4E6F7; letter-spacing: .04em; }
+    .brand-sub   { font-size: 15px; color: #85B7EB; margin-left: 8px; }
+    .header-time { font-size: 15px; color: #6B9FCE; }
 
     /* ── PAGE ── */
     .page { max-width: 1140px; margin: 0 auto; padding: 20px 18px 64px; }
@@ -77,7 +78,7 @@
       align-items: center;
       box-shadow: var(--shadow);
     }
-    .view-bar-label { font-size: 11px; font-weight: 600; color: var(--mist); letter-spacing: .08em; text-transform: uppercase; margin-right: 6px; }
+    .view-bar-label { font-size: 15px; font-weight: 600; color: var(--mist); letter-spacing: .08em; text-transform: uppercase; margin-right: 6px; }
     .vbtn {
       height: 34px; padding: 0 14px;
       border: 1px solid var(--border);
@@ -85,7 +86,7 @@
       background: var(--white);
       color: var(--mid);
       font-family: inherit;
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 500;
       cursor: pointer;
       display: inline-flex;
@@ -108,11 +109,11 @@
     }
     .sc-accent { border-top: 3px solid var(--brand); }
     .sc-amber  { border-top: 3px solid var(--amber); }
-    .sc-label  { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mist); margin-bottom: 6px; }
+    .sc-label  { font-size: 15px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mist); margin-bottom: 6px; }
     .sc-val    { font-size: 24px; font-weight: 600; color: var(--ink); }
     .sc-accent .sc-val { color: var(--brand); }
     .sc-amber  .sc-val { color: var(--amber); }
-    .sc-range  { font-size: 12px; color: var(--mid); padding-top: 2px; }
+    .sc-range  { font-size: 15px; color: var(--mid); padding-top: 2px; }
 
     /* ── TABLE ── */
     .table-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
@@ -121,32 +122,32 @@
       padding: 10px 16px; border-bottom: 1px solid var(--border);
       background: var(--brand-pale);
     }
-    .tc-title { font-size: 13px; font-weight: 600; color: var(--brand-dark); display: flex; align-items: center; gap: 6px; }
-    .count-pill { background: var(--brand-light); color: var(--brand-dark); font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 20px; border: 1px solid var(--border); }
+    .tc-title { font-size: 15px; font-weight: 600; color: var(--brand-dark); display: flex; align-items: center; gap: 6px; }
+    .count-pill { background: var(--brand-light); color: var(--brand-dark); font-size: 15px; font-weight: 600; padding: 2px 10px; border-radius: 20px; border: 1px solid var(--border); }
     .tc-actions { display: flex; gap: 6px; }
     .act-btn {
       height: 30px; padding: 0 12px;
       border: none; border-radius: var(--r);
-      font-family: inherit; font-size: 12px; font-weight: 600;
+      font-family: inherit; font-size: 15px; font-weight: 600;
       cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
     }
     .act-btn:hover { opacity: .85; }
     .act-btn.green { background: var(--success); color: #fff; }
     .act-btn.slate { background: #2D5077; color: #fff; }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; }
     thead tr { background: var(--brand-light); border-bottom: 2px solid var(--border); }
-    th { padding: 9px 14px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--brand-dark); white-space: nowrap; }
+    th { padding: 9px 14px; text-align: left; font-size: 15px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--brand-dark); white-space: nowrap; }
     td { padding: 9px 14px; border-bottom: 1px solid #EBF2FA; vertical-align: middle; }
     tbody tr:last-child td { border-bottom: none; }
     tbody tr:hover { background: var(--brand-pale); }
-    .mono { font-size: 11px; color: var(--mist); font-family: 'Courier New', monospace; }
-    .pill { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .mono { font-size: 15px; color: var(--mist); font-family: 'Courier New', monospace; }
+    .pill { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 15px; font-weight: 600; }
     .pill-from { background: var(--brand-light); color: #0C447C; border: 1px solid #B5D4F4; }
     .pill-to   { background: var(--success-bg); color: #085041; border: 1px solid #C0DD97; }
     .state-box { text-align: center; padding: 48px 20px; color: var(--mid); }
     .state-icon { font-size: 32px; margin-bottom: 10px; }
-    .state-msg  { font-size: 13px; }
+    .state-msg  { font-size: 15px; }
     .spin { width: 26px; height: 26px; border: 2.5px solid var(--brand-light); border-top-color: var(--brand); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -179,8 +180,8 @@
       padding: 13px 18px; flex-shrink: 0;
     }
     .modal-hdr-left { display: flex; align-items: center; gap: 8px; }
-    .modal-hdr-title { font-size: 14px; font-weight: 600; color: #D4E6F7; }
-    .modal-hdr-sub   { font-size: 12px; color: #6B9FCE; margin-left: 6px; }
+    .modal-hdr-title { font-size: 15px; font-weight: 600; color: #D4E6F7; }
+    .modal-hdr-sub   { font-size: 15px; color: #6B9FCE; margin-left: 6px; }
     .modal-close {
       width: 28px; height: 28px;
       background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
@@ -192,7 +193,7 @@
     .modal-body { padding: 20px 20px 4px; overflow-y: auto; flex: 1; }
 
     /* view type cards */
-    .section-title { font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--mist); margin-bottom: 10px; }
+    .section-title { font-size: 15px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--mist); margin-bottom: 10px; }
     .vtype-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 18px; }
     .vtype-card {
       border: 1px solid var(--border); border-radius: var(--r);
@@ -203,17 +204,17 @@
     .vtype-card:hover { border-color: var(--accent); background: var(--brand-pale); }
     .vtype-card.sel { border-color: var(--brand); background: var(--brand-light); border-width: 2px; }
     .vtype-icon { font-size: 20px; }
-    .vtype-name { font-size: 12px; font-weight: 600; color: var(--ink); }
-    .vtype-desc { font-size: 10px; color: var(--mid); }
+    .vtype-name { font-size: 15px; font-weight: 600; color: var(--ink); }
+    .vtype-desc { font-size: 15px; color: var(--mid); }
 
     .divider { height: 1px; background: var(--border); margin: 4px 0 16px; }
 
     .fg { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-    .fg label { font-size: 12px; font-weight: 600; color: var(--mid); }
+    .fg label { font-size: 15px; font-weight: 600; color: var(--mid); }
     .fg select, .fg input {
       height: 36px; padding: 0 10px;
       border: 1px solid var(--border); border-radius: var(--r);
-      font-family: inherit; font-size: 13px; color: var(--ink);
+      font-family: inherit; font-size: 15px; color: var(--ink);
       background: var(--white); outline: none; width: 100%;
       transition: border .15s;
     }
@@ -229,7 +230,7 @@
     .dept-select {
       height: 38px; padding: 0 10px 0 34px;
       border: 1px solid var(--border); border-radius: var(--r);
-      font-family: inherit; font-size: 13px; color: var(--ink);
+      font-family: inherit; font-size: 15px; color: var(--ink);
       background: var(--white); width: 100%; outline: none;
       appearance: none; -webkit-appearance: none;
       cursor: pointer; transition: border .15s;
@@ -245,7 +246,7 @@
     .mbtn {
       height: 36px; padding: 0 20px;
       border: 1px solid var(--border); border-radius: var(--r);
-      font-family: inherit; font-size: 13px; font-weight: 600;
+      font-family: inherit; font-size: 15px; font-weight: 600;
       cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
     }
     .mbtn-cancel { background: var(--white); color: var(--mid); }
@@ -254,6 +255,16 @@
     .mbtn-reset:hover { background: var(--amber-bg); }
     .mbtn-search { background: var(--brand); color: #fff; border-color: var(--brand); }
     .mbtn-search:hover { background: var(--brand-dark); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #000000 !important;
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-family: 'Sarabun', sans-serif;
+    }
 
     /* ── PRINT ── */
     @media print {
@@ -515,7 +526,7 @@
             <input type="date" id="ff2" value="${sunStr}" oninput="updateWeekRangeLabel()">
           </div>
         </div>
-        <div id="weekRangeWrap" style="display:flex;align-items:center;gap:5px;font-size:11px;color:#5A6E88;margin-bottom:4px">
+        <div id="weekRangeWrap" style="display:flex;align-items:center;gap:5px;font-size:15px;color:#5A6E88;margin-bottom:4px">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span id="weekRangeTxt">กำลังคำนวณ...</span>
         </div>`;
@@ -562,7 +573,7 @@
     el.textContent = fmtDate(s) + ' — ' + fmtDate(e) + '  (' + diff + ' วัน)';
   }
 
-    function doSearch() {
+  function doSearch() {
     closeModal();
     updateFilterBadge();
     setLoading();
@@ -570,7 +581,6 @@
       .then(r => r.json())
       .then(data => {
         allData = data.records || [];
-        // merge departments from dep sheet + data (already done server-side)
         if (data.departments && data.departments.length) {
           const merged = new Set([...allDepartments, ...data.departments]);
           allDepartments = [...merged].sort();
@@ -613,12 +623,12 @@
       <tr>
         <td class="mono">${i + 1}</td>
         <td class="mono">${r.seq || ''}</td>
-        <td style="white-space:nowrap;font-size:11px;color:#5A6E88">${fmtDate(r.date)}</td>
+        <td style="white-space:nowrap;font-size:15px;color:#5A6E88">${fmtDate(r.date)}</td>
         <td class="mono">${r.empId || ''}</td>
         <td style="font-weight:600">${r.name || ''}</td>
         <td><span class="pill pill-from">${r.deptFrom || ''}</span></td>
         <td><span class="pill pill-to">${r.deptTo || ''}</span></td>
-        <td style="color:#8BA3BF;font-size:11px">${r.note || ''}</td>
+        <td style="color:#8BA3BF;font-size:15px">${r.note || ''}</td>
       </tr>`).join('');
   }
 
@@ -676,9 +686,10 @@
   renderDynFields();
 </script>
 
-  <footer style="background:var(--header);color:rgba(255,255,255,0.7);text-align:center;padding:14px 24px;font-size:13px;font-family:'Sarabun',sans-serif;">
+<footer>
   ระบบบันทึกข้อมูลการโอนย้ายการทำงาน &nbsp;|&nbsp; พัฒนาโดย Sarawut.C
   &nbsp;&nbsp;©&nbsp;<span id="footerYear"></span>&nbsp;All rights reserved.
+  <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </footer>
 </body>
 </html>
