@@ -1,574 +1,653 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HR Dashboard — รายงานเวลาทำงาน</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#f0f4f8;--surface:#fff;--surface2:#f8fafc;
-  --border:#e2e8f0;--border2:#cbd5e1;
-  --primary:#1e40af;--primary-light:#dbeafe;--primary-mid:#3b82f6;
-  --accent:#0ea5e9;--success:#059669;--success-light:#d1fae5;
-  --warning:#d97706;--warning-light:#fef3c7;
-  --danger:#dc2626;
-  --ot:#7c3aed;--ot-light:#ede9fe;
-  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
-  --r:10px;--rl:14px;--sh:0 1px 3px rgba(0,0,0,.08)
-}
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>รายงานการย้ายพนักงาน – TOKAISOLIDTIRE</title>
 
-.hdr{background:var(--primary);color:#fff;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(30,64,175,.35)}
-.hdr-l{display:flex;align-items:center;gap:12px}
-.hdr-ic{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px}
-.hdr-t{font-size:16px;font-weight:700}
-.hdr-s{font-size:11px;opacity:.7;margin-top:1px}
-.upd-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:4px 10px;font-size:11px}
+  <style>
+    :root {
+      --black:    #0F1117;
+      --ink:      #1C2130;
+      --steel:    #2E3A52;
+      --mid:      #6B7A99;
+      --mist:     #B8C0D0;
+      --silver:   #DDE2EC;
+      --snow:     #F4F6FA;
+      --white:    #FFFFFF;
+      --accent:   #C8102E;   /* Tokai red */
+      --accent2:  #F0A500;   /* amber highlight */
+      --success:  #1A8A5A;
+      --radius:   6px;
+      --shadow:   0 2px 12px rgba(15,17,23,.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', 'Tahoma', 'Leelawadee UI', 'Arial', sans-serif;
+      background: var(--snow);
+      color: var(--ink);
+      min-height: 100vh;
+    }
 
-.wrap{max-width:1500px;margin:0 auto;padding:18px 22px}
+    /* ── TOP BAR ── */
+    header {
+      background: var(--black);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      height: 58px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-badge {
+      background: var(--accent);
+      color: var(--white);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      padding: 3px 9px;
+      border-radius: 3px;
+    }
+    .brand-name {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      color: var(--silver);
+    }
+    .brand-sub {
+      font-size: 12px;
+      color: var(--mid);
+      margin-left: 4px;
+    }
+    #lastUpdated {
+      font-size: 12px;
+      color: var(--mid);
+      font-family: 'IBM Plex Mono', monospace;
+    }
 
-/* DEPT TABS */
-.dept-scroll{overflow-x:auto;margin-bottom:16px;padding-bottom:2px}
-.dept-scroll::-webkit-scrollbar{height:3px}
-.dept-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-.dept-tabs{display:flex;gap:5px;width:max-content}
-.dept-tab{padding:6px 15px;border:1px solid var(--border2);border-radius:20px;background:var(--surface);cursor:pointer;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:500;color:var(--text2);white-space:nowrap;transition:all .15s}
-.dept-tab:hover{border-color:var(--primary-mid);color:var(--primary);background:var(--primary-light)}
-.dept-tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+    /* ── LAYOUT ── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 28px 24px 60px; }
 
-/* CONTROLS */
-.ctrl{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:13px 18px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;box-shadow:var(--sh)}
-.cg{display:flex;flex-direction:column;gap:4px}
-.cg label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2)}
-.cg select,.cg input{border:1px solid var(--border2);border-radius:7px;padding:7px 11px;font-family:'Sarabun',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .2s;min-width:145px}
-.cg select:focus,.cg input:focus{border-color:var(--primary-mid);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
-.period-tabs{display:flex}
-.pt{padding:7px 15px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px;color:var(--text2);transition:all .15s;font-weight:500}
-.pt:first-child{border-radius:7px 0 0 7px}
-.pt:last-child{border-radius:0 7px 7px 0}
-.pt:not(:first-child){border-left:none}
-.pt.active{background:var(--primary);border-color:var(--primary);color:#fff}
-.pt:hover:not(.active){background:var(--primary-light);color:var(--primary)}
-.btn-ref{padding:7px 16px;background:var(--primary);color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;transition:background .2s;margin-left:auto}
-.btn-ref:hover{background:#1d4ed8}
+    /* ── FILTER BAR ── */
+    .filter-card {
+      background: var(--white);
+      border: 1px solid var(--silver);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    .filter-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+    }
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-end;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 160px;
+    }
+    .filter-group label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--steel);
+    }
+    select, input[type="date"], input[type="text"] {
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--silver);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--ink);
+      background: var(--white);
+      outline: none;
+      transition: border .15s;
+    }
+    select:focus, input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,16,46,.10);
+    }
 
-/* STAT CARDS */
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:11px;margin-bottom:16px}
-.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:15px 17px;box-shadow:var(--sh);position:relative;overflow:hidden}
-.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.sc.blue::before{background:var(--primary-mid)}.sc.green::before{background:var(--success)}.sc.amber::before{background:var(--warning)}.sc.purple::before{background:var(--ot)}.sc.sky::before{background:var(--accent)}
-.sc-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:8px}
-.sc-ic.blue{background:var(--primary-light)}.sc-ic.green{background:var(--success-light)}.sc-ic.amber{background:var(--warning-light)}.sc-ic.purple{background:var(--ot-light)}.sc-ic.sky{background:#e0f2fe}
-.sc-val{font-size:24px;font-weight:700;line-height:1;margin-bottom:3px}
-.sc-lbl{font-size:11px;color:var(--text2);font-weight:500}
+    /* ── VIEW MODE TABS ── */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      background: var(--snow);
+      border: 1px solid var(--silver);
+      border-radius: var(--radius);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .view-tabs button {
+      flex: 1;
+      min-width: 72px;
+      height: 38px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--mid);
+      cursor: pointer;
+      transition: background .12s, color .12s;
+      border-right: 1px solid var(--silver);
+      padding: 0 14px;
+    }
+    .view-tabs button:last-child { border-right: none; }
+    .view-tabs button.active {
+      background: var(--accent);
+      color: var(--white);
+    }
+    .view-tabs button:hover:not(.active) {
+      background: var(--silver);
+      color: var(--ink);
+    }
 
-/* TWO COL */
+    /* ── ACTION BUTTONS ── */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .btn {
+      height: 38px;
+      padding: 0 18px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-search {
+      background: var(--accent);
+      color: var(--white);
+    }
+    .btn-csv {
+      background: var(--success);
+      color: var(--white);
+    }
+    .btn-pdf {
+      background: var(--steel);
+      color: var(--white);
+    }
+    .btn:hover { opacity: .88; }
 
-/* CHART */
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--silver);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .stat-card.accent-card .stat-value { color: var(--accent); }
+    .stat-card.amber-card .stat-value  { color: var(--accent2); }
 
-/* TABLE */
-.tbl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh);overflow:hidden}
-.tbl-hdr{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;background:var(--surface2)}
-.tbl-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
-.cnt-badge{background:var(--primary-light);color:var(--primary);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700}
-.srch{border:1px solid var(--border2);border-radius:7px;padding:6px 11px;font-family:'Sarabun',sans-serif;font-size:13px;outline:none;width:180px;transition:border-color .2s}
-.srch:focus{border-color:var(--primary-mid);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
-.tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse}
-thead th{background:var(--surface2);padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
-thead th:hover{color:var(--primary)}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:#f8faff}
-tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
-.emp-id{font-family:monospace;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text2);white-space:nowrap}
-.emp-name{font-weight:600}
-.tc{font-size:12px;color:var(--text2);white-space:nowrap}
-.h-work{font-weight:600;color:var(--primary);font-size:13px}
-.h-ot{font-weight:700;color:var(--ot)}
-.h-month{font-weight:700;color:var(--success)}
-.note-chip{background:#f1f5f9;border-radius:4px;padding:2px 7px;font-size:11px;color:var(--text2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
-.no-data{text-align:center;padding:56px 20px;color:var(--text3)}
-.no-data-ic{font-size:36px;margin-bottom:8px}
+    /* ── TABLE ── */
+    .table-card {
+      background: var(--white);
+      border: 1px solid var(--silver);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .table-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--silver);
+    }
+    .table-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .table-count {
+      font-size: 12px;
+      color: var(--mid);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead tr {
+      background: var(--snow);
+      border-bottom: 2px solid var(--silver);
+    }
+    th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--mid);
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--silver);
+      color: var(--ink);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--snow); }
+    .badge-dept {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #EAF0FB;
+      color: var(--steel);
+    }
+    .mono { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--mid); }
 
-/* PAGINATION */
-.pgn{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);background:var(--surface2)}
-.pgn-info{font-size:11px;color:var(--text2)}
-.pgn-btns{display:flex;gap:3px}
-.pgn-btn{padding:4px 9px;border:1px solid var(--border2);border-radius:5px;background:var(--surface);cursor:pointer;font-family:'Sarabun',sans-serif;font-size:11px;color:var(--text2);transition:all .15s}
-.pgn-btn:hover:not(:disabled):not(.active){background:var(--primary-light);color:var(--primary);border-color:var(--primary-mid)}
-.pgn-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-.pgn-btn:disabled{opacity:.35;cursor:not-allowed}
+    /* ── LOADING / EMPTY ── */
+    .state-box {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--mid);
+    }
+    .state-icon { font-size: 40px; margin-bottom: 12px; }
+    .state-msg { font-size: 14px; }
+    .loading-spin {
+      width: 32px; height: 32px;
+      border: 3px solid var(--silver);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-/* LOADING */
-.lov{display:none;position:fixed;inset:0;background:rgba(240,244,248,.9);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
-.lov.show{display:flex}
-.spin{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:sp .7s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.lov-txt{color:var(--text2);font-size:13px;font-weight:500}
+    /* ── WATERMARK PDF (print only) ── */
+    @media print {
+      header, .filter-card, .btn-row, .stats-row { display: none !important; }
+      body { background: white; }
+      .table-card { box-shadow: none; border: 1px solid #ccc; }
+      .watermark-overlay { display: block !important; }
+    }
+    .watermark-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
+    }
+    .wm-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-30deg);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 80px;
+      font-weight: 700;
+      color: rgba(200,16,46,.10);
+      white-space: nowrap;
+      letter-spacing: .1em;
+      user-select: none;
+    }
 
-/* ERROR */
-.err{background:#fff5f5;border:1px solid #fed7d7;border-radius:var(--rl);padding:14px 18px;color:var(--danger);margin-bottom:14px;display:none;font-size:13px;line-height:1.7}
-.err.show{display:block}
-</style>
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .filter-row { flex-direction: column; }
+      .view-tabs { flex-wrap: wrap; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="lov" id="lov">
-  <div class="spin"></div>
-  <div class="lov-txt" id="lovTxt">กำลังโหลดข้อมูล...</div>
+<div class="watermark-overlay">
+  <div class="wm-text">TOKAISOLIDTIRE</div>
 </div>
 
-<div class="hdr">
-  <div class="hdr-l">
-    <div class="hdr-ic">📊</div>
-    <div>
-      <div class="hdr-t">HR Dashboard — รายงานเวลาทำงาน</div>
-      <div class="hdr-s">ติดตามชั่วโมงทำงานรายแผนก</div>
-    </div>
+<header>
+  <div class="brand">
+    <span class="brand-badge">TST</span>
+    <span class="brand-name">TOKAISOLIDTIRE</span>
+    <span class="brand-sub">รายงานการย้ายพนักงาน</span>
   </div>
-  <div class="upd-badge" id="updBadge">—</div>
-</div>
+  <span id="lastUpdated">—</span>
+</header>
 
-<div class="wrap">
-  <div class="err" id="errBox"></div>
+<div class="page">
 
-  <!-- CONTROLS -->
-  <div class="ctrl">
-    <div class="cg">
-      <label>แผนก</label>
-      <select id="deptSelect" onchange="selDept(this.value)"></select>
-    </div>
-    <div class="cg">
-      <label>ช่วงเวลา</label>
-      <div class="period-tabs">
-        <button class="pt active" onclick="setPeriod('day')">รายวัน</button>
-        <button class="pt" onclick="setPeriod('month')">รายเดือน</button>
-        <button class="pt" onclick="setPeriod('year')">รายปี</button>
+  <!-- FILTER CARD -->
+  <div class="filter-card">
+    <div class="filter-title">ตัวกรองข้อมูล</div>
+    <div class="filter-row">
+
+      <!-- View mode -->
+      <div class="filter-group" style="flex:2; min-width:280px;">
+        <label>โหมดดูข้อมูล</label>
+        <div class="view-tabs" id="viewTabs">
+          <button class="active" onclick="setView('dept',this)">แผนก</button>
+          <button onclick="setView('day',this)">รายวัน</button>
+          <button onclick="setView('week',this)">รายสัปดาห์</button>
+          <button onclick="setView('month',this)">รายเดือน</button>
+          <button onclick="setView('year',this)">รายปี</button>
+        </div>
       </div>
-    </div>
-    <div class="cg" id="grpDay">
-      <label>วันที่</label>
-      <input type="date" id="inDay" onchange="applyFilters()">
-    </div>
-    <div class="cg" id="grpMonth" style="display:none">
-      <label>เดือน</label>
-      <input type="month" id="inMonth" onchange="applyFilters()">
-    </div>
-    <div class="cg" id="grpYear" style="display:none">
-      <label>ปี</label>
-      <select id="inYear" onchange="applyFilters()"></select>
-    </div>
-    <div style="display:flex;gap:7px;margin-left:auto">
-      <button class="btn-ref" onclick="reloadCurrent()">🔄 รีเฟรช</button>
-      <button class="btn-ref" style="background:#059669" onclick="exportCSV()">⬇️ CSV</button>
-      <button class="btn-ref" style="background:#dc2626" onclick="exportPDF()">🖨️ PDF</button>
+
+      <!-- Dynamic filters injected here -->
+      <div id="dynamicFilters" class="filter-group" style="flex:3; min-width:200px; flex-direction:row; flex-wrap:wrap; gap:14px; align-items:flex-end;"></div>
+
+      <!-- Dept filter -->
+      <div class="filter-group" style="min-width:160px;" id="deptFilterGroup">
+        <label>แผนก</label>
+        <select id="deptFilter">
+          <option value="">ทั้งหมด</option>
+        </select>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="btn-row">
+        <button class="btn btn-search" onclick="loadData()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          ค้นหา
+        </button>
+        <button class="btn btn-csv" onclick="exportCSV()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          CSV
+        </button>
+        <button class="btn btn-pdf" onclick="exportPDF()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          PDF
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- STATS -->
-  <div class="stat-grid">
-    <div class="sc blue"><div class="sc-ic blue">👥</div><div class="sc-val" id="stEmp">—</div><div class="sc-lbl">จำนวนพนักงาน</div></div>
-    <div class="sc green"><div class="sc-ic green">⏱</div><div class="sc-val" id="stHrs">—</div><div class="sc-lbl">รวมชั่วโมงทำงาน</div></div>
-    <div class="sc amber"><div class="sc-ic amber">📈</div><div class="sc-val" id="stAvg">—</div><div class="sc-lbl">เฉลี่ยชม./คน</div></div>
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card accent-card"><div class="stat-label">รายการทั้งหมด</div><div class="stat-value" id="statTotal">—</div></div>
+    <div class="stat-card"><div class="stat-label">พนักงานทั้งหมด</div><div class="stat-value" id="statEmp">—</div></div>
+    <div class="stat-card amber-card"><div class="stat-label">จำนวนแผนก</div><div class="stat-value" id="statDept">—</div></div>
+    <div class="stat-card"><div class="stat-label">ช่วงข้อมูล</div><div class="stat-value" id="statRange" style="font-size:14px; padding-top:6px;">—</div></div>
   </div>
 
-  <!-- CHARTS -->
-
-
   <!-- TABLE -->
-  <div class="tbl-card">
-    <div class="tbl-hdr">
-      <div class="tbl-title">
-        📋 รายละเอียดการทำงาน
-        <span class="cnt-badge" id="rowCnt">0 รายการ</span>
-      </div>
-      <input class="srch" type="text" placeholder="🔍 ค้นหา ชื่อ / รหัส" id="srch" oninput="applyFilters()">
+  <div class="table-card">
+    <div class="table-header-row">
+      <span class="table-title" id="tableTitle">ข้อมูลการย้ายพนักงาน</span>
+      <span class="table-count" id="tableCount"></span>
     </div>
-    <div class="tbl-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th onclick="sortBy('date')">วันที่ ↕</th>
-            <th onclick="sortBy('empId')">รหัสพนักงาน ↕</th>
-            <th onclick="sortBy('name')">ชื่อ - นามสกุล ↕</th>
-            <th onclick="sortBy('start')">เวลาเริ่ม ↕</th>
-            <th onclick="sortBy('end')">เวลาสิ้นสุด ↕</th>
-            <th onclick="sortBy('workHrs')">ชม.ทำงาน (วัน) ↕</th>
-            <th onclick="sortBy('monthWork')">ชม.รวม/เดือน ↕</th>
-            <th>หมายเหตุ</th>
-          </tr>
-        </thead>
-        <tbody id="tbody">
-          <tr><td colspan="8" class="no-data">
-            <div class="no-data-ic">🏢</div>
-            <div>กำลังโหลดข้อมูล...</div>
-          </td></tr>
+    <div class="table-wrap">
+      <table id="dataTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody">
+          <tr><td colspan="7"><div class="state-box"><div class="state-icon">📋</div><div class="state-msg">กดปุ่ม "ค้นหา" เพื่อโหลดข้อมูล</div></div></td></tr>
         </tbody>
       </table>
     </div>
-    <div class="pgn" id="pgn" style="display:none">
-      <div class="pgn-info" id="pgnInfo"></div>
-      <div class="pgn-btns" id="pgnBtns"></div>
-    </div>
   </div>
+
 </div>
 
 <script>
-const SHEET_ID = '1_cXJYLMwzK_a7krK-viLutKigmsXwVFcLlCNhiRIa0M';
-const SHEETS = ['AMS','FG','FST','HQ','MA','MAT&ST','Mould','PD1','PD2','Place','PN','Quality','RD Compound','RD Product Design'];
-// Col indices (0-based): A=0,B=1,C=2,D=3,E=4,F=5,G=6,H=7
-const C = {date:0,empId:1,name:2,start:3,end:4,workHrs:5,otHrs:6,note:7};
-const PAGE_SZ = 30;
+  // ── CONFIG ──────────────────────────────────────────────────────
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRm1_KG0CWBaXFEKd63EzRxAy3CR5Vss-hJyArqQbTdyVsCgxACOT_hwKtCH9VLxg/exec'; // ← แทนที่ด้วย URL ของ Apps Script Web App
 
-let cache = {};
-let dept = SHEETS[0];
-let period = 'day';
-let sCol = 'date', sAsc = false;
-let page = 1;
-let filtered = [];
+  let currentView = 'dept';
+  let allData = [];
+  let departments = [];
 
-window.onload = async () => {
-  initDefaults();
-  buildTabs();
-  await loadSheet(dept);
-  applyFilters();
-};
-
-function initDefaults() {
-  const n = new Date();
-  const y = n.getFullYear(), m = String(n.getMonth()+1).padStart(2,'0'), d = String(n.getDate()).padStart(2,'0');
-  document.getElementById('inDay').value = `${y}-${m}-${d}`;
-  document.getElementById('inMonth').value = `${y}-${m}`;
-  const sel = document.getElementById('inYear');
-  for (let yr=y; yr>=y-4; yr--) {
-    const o = document.createElement('option');
-    o.value=yr; o.textContent=`${yr} (พ.ศ. ${yr+543})`; if(yr===y)o.selected=true;
-    sel.appendChild(o);
+  // ── VIEW MODE ────────────────────────────────────────────────────
+  function setView(mode, btn) {
+    currentView = mode;
+    document.querySelectorAll('#viewTabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderDynamicFilters();
   }
-}
 
-function buildTabs() {
-  const sel = document.getElementById("deptSelect");
-  const all = document.createElement("option");
-  all.value = "__ALL__"; all.textContent = "🏢 ทุกแผนก";
-  sel.appendChild(all);
-  SHEETS.forEach(n => {
-    const o = document.createElement("option");
-    o.value = n; o.textContent = n;
-    if (n === dept) o.selected = true;
-    sel.appendChild(o);
-  });
-}
+  function renderDynamicFilters() {
+    const container = document.getElementById('dynamicFilters');
+    container.innerHTML = '';
 
-async function selDept(n) {
-  dept = n;
-  if (n === '__ALL__') {
-    // Load all sheets not yet cached
-    for (const s of SHEETS) {
-      if (!cache[s]) await loadSheet(s);
+    const today = new Date().toISOString().split('T')[0];
+    const thisYear = new Date().getFullYear();
+    const thisMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+
+    if (currentView === 'day') {
+      container.innerHTML = `
+        <div class="filter-group"><label>วันที่</label>
+          <input type="date" id="filterDate" value="${today}" /></div>`;
+
+    } else if (currentView === 'week') {
+      // get Monday of this week
+      const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+      const mon = d.toISOString().split('T')[0];
+      container.innerHTML = `
+        <div class="filter-group"><label>วันเริ่มต้น (จันทร์)</label>
+          <input type="date" id="filterWeekStart" value="${mon}" /></div>`;
+
+    } else if (currentView === 'month') {
+      container.innerHTML = `
+        <div class="filter-group"><label>เดือน</label>
+          <input type="month" id="filterMonth" value="${thisYear}-${thisMonth}" style="height:38px;padding:0 12px;border:1px solid var(--silver);border-radius:var(--radius);font-family:inherit;font-size:13px;" /></div>`;
+
+    } else if (currentView === 'year') {
+      const opts = Array.from({length:6}, (_,i) => thisYear - i)
+        .map(y => `<option value="${y}" ${y===thisYear?'selected':''}>${y}</option>`).join('');
+      container.innerHTML = `
+        <div class="filter-group"><label>ปี</label>
+          <select id="filterYear">${opts}</select></div>`;
     }
-  } else {
-    if (!cache[n]) await loadSheet(n);
   }
-  applyFilters();
-}
 
-async function reloadCurrent() {
-  if (dept === '__ALL__') {
-    SHEETS.forEach(s => delete cache[s]);
-    for (const s of SHEETS) await loadSheet(s);
-  } else {
-    delete cache[dept];
-    await loadSheet(dept);
+  // ── FETCH DATA ───────────────────────────────────────────────────
+  function loadData() {
+    setLoading(true);
+    const params = buildParams();
+
+    fetch(`${SCRIPT_URL}?${params}`)
+      .then(r => r.json())
+      .then(data => {
+        allData = data.records || [];
+        departments = data.departments || [];
+        populateDeptFilter();
+        applyDeptFilter();
+        updateStats(data);
+        updateLastUpdated();
+      })
+      .catch(err => {
+        console.error(err);
+        showError('ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการตั้งค่า');
+      });
   }
-  applyFilters();
-}
 
-async function loadSheet(name) {
-  showLov(`กำลังโหลด "${name}"...`);
-  hideErr();
-  try {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP '+res.status);
-    const txt = await res.text();
-    const m = txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
-    if (!m) throw new Error('รูปแบบข้อมูลผิดพลาด');
-    const json = JSON.parse(m[1]);
-    cache[name] = parseSheet(json);
-    document.getElementById('updBadge').textContent = 'อัปเดต '+new Date().toLocaleTimeString('th-TH');
-  } catch(e) {
-    showErr(`โหลด "${name}" ไม่สำเร็จ: ${e.message}<br><b>แก้ไข:</b> ไปที่ Google Sheet → แชร์ → เปลี่ยนเป็น "ทุกคนที่มีลิงก์สามารถดู" → บันทึก`);
-    cache[name] = [];
+  function buildParams() {
+    const p = new URLSearchParams({ action: 'getData', view: currentView });
+    if (currentView === 'day')   { p.set('date', val('filterDate')); }
+    if (currentView === 'week')  { p.set('weekStart', val('filterWeekStart')); }
+    if (currentView === 'month') { p.set('month', val('filterMonth')); }
+    if (currentView === 'year')  { p.set('year', val('filterYear')); }
+    return p.toString();
   }
-  hideLov();
-}
 
-function parseSheet(json) {
-  const rows = json.table?.rows || [];
-  const out = [];
+  function val(id) {
+    const el = document.getElementById(id);
+    return el ? el.value : '';
+  }
 
-  rows.forEach(row => {
-    if (!row.c) return;
-    const g = (i) => { const c=row.c[i]; if(!c||c.v===null||c.v===undefined) return ''; return c.f||String(c.v); };
-    const rv = (i) => row.c?.[i]?.v ?? null;
+  // ── DEPT FILTER (CLIENT-SIDE) ─────────────────────────────────────
+  function populateDeptFilter() {
+    const sel = document.getElementById('deptFilter');
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">ทั้งหมด</option>';
+    departments.forEach(d => {
+      sel.innerHTML += `<option value="${d}">${d}</option>`;
+    });
+    if (cur) sel.value = cur;
+  }
 
-    // Parse date
-    let dateObj = null;
-    const dv = rv(C.date);
-    if (dv !== null) {
-      const dm = String(dv).match(/Date\((\d+),(\d+),(\d+)/);
-      if (dm) dateObj = new Date(+dm[1],+dm[2],+dm[3]);
+  function applyDeptFilter() {
+    const dept = document.getElementById('deptFilter').value;
+    const filtered = dept ? allData.filter(r => r.deptTo === dept || r.deptFrom === dept) : allData;
+    renderTable(filtered);
+  }
+
+  // ── RENDER TABLE ─────────────────────────────────────────────────
+  function renderTable(rows) {
+    const head = document.getElementById('tableHead');
+    const body = document.getElementById('tableBody');
+    const count = document.getElementById('tableCount');
+
+    head.innerHTML = `<tr>
+      <th>#</th><th>ลำดับ</th><th>วันที่</th><th>รหัส</th><th>ชื่อ</th>
+      <th>แผนกต้นทาง</th><th>แผนกปลายทาง</th><th>หมายเหตุ</th>
+    </tr>`;
+
+    count.textContent = `${rows.length} รายการ`;
+
+    if (!rows.length) {
+      body.innerHTML = `<tr><td colspan="8"><div class="state-box">
+        <div class="state-icon">🔍</div>
+        <div class="state-msg">ไม่พบข้อมูลในช่วงที่เลือก</div>
+      </div></td></tr>`;
+      return;
     }
-    if (!dateObj || isNaN(dateObj)) dateObj = parseDate(g(C.date));
-    if (!dateObj || isNaN(dateObj)) return;
 
-    const empId   = g(C.empId).trim();
-    const name    = g(C.name).trim();
-    const start   = g(C.start).trim();
-    const end     = g(C.end).trim();
-    const note    = g(C.note).trim();
-
-    // Col F: รวมจำนวนชั่วโมงทำงาน
-    let workHrs = parseFloat(g(C.workHrs).replace(/[^\d.]/g,''));
-    if (isNaN(workHrs)) workHrs = calcHrs(start, end);
-
-    // Col G: รวมชั่วโมงโอที
-    let otHrs = parseFloat(g(C.otHrs).replace(/[^\d.]/g,''));
-    if (isNaN(otHrs)) otHrs = 0;
-
-    if (!empId && !name) return;
-
-    out.push({ date:dateObj, dateStr:fmtDate(dateObj), empId, name, start, end, workHrs, otHrs, note });
-  });
-
-  // Monthly totals per employee (same month+year)
-  const mW={}, mO={};
-  out.forEach(r => {
-    const k = `${r.empId}|${r.date.getFullYear()}|${r.date.getMonth()}`;
-    mW[k] = (mW[k]||0) + r.workHrs;
-    mO[k] = (mO[k]||0) + r.otHrs;
-  });
-  out.forEach(r => {
-    const k = `${r.empId}|${r.date.getFullYear()}|${r.date.getMonth()}`;
-    r.monthWork = mW[k]||0;
-  });
-
-  return out;
-}
-
-function parseDate(s) {
-  if (!s) return null;
-  let m;
-  // d/m/yyyy or d-m-yyyy
-  m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-  if (m) return new Date(+m[3],+m[2]-1,+m[1]);
-  // yyyy-mm-dd
-  m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
-  if (m) return new Date(+m[1],+m[2]-1,+m[3]);
-  const d = new Date(s);
-  return isNaN(d) ? null : d;
-}
-
-function calcHrs(s,e) {
-  const p = v => { const m=v.match(/(\d+):(\d+)/); return m?+m[1]*60+(+m[2]):null; };
-  const sm=p(s),em=p(e);
-  if(sm===null||em===null) return 0;
-  const d=em-sm; return d>0?Math.round(d/60*100)/100:0;
-}
-
-function fmtDate(d) {
-  if(!d||isNaN(d)) return '—';
-  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'});
-}
-
-function setPeriod(p) {
-  period = p;
-  document.querySelectorAll('.pt').forEach((t,i)=>t.classList.toggle('active',['day','month','year'][i]===p));
-  document.getElementById('grpDay').style.display   = p==='day'  ?'':'none';
-  document.getElementById('grpMonth').style.display = p==='month'?'':'none';
-  document.getElementById('grpYear').style.display  = p==='year' ?'':'none';
-  applyFilters();
-}
-
-function applyFilters() {
-  let rows = dept === '__ALL__'
-    ? SHEETS.flatMap(s => cache[s] || [])
-    : cache[dept] || [];
-
-  if (period==='day') {
-    const v=document.getElementById('inDay').value;
-    if(v){const[y,mo,d]=v.split('-').map(Number);rows=rows.filter(r=>r.date.getFullYear()===y&&r.date.getMonth()===mo-1&&r.date.getDate()===d);}
-  } else if (period==='month') {
-    const v=document.getElementById('inMonth').value;
-    if(v){const[y,mo]=v.split('-').map(Number);rows=rows.filter(r=>r.date.getFullYear()===y&&r.date.getMonth()===mo-1);}
-  } else {
-    const y=+document.getElementById('inYear').value;
-    rows=rows.filter(r=>r.date.getFullYear()===y);
+    body.innerHTML = rows.map((r, i) => `
+      <tr>
+        <td class="mono">${i + 1}</td>
+        <td class="mono">${r.seq || ''}</td>
+        <td style="white-space:nowrap">${formatDate(r.date)}</td>
+        <td class="mono">${r.empId || ''}</td>
+        <td style="font-weight:500">${r.name || ''}</td>
+        <td><span class="badge-dept">${r.deptFrom || ''}</span></td>
+        <td><span class="badge-dept" style="background:#FEF0E8;color:#8B3A00;">${r.deptTo || ''}</span></td>
+        <td style="color:var(--mid);font-size:12px">${r.note || ''}</td>
+      </tr>`).join('');
   }
 
-  const q=document.getElementById('srch').value.trim().toLowerCase();
-  if(q) rows=rows.filter(r=>r.empId.toLowerCase().includes(q)||r.name.toLowerCase().includes(q));
-
-  rows=[...rows].sort((a,b)=>{
-    let va=a[sCol],vb=b[sCol];
-    if(va instanceof Date) return sAsc?va-vb:vb-va;
-    if(typeof va==='number') return sAsc?va-vb:vb-va;
-    return sAsc?String(va).localeCompare(String(vb),'th'):String(vb).localeCompare(String(va),'th');
-  });
-
-  filtered=rows; page=1;
-  renderStats(rows);
-  renderTable();
-}
-
-function renderStats(rows) {
-  const emps=new Set(rows.map(r=>r.empId));
-  const totW=rows.reduce((s,r)=>s+r.workHrs,0);
-  const avg=emps.size?totW/emps.size:0;
-
-
-  document.getElementById('stEmp').textContent=emps.size;
-  document.getElementById('stHrs').textContent=totW.toFixed(1);
-  document.getElementById('stAvg').textContent=avg.toFixed(1);
-}
-
-function renderTable() {
-  const tbody=document.getElementById('tbody');
-  document.getElementById('rowCnt').textContent=`${filtered.length.toLocaleString()} รายการ`;
-
-  if(!filtered.length){
-    tbody.innerHTML=`<tr><td colspan="8" class="no-data"><div class="no-data-ic">📭</div><div>ไม่พบข้อมูลในช่วงที่เลือก</div></td></tr>`;
-    document.getElementById('pgn').style.display='none';
-    return;
+  // ── STATS ─────────────────────────────────────────────────────────
+  function updateStats(data) {
+    document.getElementById('statTotal').textContent = (data.records || []).length;
+    const empSet = new Set((data.records || []).map(r => r.empId).filter(Boolean));
+    document.getElementById('statEmp').textContent = empSet.size;
+    document.getElementById('statDept').textContent = (data.departments || []).length;
+    document.getElementById('statRange').textContent = data.range || '—';
   }
 
-  const tot=Math.ceil(filtered.length/PAGE_SZ);
-  if(page>tot)page=tot;
-  const s=(page-1)*PAGE_SZ;
-  const pr=filtered.slice(s,s+PAGE_SZ);
+  // ── LOADING / ERROR ───────────────────────────────────────────────
+  function setLoading(on) {
+    const body = document.getElementById('tableBody');
+    if (on) body.innerHTML = `<tr><td colspan="8"><div class="state-box">
+      <div class="loading-spin"></div><div class="state-msg">กำลังโหลดข้อมูล...</div>
+    </div></td></tr>`;
+  }
 
-  tbody.innerHTML=pr.map(r=>`
-    <tr>
-      <td><span class="tc">${r.dateStr}</span></td>
-      <td><span class="emp-id">${esc(r.empId)}</span></td>
-      <td><span class="emp-name">${esc(r.name)}</span></td>
-      <td><span class="tc">${esc(r.start)||'—'}</span></td>
-      <td><span class="tc">${esc(r.end)||'—'}</span></td>
-      <td><span class="h-work">${r.workHrs.toFixed(2)} ชม.</span></td>
-      <td><span class="h-month">${r.monthWork.toFixed(1)} ชม.</span></td>
-      <td>${r.note?`<span class="note-chip" title="${esc(r.note)}">${esc(r.note)}</span>`:'<span style="color:var(--text3)">—</span>'}</td>
-    </tr>`).join('');
+  function showError(msg) {
+    document.getElementById('tableBody').innerHTML = `<tr><td colspan="8">
+      <div class="state-box"><div class="state-icon">⚠️</div>
+      <div class="state-msg">${msg}</div></div></td></tr>`;
+  }
 
-  renderPgn(tot);
-}
+  // ── EXPORT CSV ────────────────────────────────────────────────────
+  function exportCSV() {
+    const dept = document.getElementById('deptFilter').value;
+    const rows = dept ? allData.filter(r => r.deptTo === dept || r.deptFrom === dept) : allData;
+    if (!rows.length) { alert('ไม่มีข้อมูลสำหรับ Export'); return; }
 
-function renderPgn(tot) {
-  const pgn=document.getElementById('pgn');
-  if(tot<=1){pgn.style.display='none';return;}
-  pgn.style.display='flex';
-  const s=(page-1)*PAGE_SZ+1,e=Math.min(page*PAGE_SZ,filtered.length);
-  document.getElementById('pgnInfo').textContent=`แสดง ${s}–${e} จาก ${filtered.length.toLocaleString()} รายการ`;
-  let h=`<button class="pgn-btn" onclick="goPage(${page-1})" ${page===1?'disabled':''}>◀</button>`;
-  let s2=Math.max(1,page-2),e2=Math.min(tot,page+2);
-  if(s2>1)h+=`<button class="pgn-btn" onclick="goPage(1)">1</button>`;
-  if(s2>2)h+=`<span style="padding:0 3px;color:var(--text3)">…</span>`;
-  for(let i=s2;i<=e2;i++)h+=`<button class="pgn-btn${i===page?' active':''}" onclick="goPage(${i})">${i}</button>`;
-  if(e2<tot-1)h+=`<span style="padding:0 3px;color:var(--text3)">…</span>`;
-  if(e2<tot)h+=`<button class="pgn-btn" onclick="goPage(${tot})">${tot}</button>`;
-  h+=`<button class="pgn-btn" onclick="goPage(${page+1})" ${page===tot?'disabled':''}>▶</button>`;
-  document.getElementById('pgnBtns').innerHTML=h;
-}
+    const headers = ['ลำดับ', 'วันที่', 'รหัสพนักงาน', 'ชื่อ', 'แผนกปลายทาง', 'แผนกต้นทาง', 'หมายเหตุ'];
+    const lines = [headers.join(',')];
+    rows.forEach(r => {
+      lines.push([r.seq, r.date, r.empId, r.name, r.deptTo, r.deptFrom, r.note || '']
+        .map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+    });
 
-function goPage(p) {
-  const tot=Math.ceil(filtered.length/PAGE_SZ);
-  if(p<1||p>tot)return;
-  page=p; renderTable();
-}
+    const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `TST_Report_${currentView}_${today()}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  }
 
-function sortBy(col) {
-  if(sCol===col)sAsc=!sAsc;else{sCol=col;sAsc=true;}
-  applyFilters();
-}
+  // ── EXPORT PDF ────────────────────────────────────────────────────
+  function exportPDF() {
+    document.querySelector('.watermark-overlay').style.display = 'block';
+    window.print();
+    setTimeout(() => {
+      document.querySelector('.watermark-overlay').style.display = 'none';
+    }, 1000);
+  }
 
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function showLov(t){document.getElementById('lovTxt').textContent=t;document.getElementById('lov').classList.add('show')}
-function hideLov(){document.getElementById('lov').classList.remove('show')}
-function showErr(m){const el=document.getElementById('errBox');el.innerHTML='⚠️ '+m;el.classList.add('show')}
-function hideErr(){document.getElementById('errBox').classList.remove('show')}
+  // ── HELPERS ───────────────────────────────────────────────────────
+  function formatDate(d) {
+    if (!d) return '';
+    try {
+      const dt = new Date(d);
+      return dt.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch { return d; }
+  }
 
-// ===== EXPORT CSV =====
-function exportCSV() {
-  if (!filtered.length) { alert('ไม่มีข้อมูลสำหรับ Export'); return; }
-  const BOM = '\uFEFF';
-  const headers = ['วันที่','รหัสพนักงาน','ชื่อ-นามสกุล','เวลาเริ่ม','เวลาสิ้นสุด','ชม.ทำงาน(วัน)','ชม.รวม/เดือน','หมายเหตุ'];
-  const rows = filtered.map(r => [
-    r.dateStr, r.empId, r.name, r.start, r.end,
-    r.workHrs.toFixed(2), r.monthWork.toFixed(1), r.note
-  ].map(v => '"' + String(v||'').replace(/"/g,'""') + '"').join(','));
-  const csv = BOM + [headers.join(','), ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const deptName = document.getElementById('deptSelect').value;
-  a.href = url;
-  a.download = 'HR_' + deptName + '_' + new Date().toLocaleDateString('th-TH').replace(/\//g,'-') + '.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
+  function today() { return new Date().toISOString().slice(0, 10).replace(/-/g, ''); }
 
-// ===== EXPORT PDF =====
-function exportPDF() {
-  if (!filtered.length) { alert('ไม่มีข้อมูลสำหรับ Export'); return; }
-  const deptName = document.getElementById('deptSelect').value;
-  const dateLabel = period==='day'   ? document.getElementById('inDay').value
-                  : period==='month' ? document.getElementById('inMonth').value
-                  : document.getElementById('inYear').value;
-  const empCount = new Set(filtered.map(r => r.empId)).size;
-  const totW = filtered.reduce((s,r) => s+r.workHrs, 0);
-  const rows = filtered.map(r =>
-    '<tr><td>' + r.dateStr + '</td><td>' + r.empId + '</td><td>' + r.name +
-    '</td><td>' + (r.start||'—') + '</td><td>' + (r.end||'—') +
-    '</td><td style="text-align:center">' + r.workHrs.toFixed(2) +
-    '</td><td style="text-align:center">' + r.monthWork.toFixed(1) +
-    '</td><td>' + (r.note||'—') + '</td></tr>'
-  ).join('');
-  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
-    '<title>HR Report - ' + deptName + '</title>' +
-    '<style>' +
-    'body{font-family:sans-serif;font-size:11px;padding:24px;color:#111}' +
-    'h2{font-size:15px;margin-bottom:2px;color:#1e40af}' +
-    '.meta{font-size:10px;color:#555;margin-bottom:14px;display:flex;gap:20px}' +
-    '.meta span{background:#f1f5f9;padding:3px 8px;border-radius:4px}' +
-    'table{width:100%;border-collapse:collapse}' +
-    'th{background:#1e40af;color:#fff;padding:7px 9px;text-align:left;font-size:10px;letter-spacing:.04em}' +
-    'td{padding:6px 9px;border-bottom:1px solid #e2e8f0;font-size:10px}' +
-    'tr:nth-child(even) td{background:#f8fafc}' +
-    '.footer{margin-top:14px;font-size:9px;color:#aaa;text-align:right}' +
-    '@media print{body{padding:10px}}' +
-    '</style></head><body>' +
-    '<h2>รายงานเวลาทำงาน — แผนก ' + deptName + '</h2>' +
-    '<div class="meta">' +
-    '<span>ช่วงเวลา: ' + dateLabel + '</span>' +
-    '<span>พนักงาน: ' + empCount + ' คน</span>' +
-    '<span>รายการ: ' + filtered.length + '</span>' +
-    '<span>รวมชม.: ' + totW.toFixed(1) + ' ชม.</span>' +
-    '</div>' +
-    '<table><thead><tr>' +
-    '<th>วันที่</th><th>รหัสพนักงาน</th><th>ชื่อ-นามสกุล</th>' +
-    '<th>เวลาเริ่ม</th><th>เวลาสิ้นสุด</th><th>ชม.(วัน)</th><th>ชม.รวม/เดือน</th><th>หมายเหตุ</th>' +
-    '</tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<div class="footer">พิมพ์เมื่อ: ' + new Date().toLocaleString('th-TH') + '</div>' +
-    '<script>window.onload=function(){window.print();}<\/script>' +
-    '</body></html>';
-  const win = window.open('', '_blank');
-  win.document.write(html);
-  win.document.close();
-}
+  function updateLastUpdated() {
+    const now = new Date().toLocaleString('th-TH');
+    document.getElementById('lastUpdated').textContent = `อัปเดต: ${now}`;
+  }
 
+  // ── INIT ──────────────────────────────────────────────────────────
+  renderDynamicFilters();
 </script>
 </body>
 </html>
