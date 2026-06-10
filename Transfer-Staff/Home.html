@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบโอนย้ายพนักงาน – TOKAISOLIDTIRE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand:       #1156A8;
+      --brand-dark:  #0A3E7A;
+      --brand-mid:   #185FA5;
+      --brand-light: #E6F1FB;
+      --brand-pale:  #F0F6FD;
+      --accent:      #378ADD;
+      --border:      #C8D9EE;
+      --success:     #3B6D11;
+      --success-bg:  #EAF3DE;
+      --success-border: #C0DD97;
+      --amber:       #BA7517;
+      --amber-bg:    #FAEEDA;
+      --ink:         #0F1C2E;
+      --mid:         #5A6E88;
+      --mist:        #8BA3BF;
+      --snow:        #F4F8FC;
+      --white:       #FFFFFF;
+      --r:           10px;
+      --shadow:      0 2px 12px rgba(10,30,60,.09);
+      --shadow-lg:   0 4px 24px rgba(10,30,60,.13);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', 'Tahoma', 'Leelawadee UI', sans-serif;
+      font-size: 15px;
+      background: var(--snow);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--brand-dark);
+      color: #fff;
+      padding: 0 32px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .brand-wrap { display: flex; align-items: center; gap: 12px; }
+    .badge-tst {
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      padding: 3px 10px;
+      border-radius: 5px;
+    }
+    .brand-title { font-size: 16px; font-weight: 600; color: #D4E6F7; letter-spacing: .03em; }
+    .brand-sub   { font-size: 13px; color: #6B9FCE; }
+    .header-right { font-size: 12px; color: #6B9FCE; }
+
+    /* ── PAGE ── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* ── HERO STRIP ── */
+    .hero {
+      background: linear-gradient(135deg, var(--brand-dark) 0%, #1A6BBF 100%);
+      border-radius: 14px;
+      padding: 32px 36px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      right: -40px;
+      top: -60px;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.04);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      right: 60px;
+      bottom: -80px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.03);
+    }
+    .hero-text { position: relative; z-index: 1; }
+    .hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #85B7EB; margin-bottom: 8px; }
+    .hero-title { font-size: 26px; font-weight: 600; color: #fff; line-height: 1.25; margin-bottom: 8px; }
+    .hero-sub { font-size: 14px; color: #9EC8F0; line-height: 1.55; }
+    .hero-stat {
+      position: relative; z-index: 1;
+      display: flex; gap: 24px; flex-shrink: 0;
+    }
+    .hs {
+      text-align: center;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      padding: 14px 20px;
+      min-width: 90px;
+    }
+    .hs-val { font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+    .hs-lbl { font-size: 11px; color: #85B7EB; margin-top: 4px; letter-spacing: .06em; }
+
+    /* ── SECTION HEADER ── */
+    .sec-hdr {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .sec-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .sec-icon.blue   { background: var(--brand-light); }
+    .sec-icon.green  { background: var(--success-bg); }
+    .sec-title { font-size: 18px; font-weight: 600; color: var(--ink); }
+    .sec-sub   { font-size: 13px; color: var(--mid); margin-top: 2px; }
+
+    /* ── SOURCE CARD (ส่งพนักงาน) ── */
+    .source-card {
+      background: var(--white);
+      border: 2px solid var(--brand);
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .source-info { display: flex; align-items: center; gap: 18px; }
+    .source-avatar {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: var(--brand-light);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+    .source-label { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+    .source-name  { font-size: 20px; font-weight: 700; color: var(--ink); }
+    .source-desc  { font-size: 13px; color: var(--mid); margin-top: 3px; }
+    .source-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      border-radius: var(--r);
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      transition: all .18s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .source-btn:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(17,86,168,.3); }
+    .source-btn svg { flex-shrink: 0; }
+
+    /* ── DESTINATION GRID ── */
+    .dest-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .dept-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 18px 16px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all .18s;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .dept-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--dept-color, var(--accent));
+      border-radius: 0;
+    }
+    .dept-card:hover {
+      border-color: var(--dept-color, var(--accent));
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+    .dept-icon-wrap {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: var(--dept-bg, var(--brand-light));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .dept-name { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+    .dept-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600;
+      color: var(--dept-text, var(--brand));
+      background: var(--dept-bg, var(--brand-light));
+      border: 1px solid var(--dept-border, var(--border));
+      padding: 2px 8px;
+      border-radius: 20px;
+      width: fit-content;
+    }
+    .dept-arrow {
+      margin-top: auto;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px;
+      color: var(--mist);
+    }
+    .dept-arrow svg { opacity: .4; transition: opacity .15s; }
+    .dept-card:hover .dept-arrow svg { opacity: 1; }
+
+    /* ── REPORT CARD ── */
+    .report-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .report-info { display: flex; align-items: center; gap: 16px; }
+    .report-icon {
+      width: 50px; height: 50px;
+      background: #F0FDF4;
+      border: 1.5px solid #BBF7D0;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .report-title { font-size: 17px; font-weight: 600; color: var(--ink); }
+    .report-sub   { font-size: 13px; color: var(--mid); margin-top: 3px; }
+    .report-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--success);
+      color: #fff;
+      text-decoration: none;
+      border-radius: var(--r);
+      padding: 11px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      transition: all .18s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .report-btn:hover { background: #2D550D; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(59,109,17,.35); }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      display: flex; align-items: center; gap: 14px;
+      margin: 28px 0 24px;
+    }
+    .section-divider::before, .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      white-space: nowrap;
+      padding: 0 4px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #000;
+      color: rgba(255,255,255,.6);
+      text-align: center;
+      padding: 16px 24px;
+      font-size: 13px;
+      font-family: 'Sarabun', sans-serif;
+    }
+
+    @media (max-width: 700px) {
+      .hero { flex-direction: column; align-items: flex-start; }
+      .hero-stat { width: 100%; justify-content: flex-start; }
+      .source-card { flex-direction: column; align-items: flex-start; }
+      .report-card { flex-direction: column; align-items: flex-start; }
+      .dest-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand-wrap">
+    <span class="badge-tst">TST</span>
+    <div>
+      <div class="brand-title">TOKAISOLIDTIRE</div>
+    </div>
+    <span class="brand-sub">ระบบโอนย้ายพนักงาน</span>
+  </div>
+  <div class="header-right" id="headerTime"></div>
+</header>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-text">
+      <div class="hero-eyebrow">Employee Transfer System</div>
+      <div class="hero-title">บันทึกการโอนย้ายพนักงาน</div>
+      <div class="hero-sub">เลือกแผนกต้นสังกัดเพื่อบันทึกการส่งพนักงาน<br>หรือเลือกแผนกปลายทางเพื่อบันทึกการรับพนักงาน</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hs">
+        <div class="hs-val">1</div>
+        <div class="hs-lbl">ต้นสังกัด</div>
+      </div>
+      <div class="hs">
+        <div class="hs-val">15</div>
+        <div class="hs-lbl">แผนกปลายทาง</div>
+      </div>
+      <div class="hs">
+        <div class="hs-val">1</div>
+        <div class="hs-lbl">รายงาน</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOURCE DEPT -->
+  <div class="sec-hdr">
+    <div class="sec-icon blue">📤</div>
+    <div>
+      <div class="sec-title">แผนกต้นสังกัด — ส่งพนักงาน</div>
+      <div class="sec-sub">บันทึกรายชื่อพนักงานที่ส่งออกจากแผนก</div>
+    </div>
+  </div>
+
+  <div class="source-card">
+    <div class="source-info">
+      <div class="source-avatar">🏭</div>
+      <div>
+        <div class="source-label">แผนกต้นสังกัด · ส่งพนักงาน</div>
+        <div class="source-name">แผนกต้นสังกัด</div>
+        <div class="source-desc">บันทึกข้อมูลพนักงานที่ถูกโอนย้ายออกจากแผนก</div>
+      </div>
+    </div>
+    <a href="https://script.google.com/macros/s/AKfycbw0odn35ulDXIfyH4JI_Wp2bIQn_AXVeqLB03MAffGWfgNwQOlX33EdxIy7F5tbZAcFTA/exec?authuser=0"
+       target="_blank" class="source-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+      เปิดฟอร์มบันทึก
+    </a>
+  </div>
+
+  <!-- DEST DEPTS -->
+  <div class="section-divider">
+    <span class="divider-label">แผนกปลายทาง — รับพนักงาน</span>
+  </div>
+
+  <div class="sec-hdr">
+    <div class="sec-icon green">📥</div>
+    <div>
+      <div class="sec-title">แผนกปลายทาง — รับพนักงาน</div>
+      <div class="sec-sub">บันทึกรายชื่อพนักงานที่รับเข้าสู่แผนก — เลือกแผนกที่ต้องการด้านล่าง</div>
+    </div>
+  </div>
+
+  <div class="dest-grid">
+
+    <a href="https://script.google.com/macros/s/AKfycby9p12XCIid2rStTNPvgDTsCKWVO_t1F3l_sfwijgI60I0DuBzPw7Guc1uNOjyOFnI/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#1156A8;--dept-bg:#E6F1FB;--dept-text:#0C447C;--dept-border:#B5D4F4">
+      <div class="dept-icon-wrap">⚗️</div>
+      <div class="dept-name">ผสมยาง</div>
+      <div class="dept-tag">การผลิต</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycby2RzpfNpn4xqTdtld97cD9vMYg5H3bbETg7BKBZxpzICYu6pr6n6FqjV0f89lkgO5U/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#185FA5;--dept-bg:#EBF5FB;--dept-text:#0C447C;--dept-border:#B5D4F4">
+      <div class="dept-icon-wrap">🔵</div>
+      <div class="dept-name">ผลิตยางตัน</div>
+      <div class="dept-tag">การผลิต</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbzDe8wj1RXByN8KFBP01NVXWvdU-qxqtkhTZ0gQqdWGhRIi3dkeKtXB0BYKN6NQ2KaA/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#0F6E56;--dept-bg:#E1F5EE;--dept-text:#085041;--dept-border:#9FE1CB">
+      <div class="dept-icon-wrap">🦶</div>
+      <div class="dept-name">ผลิตยางตีนตะขาบ</div>
+      <div class="dept-tag">การผลิต</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbz3rLn7UzxYsd0FYrjtNZkyDL5oAstbiUyrvEFCYDeTNUwe4xG1HY7t6bjWI9DZTvHYgg/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#BA7517;--dept-bg:#FAEEDA;--dept-text:#854F0B;--dept-border:#FAC775">
+      <div class="dept-icon-wrap">💰</div>
+      <div class="dept-name">บัญชีและการเงิน</div>
+      <div class="dept-tag">การเงิน</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbw50E2giFH9nn9N_YAPzpzoLGD3IdMS7Dq4BWWuMN7--FB3P2amTNQLovYFbAambkc3/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#5A6E88;--dept-bg:#F1EFE8;--dept-text:#444441;--dept-border:#D3D1C7">
+      <div class="dept-icon-wrap">🚗</div>
+      <div class="dept-name">บริการยานยนต์</div>
+      <div class="dept-tag">บริการ</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbxgREcNUQBSHeojvbZWuab_nt0BQl51nyXHMqCqnTUrYxQcdXgQ87h6NBdHiBbGADgf/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#534AB7;--dept-bg:#EEEDFE;--dept-text:#3C3489;--dept-border:#CECBF6">
+      <div class="dept-icon-wrap">💻</div>
+      <div class="dept-name">ไอที</div>
+      <div class="dept-tag">เทคโนโลยี</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbxp898FhfnkTt6qGoGN1Tydy_6aQS92-RAq8W5jDdJtWHQPJJu9PTeScYGCJcJwvyEp/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#D85A30;--dept-bg:#FAECE7;--dept-text:#712B13;--dept-border:#F5C4B3">
+      <div class="dept-icon-wrap">⚙️</div>
+      <div class="dept-name">วิศวกรรม</div>
+      <div class="dept-tag">วิศวกรรม</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbzSR-ZGWW9VQqwa-eO23NVoXdVhDX47_V7HaZ6MOoha00SSaCXGjBaJeWw3wbt2Gwvv4g/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#1156A8;--dept-bg:#E6F1FB;--dept-text:#0C447C;--dept-border:#B5D4F4">
+      <div class="dept-icon-wrap">📦</div>
+      <div class="dept-name">วัตถุดิบและพัสดุ</div>
+      <div class="dept-tag">คลังสินค้า</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbyW0sXnpGXd_lj-tNwbUo-qXwS1ozVmxf4cv6NdRO22q2wgeJL5LYfIuCG6CyNOwazB8g/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#BA7517;--dept-bg:#FAEEDA;--dept-text:#854F0B;--dept-border:#FAC775">
+      <div class="dept-icon-wrap">🔧</div>
+      <div class="dept-name">แม่พิมพ์</div>
+      <div class="dept-tag">การผลิต</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbwCJPcJOTVTCHgaNhZwr6bLNFurqXmcI36WfesiM_n1MVq4gRqJ380BYuihunNCf-Z9/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#5A6E88;--dept-bg:#F1EFE8;--dept-text:#444441;--dept-border:#D3D1C7">
+      <div class="dept-icon-wrap">🏢</div>
+      <div class="dept-name">อาคาร</div>
+      <div class="dept-tag">สิ่งอำนวยความสะดวก</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbxtS2-kIysjf0k7VoFIn6LFeBAfOwwHb-yw8xu_5WVEK2js9nsN2LndIlEN2djHUEPd/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#0F6E56;--dept-bg:#E1F5EE;--dept-text:#085041;--dept-border:#9FE1CB">
+      <div class="dept-icon-wrap">📊</div>
+      <div class="dept-name">วางแผนการผลิต</div>
+      <div class="dept-tag">การวางแผน</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbx--qU6u-Jzk7g-DlvBbRsq5ZbOXEvigzgijatHo5nTnjylikJWmsdWtXjxkTq1T40O/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#534AB7;--dept-bg:#EEEDFE;--dept-text:#3C3489;--dept-border:#CECBF6">
+      <div class="dept-icon-wrap">🔬</div>
+      <div class="dept-name">เทคโนโลยีคุณภาพ</div>
+      <div class="dept-tag">คุณภาพ</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbyb_IeFDRFsWwAh7mLCY04mP5RuWqyvzvqlDXmFA_lp05qZr89abf0nTw4vVez02BKbOA/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#D85A30;--dept-bg:#FAECE7;--dept-text:#712B13;--dept-border:#F5C4B3">
+      <div class="dept-icon-wrap">🧪</div>
+      <div class="dept-name">R&amp;D COMPOUND</div>
+      <div class="dept-tag">วิจัยและพัฒนา</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbyxhrxES4NyyXEulveWSLEDlaBizZjdMdC6zB62f33jKTcx4vPChO_Ne-ofT9hMsToh/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#D4537E;--dept-bg:#FBEAF0;--dept-text:#72243E;--dept-border:#F4C0D1">
+      <div class="dept-icon-wrap">🎨</div>
+      <div class="dept-name">R&amp;D PRODUCT DESIGN</div>
+      <div class="dept-tag">วิจัยและพัฒนา</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+    <a href="https://script.google.com/macros/s/AKfycbxTT9pTpFagYPcUcTj-VPIpjDw85sHXaA6x_qUj6rCDpr9oFjc9XvRCetIqDYM-c3Qvwg/exec?authuser=0"
+       target="_blank" class="dept-card" style="--dept-color:#1156A8;--dept-bg:#E6F1FB;--dept-text:#0C447C;--dept-border:#B5D4F4">
+      <div class="dept-icon-wrap">🏬</div>
+      <div class="dept-name">คลังสินค้า</div>
+      <div class="dept-tag">คลังสินค้า</div>
+      <div class="dept-arrow">
+        <span>เปิดฟอร์ม</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- REPORT -->
+  <div class="section-divider">
+    <span class="divider-label">รายงาน</span>
+  </div>
+
+  <div class="report-card">
+    <div class="report-info">
+      <div class="report-icon">📋</div>
+      <div>
+        <div class="report-title">รายงานการโอนย้ายพนักงาน</div>
+        <div class="report-sub">ดูสรุปข้อมูลการโอนย้ายพนักงาน แยกตามแผนก วัน สัปดาห์ เดือน หรือปี</div>
+      </div>
+    </div>
+    <a href="https://sarawutc6689-cpu.github.io/Mouldmate-HR/test.html" target="_blank" class="report-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      ดูรายงาน
+    </a>
+  </div>
+
+</div>
+
+<footer>
+  ระบบบันทึกข้อมูลการโอนย้ายการทำงาน &nbsp;|&nbsp; พัฒนาโดย Sarawut.C
+  &nbsp;&nbsp;©&nbsp;<span id="footerYear"></span>&nbsp;All rights reserved.
+</footer>
+
+<script>
+  const now = new Date();
+  document.getElementById('headerTime').textContent =
+    'อัปเดต: ' + now.toLocaleString('th-TH');
+  document.getElementById('footerYear').textContent = now.getFullYear();
+</script>
+
+</body>
+</html>
