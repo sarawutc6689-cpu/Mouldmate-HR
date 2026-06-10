@@ -222,32 +222,20 @@
       box-shadow: 0 0 0 3px rgba(17,86,168,.10);
     }
 
-    /* dept chips */
+    /* dept dropdown */
     .dept-section { margin-bottom: 16px; }
-    .dept-search-wrap { position: relative; margin-bottom: 8px; }
-    .dept-search-wrap svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--mist); pointer-events: none; }
-    .dept-search { height: 34px; padding: 0 10px 0 32px; border: 1px solid var(--border); border-radius: var(--r); font-family: inherit; font-size: 12px; color: var(--ink); background: var(--white); width: 100%; outline: none; }
-    .dept-search:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(17,86,168,.10); }
-    .chips-wrap {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      max-height: 150px; overflow-y: auto;
+    .dept-select-wrap { position: relative; }
+    .dept-select-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--mist); pointer-events: none; z-index: 1; }
+    .dept-select {
+      height: 38px; padding: 0 10px 0 34px;
       border: 1px solid var(--border); border-radius: var(--r);
-      padding: 8px;
-      background: var(--snow);
+      font-family: inherit; font-size: 13px; color: var(--ink);
+      background: var(--white); width: 100%; outline: none;
+      appearance: none; -webkit-appearance: none;
+      cursor: pointer; transition: border .15s;
     }
-    .chip {
-      height: 28px; padding: 0 12px;
-      border: 1px solid var(--border); border-radius: 20px;
-      background: var(--white); color: var(--mid);
-      font-family: inherit; font-size: 12px; font-weight: 500;
-      cursor: pointer; display: inline-flex; align-items: center;
-      transition: all .12s; white-space: nowrap;
-    }
-    .chip:hover  { border-color: var(--accent); color: var(--brand); background: var(--brand-pale); }
-    .chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
-    .chip.all    { background: var(--brand-light); color: var(--brand-dark); border-color: var(--accent); font-weight: 600; }
-    .chip.all.active { background: var(--brand-dark); color: #fff; }
-    .dept-empty { font-size: 12px; color: var(--mist); padding: 6px 4px; }
+    .dept-select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(17,86,168,.10); }
+    .dept-select-arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--mist); }
 
     .modal-footer {
       display: flex; justify-content: flex-end; gap: 8px;
@@ -419,15 +407,15 @@
 
     <div class="divider"></div>
 
-    <!-- department chips -->
+    <!-- department dropdown -->
     <div class="dept-section">
       <div class="section-title">กรองตามแผนก</div>
-      <div class="dept-search-wrap">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" class="dept-search" id="deptSearch" placeholder="ค้นหาแผนก..." oninput="filterChips(this.value)">
-      </div>
-      <div class="chips-wrap" id="chipsWrap">
-        <span class="dept-empty">กำลังโหลดรายชื่อแผนก...</span>
+      <div class="dept-select-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><path d="M8 7V5a2 2 0 0 0-4 0v2"/></svg>
+        <select class="dept-select" id="deptSelect" onchange="selectDeptFromDropdown(this.value)">
+          <option value="">— ทั้งหมด —</option>
+        </select>
+        <svg class="dept-select-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
     </div>
 
@@ -449,7 +437,7 @@
 </div>
 
 <script>
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwlMrTRcNtXLX-ikpN1EFCf5IEyUjTASFy8D4hpVJeghhnnZuPHHLjHPVc-7i4teyZe/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRm1_KG0CWBaXFEKd63EzRxAy3CR5Vss-hJyArqQbTdyVsCgxACOT_hwKtCH9VLxg/exec';
 
   let currentView     = 'dept';
   let selectedDept    = '';
@@ -466,34 +454,27 @@
       .then(r => r.json())
       .then(data => {
         allDepartments = data.departments || [];
-        renderChips(allDepartments);
+        renderDeptDropdown(allDepartments);
       })
-      .catch(() => renderChips([]));
+      .catch(() => renderDeptDropdown([]));
   }
 
-  /* ── CHIP RENDER ─────────────────────── */
-  function renderChips(depts) {
-    const wrap = document.getElementById('chipsWrap');
-    if (!depts.length) {
-      wrap.innerHTML = '<span class="dept-empty">ไม่พบรายชื่อแผนก</span>';
-      return;
-    }
-    const allChip = `<button class="chip all ${selectedDept===''?'active':''}" onclick="selectDept('',this)">ทั้งหมด</button>`;
-    const chips = depts.map(d =>
-      `<button class="chip ${selectedDept===d?'active':''}" onclick="selectDept('${escHtml(d)}',this)">${escHtml(d)}</button>`
-    ).join('');
-    wrap.innerHTML = allChip + chips;
+  /* ── DEPT DROPDOWN ───────────────────── */
+  function renderDeptDropdown(depts) {
+    const sel = document.getElementById('deptSelect');
+    if (!sel) return;
+    const cur = selectedDept;
+    sel.innerHTML = '<option value="">— ทั้งหมด —</option>';
+    depts.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d; opt.textContent = d;
+      if (d === cur) opt.selected = true;
+      sel.appendChild(opt);
+    });
   }
 
-  function filterChips(q) {
-    const filtered = q.trim() === '' ? allDepartments : allDepartments.filter(d => d.includes(q.trim()));
-    renderChips(filtered);
-  }
-
-  function selectDept(dept, btn) {
+  function selectDeptFromDropdown(dept) {
     selectedDept = dept;
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    if (btn) btn.classList.add('active');
   }
 
   function escHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -507,8 +488,7 @@
     }
     document.querySelectorAll('.vtype-card').forEach(c => c.classList.toggle('sel', c.dataset.v === mode));
     renderDynFields();
-    renderChips(allDepartments);
-    document.getElementById('deptSearch').value = '';
+    renderDeptDropdown(allDepartments);
     document.getElementById('filterOverlay').classList.add('open');
   }
 
@@ -572,7 +552,7 @@
 
   function resetFilters() {
     selectedDept = '';
-    renderChips(allDepartments);
+    renderDeptDropdown(allDepartments);
     currentView = 'dept';
     document.querySelectorAll('.vtype-card').forEach(c => c.classList.toggle('sel', c.dataset.v === 'dept'));
     renderDynFields();
