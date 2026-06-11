@@ -277,35 +277,36 @@ function renderCards() {
 //  คอลัมน์ G (index 6) = สถานะ : "ตกลง" / "ปฏิเสธ" / อื่นๆ = รอ
 // ══════════════════════════════════════════════════════
 function fetchSheetStats(dept) {
-  // ใช้ range G2:G เพื่อข้าม header row (แถว 1) ทั้งหมด
+  // ใช้ TQ query: select G where G is not null — กรองแถวว่างและ header ออกทันที
+  var tq = encodeURIComponent("select G where G is not null");
   var url = 'https://docs.google.com/spreadsheets/d/' + dept.sheetId +
-            '/gviz/tq?tqx=out:json&sheet=data&range=G2:G';
+            '/gviz/tq?tqx=out:json&sheet=data&tq=' + tq;
   fetch(url)
     .then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.text();
     })
     .then(function(text) {
-      // gviz returns: /*O_o*/\ngoogle.visualization.Query.setResponse({...});
-      var json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
+      // gviz wraps: google.visualization.Query.setResponse({...});
+      var clean = text.replace(/^[\s\S]*?google\.visualization\.Query\.setResponse\(/, '')
+                      .replace(/\);\s*$/, '');
+      var json = JSON.parse(clean);
       var rows = (json.table && json.table.rows) ? json.table.rows : [];
       var ok = 0, pending = 0, rejected = 0;
       rows.forEach(function(row) {
-        // row ว่าง / null = ยังไม่กรอก = รอ
-        if (!row.c || !row.c[0] || row.c[0].v === null) { pending++; return; }
+        if (!row.c || !row.c[0] || row.c[0].v === null || row.c[0].v === undefined) return;
         var val = row.c[0].v.toString().trim();
-        // กรองค่า header ที่อาจหลุดมา
-        if (val === 'สถานะ' || val === 'status' || val === 'Status') return;
+        if (!val || val === 'สถานะ' || val === 'Status') return;
         if      (val === 'ตกลง')   ok++;
         else if (val === 'ปฏิเสธ') rejected++;
-        else if (val !== '')       pending++;
-        // ถ้า val = '' ไม่นับเลย (แถวว่างเปล่า)
+        else                       pending++;
       });
       updateBadge(dept.id, ok, pending, rejected);
     })
-    .catch(function() {
+    .catch(function(e) {
+      console.warn('[' + dept.id + '] fetch error:', e);
       var sc = document.getElementById('sc-' + dept.id);
-      if (sc) sc.innerHTML = '';
+      if (sc) sc.innerHTML = '<span class="status-pill sp-empty">—</span>';
     });
 }
 
