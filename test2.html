@@ -277,32 +277,35 @@ function renderCards() {
 //  คอลัมน์ G (index 6) = สถานะ : "ตกลง" / "ปฏิเสธ" / อื่นๆ = รอ
 // ══════════════════════════════════════════════════════
 function fetchSheetStats(dept) {
+  // ใช้ range G2:G เพื่อข้าม header row (แถว 1) ทั้งหมด
   var url = 'https://docs.google.com/spreadsheets/d/' + dept.sheetId +
-            '/gviz/tq?tqx=out:json&sheet=data&range=G:G';
+            '/gviz/tq?tqx=out:json&sheet=data&range=G2:G';
   fetch(url)
     .then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.text();
     })
     .then(function(text) {
-      // gviz returns:  /*O_o*/\ngoogle.visualization.Query.setResponse({...});
+      // gviz returns: /*O_o*/\ngoogle.visualization.Query.setResponse({...});
       var json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
       var rows = (json.table && json.table.rows) ? json.table.rows : [];
       var ok = 0, pending = 0, rejected = 0;
       rows.forEach(function(row) {
-        if (!row.c || !row.c[0]) { pending++; return; }
-        var val = (row.c[0].v || '').toString().trim();
+        // row ว่าง / null = ยังไม่กรอก = รอ
+        if (!row.c || !row.c[0] || row.c[0].v === null) { pending++; return; }
+        var val = row.c[0].v.toString().trim();
+        // กรองค่า header ที่อาจหลุดมา
+        if (val === 'สถานะ' || val === 'status' || val === 'Status') return;
         if      (val === 'ตกลง')   ok++;
         else if (val === 'ปฏิเสธ') rejected++;
-        else                       pending++;
+        else if (val !== '')       pending++;
+        // ถ้า val = '' ไม่นับเลย (แถวว่างเปล่า)
       });
-      // ลบ header row ถ้าเป็น "สถานะ"
-      // (gviz ปกติ auto-detect header แต่ถ้า rows[0] = "สถานะ" จะนับผิด)
       updateBadge(dept.id, ok, pending, rejected);
     })
     .catch(function() {
       var sc = document.getElementById('sc-' + dept.id);
-      if (sc) sc.innerHTML = '';   // ซ่อน badge ถ้าเข้าไม่ได้
+      if (sc) sc.innerHTML = '';
     });
 }
 
