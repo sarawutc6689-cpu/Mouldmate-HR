@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>รายงานการโอนย้ายพนักงาน | TOKAI SOLID TIRE</title>
+  <title>รายงานการโอนย้ายพนักงาน | TOKAISOLIDTIRE</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     * {
@@ -486,7 +486,7 @@
     <div style="overflow-x: auto;">
       <table class="data-table">
         <thead>
-          <tr><th>#</th><th>วันที่โอนย้าย</th><th>รหัสพนักงาน</th><th>ชื่อ-นามสกุล</th><th>แผนกต้นทาง</th><th>แผนกปลายทาง</th><th>หมายเหตุ</th></tr>
+          <tr><th>#</th><th>วันที่โอนย้าย</th><th>รหัสพนักงาน</th><th>ชื่อ-นามสกุล</th><th>หน่วยงาน</th><th>แผนกต้นทาง</th><th>แผนกปลายทาง</th><th>หมายเหตุ</th></tr>
         </thead>
         <tbody id="reportTableBody">
           <tr><td colspan="7"><div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="#A2C2DF"/></svg><p style="margin-top:10px">กรุณาเลือกตัวกรองและกดค้นหา</p></div></td></tr>
@@ -677,7 +677,7 @@
     document.getElementById('rowCount').innerText = filtered.length + ' รายการ';
     
     if (!filtered.length) {
-      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg><p>ไม่มีข้อมูลในช่วงที่เลือก</p></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg><p>ไม่มีข้อมูลในช่วงที่เลือก</p></div></td></tr>';
       return;
     }
     
@@ -737,10 +737,10 @@
   }
 
   function setTableLoading() { 
-    document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="7"><div class="empty-state">⏳ กำลังโหลดข้อมูล...</div></td></tr>'; 
+    document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="8"><div class="empty-state">⏳ กำลังโหลดข้อมูล...</div></td></tr>'; 
   }
   function showErrorTable() { 
-    document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="7"><div class="empty-state">⚠️ โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</div></td></tr>'; 
+    document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="8"><div class="empty-state">⚠️ โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</div></td></tr>'; 
   }
 
   document.querySelectorAll('.view-card').forEach(card => {
