@@ -726,7 +726,7 @@
     if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
     if (!filtered.length) return alert('ไม่มีข้อมูลสำหรับส่งออก');
     const headers = ['ลำดับ', 'วันที่', 'รหัสพนักงาน', 'ชื่อ', 'แผนกต้นทาง', 'แผนกปลายทาง', 'หน่วยงาน','หมายเหตุ'];
-    const rows = filtered.map((r, i) => [i+1, formatDateThai(r.date), r.empId, r.name, r.unit, r.deptFrom, r.deptTo, r.note || '']);
+    const rows = filtered.map((r, i) => [i+1, formatDateThai(r.date), r.empId, r.name, r.deptFrom, r.deptTo, r.unit || '', r.note || '']);
     let csv = headers.join(',') + '\n' + rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob(["\uFEFF" + csv], {type: 'text/csv;charset=utf-8;'});
     const link = document.createElement('a');
