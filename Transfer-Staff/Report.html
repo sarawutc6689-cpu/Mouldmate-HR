@@ -6,11 +6,7 @@
   <title>รายงานการโอนย้ายพนักงาน | TOKAISOLIDTIRE</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       background: linear-gradient(145deg, #F4F9FE 0%, #EEF4FA 100%);
@@ -29,402 +25,209 @@
       position: sticky;
       top: 0;
       z-index: 50;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
-    .logo-section {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+    .logo-section { display: flex; align-items: center; gap: 16px; }
     .tst-badge {
-      background: #378ADD;
-      color: white;
-      font-weight: 700;
-      font-size: 13px;
-      letter-spacing: 1px;
-      padding: 6px 14px;
-      border-radius: 40px;
+      background: #378ADD; color: white; font-weight: 700;
+      font-size: 13px; letter-spacing: 1px; padding: 6px 14px; border-radius: 40px;
     }
-    .company-text {
-      font-weight: 600;
-      font-size: 18px;
-      color: #E1F0FA;
-    }
+    .company-text { font-weight: 600; font-size: 18px; color: #E1F0FA; }
     .report-label {
-      background: rgba(255,255,255,0.12);
-      padding: 5px 12px;
-      border-radius: 32px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #B8D6F5;
+      background: rgba(255,255,255,0.12); padding: 5px 12px; border-radius: 32px;
+      font-size: 12px; font-weight: 500; color: #B8D6F5;
     }
     .live-time {
-      background: rgba(255,255,255,0.05);
-      padding: 6px 16px;
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #CBE0F9;
+      background: rgba(255,255,255,0.05); padding: 6px 16px; border-radius: 100px;
+      font-size: 13px; font-weight: 500; color: #CBE0F9;
     }
 
-    .report-container {
-      max-width: 1360px;
-      margin: 0 auto;
-      padding: 28px 24px 56px;
-    }
+    .report-container { max-width: 1360px; margin: 0 auto; padding: 28px 24px 56px; }
 
     .filter-bar {
-      background: white;
-      border-radius: 24px;
-      border: 1px solid #DCEBF5;
-      padding: 12px 20px;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-      box-shadow: 0 4px 12px rgba(15, 59, 111, 0.04);
+      background: white; border-radius: 24px; border: 1px solid #DCEBF5;
+      padding: 12px 20px; margin-bottom: 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+      box-shadow: 0 4px 12px rgba(15,59,111,0.04);
     }
-    .filter-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .filter-left { display: flex; align-items: center; gap: 12px; }
     .filter-badge-icon {
-      background: #EFF6FE;
-      width: 38px;
-      height: 38px;
-      border-radius: 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      background: #EFF6FE; width: 38px; height: 38px; border-radius: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
     }
-    .filter-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #4F7EA3;
-    }
+    .filter-title { font-size: 14px; font-weight: 600; color: #4F7EA3; }
     .btn-outline-icon {
-      background: white;
-      border: 1px solid #C5D9EF;
-      border-radius: 40px;
-      padding: 8px 20px;
-      font-weight: 600;
-      font-size: 13px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: #1C6FB2;
+      background: white; border: 1px solid #C5D9EF; border-radius: 40px;
+      padding: 8px 20px; font-weight: 600; font-size: 13px;
+      display: inline-flex; align-items: center; gap: 8px;
+      cursor: pointer; transition: all 0.2s; color: #1C6FB2;
     }
-    .btn-outline-icon:hover {
-      background: #F0F7FF;
-      border-color: #8FB9E2;
-    }
+    .btn-outline-icon:hover { background: #F0F7FF; border-color: #8FB9E2; }
     .filter-tag {
-      background: #EAF2FA;
-      border-radius: 30px;
-      padding: 4px 12px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #1D6AB3;
+      background: #EAF2FA; border-radius: 30px; padding: 4px 12px;
+      font-size: 12px; font-weight: 500; color: #1D6AB3;
     }
 
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
-      margin-bottom: 32px;
-    }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; margin-bottom: 32px; }
     .kpi-card {
-      background: white;
-      border-radius: 28px;
-      padding: 20px 22px;
-      border: 1px solid #E3EEF8;
-      transition: all 0.2s;
+      background: white; border-radius: 28px; padding: 20px 22px;
+      border: 1px solid #E3EEF8; transition: all 0.2s;
       box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
-    .kpi-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .kpi-label {
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #6F99BF;
-    }
-    .kpi-value {
-      font-size: 34px;
-      font-weight: 800;
-      color: #0A3E7A;
-      line-height: 1.2;
-    }
-    .kpi-sub {
-      font-size: 12px;
-      color: #88A9CC;
-      margin-top: 8px;
-    }
+    .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .kpi-label { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #6F99BF; }
+    .kpi-value { font-size: 34px; font-weight: 800; color: #0A3E7A; line-height: 1.2; }
+    .kpi-sub { font-size: 12px; color: #88A9CC; margin-top: 8px; }
     .kpi-icon-bg {
-      width: 44px;
-      height: 44px;
-      background: #EFF6FD;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 44px; height: 44px; background: #EFF6FD; border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
     }
 
     .table-card {
-      background: white;
-      border-radius: 28px;
-      border: 1px solid #E3EEF8;
-      overflow: hidden;
-      box-shadow: 0 12px 24px -12px rgba(15, 59, 111, 0.08);
+      background: white; border-radius: 28px; border: 1px solid #E3EEF8;
+      overflow: hidden; box-shadow: 0 12px 24px -12px rgba(15,59,111,0.08);
     }
     .table-header {
-      background: #F9FDFF;
-      padding: 16px 24px;
+      background: #F9FDFF; padding: 16px 24px;
       border-bottom: 1px solid #E7F0F8;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
     }
-    .table-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 16px;
-      color: #174D7A;
-    }
+    .table-title { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; color: #174D7A; }
     .record-badge {
-      background: #E7F0FA;
-      border-radius: 40px;
-      padding: 4px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #1E619B;
+      background: #E7F0FA; border-radius: 40px; padding: 4px 14px;
+      font-size: 13px; font-weight: 600; color: #1E619B;
     }
-    .action-group {
-      display: flex;
-      gap: 12px;
-    }
+    .action-group { display: flex; gap: 12px; }
     .icon-btn {
-      background: white;
-      border: 1px solid #C9DFF0;
-      border-radius: 40px;
-      padding: 7px 18px;
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: #2F6EA3;
+      background: white; border: 1px solid #C9DFF0; border-radius: 40px;
+      padding: 7px 18px; font-size: 13px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 8px;
+      cursor: pointer; transition: all 0.2s; color: #2F6EA3;
     }
-    .icon-btn:hover {
-      background: #F1F8FF;
-      border-color: #8FB8E0;
-    }
+    .icon-btn:hover { background: #F1F8FF; border-color: #8FB8E0; }
 
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
     .data-table th {
-      text-align: left;
-      padding: 14px 20px;
-      background: #F8FBFE;
-      font-weight: 700;
-      color: #1A5785;
-      border-bottom: 1.5px solid #E0ECF6;
-      font-size: 13px;
+      text-align: left; padding: 14px 20px; background: #F8FBFE;
+      font-weight: 700; color: #1A5785; border-bottom: 1.5px solid #E0ECF6; font-size: 13px;
     }
     .data-table td {
-      padding: 14px 20px;
-      border-bottom: 1px solid #EFF4FA;
-      color: #1F415E;
-      vertical-align: middle;
+      padding: 14px 20px; border-bottom: 1px solid #EFF4FA;
+      color: #1F415E; vertical-align: middle;
     }
-    .data-table tr:hover td {
-      background: #F7FBFE;
-    }
-    .dept-pill {
+    .data-table tr:hover td { background: #F7FBFE; }
+    .dept-pill { display: inline-block; padding: 4px 12px; border-radius: 40px; font-size: 12px; font-weight: 600; }
+    .dept-from { background: #E8F0FE; color: #1156A8; }
+    .dept-to   { background: #E4F3E8; color: #2C6E2F; }
+    .empty-state { text-align: center; padding: 56px 24px; color: #7A9BC2; }
+
+    /* ── Unit Tooltip ── */
+    .unit-wrap {
+      position: relative;
       display: inline-block;
-      padding: 4px 12px;
-      border-radius: 40px;
-      font-size: 12px;
+      cursor: default;
+    }
+    .unit-code {
       font-weight: 600;
+      color: #1A5785;
+      border-bottom: 1.5px dashed #7EB3D8;
+      padding-bottom: 1px;
     }
-    .dept-from {
-      background: #E8F0FE;
-      color: #1156A8;
+    .unit-tip {
+      visibility: hidden;
+      opacity: 0;
+      background: #0F3B6F;
+      color: #E1F0FA;
+      font-size: 12px;
+      font-weight: 500;
+      font-family: 'Sarabun', 'Inter', sans-serif;
+      padding: 6px 13px;
+      border-radius: 10px;
+      white-space: nowrap;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      transition: opacity 0.15s ease;
+      pointer-events: none;
+      z-index: 100;
+      box-shadow: 0 4px 16px rgba(10,40,80,0.18);
     }
-    .dept-to {
-      background: #E4F3E8;
-      color: #2C6E2F;
+    .unit-tip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #0F3B6F;
     }
-    .empty-state {
-      text-align: center;
-      padding: 56px 24px;
-      color: #7A9BC2;
+    .unit-wrap:hover .unit-tip {
+      visibility: visible;
+      opacity: 1;
     }
 
+    /* ── Modal ── */
     .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(10, 45, 70, 0.5);
+      position: fixed; inset: 0;
+      background: rgba(10,45,70,0.5);
       backdrop-filter: blur(3px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; opacity: 0; visibility: hidden; transition: all 0.2s ease;
     }
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
     .modal-panel {
-      background: white;
-      width: 520px;
-      max-width: calc(100vw - 32px);
-      border-radius: 32px;
-      overflow: hidden;
-      transform: scale(0.96);
-      transition: transform 0.2s;
+      background: white; width: 520px; max-width: calc(100vw - 32px);
+      border-radius: 32px; overflow: hidden;
+      transform: scale(0.96); transition: transform 0.2s;
     }
-    .modal-overlay.active .modal-panel {
-      transform: scale(1);
-    }
+    .modal-overlay.active .modal-panel { transform: scale(1); }
     .modal-header {
-      background: #0F3B6F;
-      padding: 18px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: #0F3B6F; padding: 18px 24px;
+      display: flex; justify-content: space-between; align-items: center;
     }
-    .modal-header h3 {
-      color: white;
-      font-weight: 600;
-      font-size: 18px;
-    }
+    .modal-header h3 { color: white; font-weight: 600; font-size: 18px; }
     .close-modal {
-      background: rgba(255,255,255,0.12);
-      border: none;
-      border-radius: 40px;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      background: rgba(255,255,255,0.12); border: none; border-radius: 40px;
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
-    .modal-body {
-      padding: 24px 28px;
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-    .view-type-grid {
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 12px;
-      margin-bottom: 28px;
-    }
+    .modal-body { padding: 24px 28px; max-height: 70vh; overflow-y: auto; }
+    .view-type-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 28px; }
     .view-card {
-      border: 1.5px solid #E4EFF9;
-      border-radius: 20px;
-      padding: 12px 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.15s;
-      background: white;
+      border: 1.5px solid #E4EFF9; border-radius: 20px; padding: 12px 8px;
+      text-align: center; cursor: pointer; transition: all 0.15s; background: white;
     }
-    .view-card.active {
-      border-color: #1A6BBF;
-      background: #F0F7FF;
-    }
-    .input-group {
-      margin-bottom: 20px;
-    }
-    .input-group label {
-      font-weight: 600;
-      font-size: 13px;
-      display: block;
-      margin-bottom: 6px;
-      color: #41729F;
-    }
+    .view-card.active { border-color: #1A6BBF; background: #F0F7FF; }
+    .input-group { margin-bottom: 20px; }
+    .input-group label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px; color: #41729F; }
     .input-group input, .input-group select {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid #D8E6F2;
-      border-radius: 18px;
-      font-family: inherit;
-      font-size: 14px;
-      background: white;
+      width: 100%; padding: 12px 14px; border: 1.5px solid #D8E6F2;
+      border-radius: 18px; font-family: inherit; font-size: 14px; background: white;
     }
-    .date-range-group {
-      display: flex;
-      gap: 12px;
-    }
-    .date-range-group > div {
-      flex: 1;
-    }
-    .dept-select {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 18px;
-      border: 1.5px solid #D8E6F2;
-      font-family: inherit;
-    }
+    .date-range-group { display: flex; gap: 12px; }
+    .date-range-group > div { flex: 1; }
+    .dept-select { width: 100%; padding: 12px 14px; border-radius: 18px; border: 1.5px solid #D8E6F2; font-family: inherit; }
     .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      padding: 16px 24px 24px;
-      background: #FEFEFE;
-      border-top: 1px solid #EBF2F9;
+      display: flex; justify-content: flex-end; gap: 12px;
+      padding: 16px 24px 24px; background: #FEFEFE; border-top: 1px solid #EBF2F9;
     }
     .btn-secondary {
-      padding: 9px 22px;
-      border-radius: 40px;
-      border: 1px solid #BDD6EB;
-      background: white;
-      font-weight: 600;
-      cursor: pointer;
+      padding: 9px 22px; border-radius: 40px; border: 1px solid #BDD6EB;
+      background: white; font-weight: 600; cursor: pointer;
     }
     .btn-primary-filter {
-      background: #1A6BBF;
-      color: white;
-      padding: 9px 28px;
-      border-radius: 40px;
-      border: none;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
+      background: #1A6BBF; color: white; padding: 9px 28px;
+      border-radius: 40px; border: none; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
     }
+
     footer {
-      text-align: center;
-      margin-top: 48px;
-      padding: 20px 24px;
-      color: #6A8DAD;
-      font-size: 13px;
-      border-top: 1px solid #DCEBF1;
+      text-align: center; margin-top: 48px; padding: 20px 24px;
+      color: #6A8DAD; font-size: 13px; border-top: 1px solid #DCEBF1;
     }
+
     @media (max-width: 700px) {
       .kpi-grid { grid-template-columns: repeat(2,1fr); }
       .view-type-grid { grid-template-columns: repeat(2,1fr); }
@@ -459,10 +262,38 @@
   </div>
 
   <div class="kpi-grid">
-    <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">รายการทั้งหมด</span><div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><path d="M21 12v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3"/><path d="M12 2v8M9 7l3 3 3-3"/></svg></div></div><div class="kpi-value" id="totalRecords">—</div><div class="kpi-sub">รายการโอนย้ายทั้งหมด</div></div>
-    <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">พนักงานที่ย้าย</span><div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div></div><div class="kpi-value" id="uniqueEmployees">—</div><div class="kpi-sub">คน (ไม่ซ้ำ)</div></div>
-    <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">แผนกที่เกี่ยวข้อง</span><div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div></div><div class="kpi-value" id="deptCount">—</div><div class="kpi-sub">แผนกทั้งหมด</div></div>
-    <div class="kpi-card"><div class="kpi-header"><span class="kpi-label">ช่วงข้อมูล</span><div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div></div><div class="kpi-value" id="dateRangeLabel">-</div><div class="kpi-sub">จากตัวกรอง</div></div>
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">รายการทั้งหมด</span>
+        <div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><path d="M21 12v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3"/><path d="M12 2v8M9 7l3 3 3-3"/></svg></div>
+      </div>
+      <div class="kpi-value" id="totalRecords">—</div>
+      <div class="kpi-sub">รายการโอนย้ายทั้งหมด</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">พนักงานที่ย้าย</span>
+        <div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      </div>
+      <div class="kpi-value" id="uniqueEmployees">—</div>
+      <div class="kpi-sub">คน (ไม่ซ้ำ)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">แผนกที่เกี่ยวข้อง</span>
+        <div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+      </div>
+      <div class="kpi-value" id="deptCount">—</div>
+      <div class="kpi-sub">แผนกทั้งหมด</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">ช่วงข้อมูล</span>
+        <div class="kpi-icon-bg"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1156A8" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      </div>
+      <div class="kpi-value" id="dateRangeLabel">-</div>
+      <div class="kpi-sub">จากตัวกรอง</div>
+    </div>
   </div>
 
   <div class="table-card">
@@ -486,57 +317,98 @@
     <div style="overflow-x: auto;">
       <table class="data-table">
         <thead>
-          <tr><th>ลำดับที่</th><th>วันที่โอนย้าย</th><th>รหัสพนักงาน</th><th>ชื่อ-นามสกุล</th><th>แผนกต้นทาง</th><th>แผนกปลายทาง</th><th>หน่วยงาน</th><th>สถานะ</th><th>หมายเหตุ</th></tr>
+          <tr>
+            <th>ลำดับที่</th>
+            <th>วันที่โอนย้าย</th>
+            <th>รหัสพนักงาน</th>
+            <th>ชื่อ-นามสกุล</th>
+            <th>แผนกต้นทาง</th>
+            <th>แผนกปลายทาง</th>
+            <th>หน่วยงาน</th>
+            <th>สถานะ</th>
+            <th>หมายเหตุ</th>
+          </tr>
         </thead>
         <tbody id="reportTableBody">
-          <tr><td colspan="8"><div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="#A2C2DF"/></svg><p style="margin-top:10px">กรุณาเลือกตัวกรองและกดค้นหา</p></div></td></tr>
+          <tr><td colspan="9"><div class="empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="#A2C2DF"/></svg>
+            <p style="margin-top:10px">กรุณาเลือกตัวกรองและกดค้นหา</p>
+          </div></td></tr>
         </tbody>
-       </table>
+      </table>
     </div>
   </div>
+
   <footer>TOKAISOLIDTIRE · ระบบรายงานการโอนย้ายบุคลากร | พัฒนาโดย Sarawut.C © <span id="yearSpan"></span></footer>
 </div>
 
+<!-- Filter Modal -->
 <div id="filterModal" class="modal-overlay">
   <div class="modal-panel">
-    <div class="modal-header"><h3>ตั้งค่าตัวกรองข้อมูล</h3><button class="close-modal" onclick="closeFilterModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-header">
+      <h3>ตั้งค่าตัวกรองข้อมูล</h3>
+      <button class="close-modal" onclick="closeFilterModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
     <div class="modal-body">
       <div class="view-type-grid" id="viewTypeGrid">
-        <div data-view="dept" class="view-card active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A6BBF"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><div style="font-weight:600; margin-top:6px">ทั้งหมด (แผนก)</div></div>
-        <div data-view="day" class="view-card"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B7FA3"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div style="font-weight:600; margin-top:6px">รายวัน</div></div>
-        <div data-view="week" class="view-card"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B7FA3"><path d="M3 6h18M3 12h18M3 18h18"/><rect x="6" y="3" width="12" height="18" rx="2"/></svg><div style="font-weight:600; margin-top:6px">รายสัปดาห์</div></div>
-        <div data-view="month" class="view-card"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B7FA3"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="1"/><circle cx="16" cy="15" r="1"/><circle cx="8" cy="15" r="1"/></svg><div style="font-weight:600; margin-top:6px">รายเดือน</div></div>
-        <div data-view="year" class="view-card"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B7FA3"><path d="M2 3h20v18H2z"/><path d="M8 21v-9M16 21v-9"/></svg><div style="font-weight:600; margin-top:6px">รายปี</div></div>
+        <div data-view="dept" class="view-card active">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A6BBF"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <div style="font-weight:600; margin-top:6px">ทั้งหมด (แผนก)</div>
+        </div>
+        <div data-view="day" class="view-card">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B7FA3"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <div style="font-weight:600; margin-top:6px">รายวัน</div>
+        </div>
+        <div data-view="week" class="view-card">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B7FA3"><path d="M3 6h18M3 12h18M3 18h18"/><rect x="6" y="3" width="12" height="18" rx="2"/></svg>
+          <div style="font-weight:600; margin-top:6px">รายสัปดาห์</div>
+        </div>
+        <div data-view="month" class="view-card">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B7FA3"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="1"/><circle cx="16" cy="15" r="1"/><circle cx="8" cy="15" r="1"/></svg>
+          <div style="font-weight:600; margin-top:6px">รายเดือน</div>
+        </div>
+        <div data-view="year" class="view-card">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B7FA3"><path d="M2 3h20v18H2z"/><path d="M8 21v-9M16 21v-9"/></svg>
+          <div style="font-weight:600; margin-top:6px">รายปี</div>
+        </div>
       </div>
       <div id="dynamicFields" class="input-group"></div>
       <div class="input-group">
-        <label><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> กรองตามแผนก (ต้นทาง/ปลายทาง)</label>
+        <label>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          กรองตามแผนก (ต้นทาง/ปลายทาง)
+        </label>
         <select id="deptFilterSelect" class="dept-select"><option value="">— ทุกแผนก —</option></select>
       </div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="resetAllFilters()">รีเซ็ต</button>
-      <button class="btn-primary-filter" onclick="applyFilters()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> ค้นหา</button>
+      <button class="btn-primary-filter" onclick="applyFilters()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        ค้นหา
+      </button>
     </div>
   </div>
 </div>
 
 <script>
-  const API_BASE = 'https://script.google.com/macros/s/AKfycbxZf0f0QIzFQwCAktPavO7msXeIhcoviR_HBP12m4kCyHrXY7qztyiXVX3Fw7rXnHv8/exec';
-  let currentView = 'dept';
-  let selectedDept = '';
-  let rawRecords = [];
+  const API_BASE = 'https://script.google.com/macros/s/AKfycbxYwcB4t-rRIS0bUbPzeeE2JIU8T3tbQiJM8HMdwUvIuLqz8nm-JQlJ5z2mUQzObZoo/exec';
+
+  let currentView   = 'dept';
+  let selectedDept  = '';
+  let rawRecords    = [];
   let allDepartments = [];
+  let unitCodeMap   = {};   // codeDep → nameDep
 
   let dayVal = '', weekStartVal = '', weekEndVal = '', monthVal = '', yearVal = '';
 
+  /* ── Utility ── */
   function formatDateToYYYYMMDD(date) {
     if (!date) return '';
     const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
 
   function formatDateThai(dateStr) {
@@ -544,75 +416,99 @@
     try {
       const d = new Date(dateStr);
       if (isNaN(d.getTime())) return dateStr;
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear() + 543;
-      return `${day}/${month}/${year}`;
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`;
     } catch(e) { return dateStr; }
   }
 
   function getTodayThaiFormat() {
-    const today = new Date();
-    const dd = String(today.getDate()).padStart(2, '0');
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const yyyy = today.getFullYear();
-    return `${yyyy}-${mm}-${dd}`;
+    const t = new Date();
+    return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
   }
 
+  /* ── Unit cell with tooltip ── */
+  function renderUnit(unit) {
+    if (!unit) return '-';
+    const code = String(unit).trim();
+    const name = unitCodeMap[code];
+    if (!name) return code;
+    return `<span class="unit-wrap">
+              <span class="unit-code">${code}</span>
+              <span class="unit-tip">${name}</span>
+            </span>`;
+  }
+
+  /* ── Fetch unit code map ── */
+  async function fetchUnitCodes() {
+    try {
+      const res  = await fetch(`${API_BASE}?action=getUnitCodes`);
+      const json = await res.json();
+      unitCodeMap = json.unitCodes || {};
+    } catch(e) {
+      console.warn('fetchUnitCodes failed:', e);
+    }
+  }
+
+  /* ── Fetch departments for dropdown ── */
   async function fetchDepartments() {
     try {
-      const res = await fetch(`${API_BASE}?action=getDepartments`);
+      const res  = await fetch(`${API_BASE}?action=getDepartments`);
       const json = await res.json();
       allDepartments = json.departments || [];
-      const deptSelect = document.getElementById('deptFilterSelect');
-      deptSelect.innerHTML = '<option value="">— ทุกแผนก —</option>' + allDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
+      const sel = document.getElementById('deptFilterSelect');
+      sel.innerHTML = '<option value="">— ทุกแผนก —</option>' +
+        allDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
     } catch(e) { console.warn(e); }
   }
 
+  /* ── Dynamic filter fields ── */
   function renderDynamicFields() {
     const container = document.getElementById('dynamicFields');
-    const todayISO = getTodayThaiFormat();
-    
+    const todayISO  = getTodayThaiFormat();
+
     if (currentView === 'day') {
-      const dayValue = dayVal || todayISO;
-      container.innerHTML = `<label>เลือกวันที่</label><input type="date" id="dayPicker" value="${dayValue}" style="border-radius:18px;padding:10px;">`;
+      container.innerHTML = `<label>เลือกวันที่</label>
+        <input type="date" id="dayPicker" value="${dayVal || todayISO}" style="border-radius:18px;padding:10px;">`;
+
     } else if (currentView === 'week') {
-      const start = weekStartVal || todayISO;
-      const end = weekEndVal || todayISO;
-      container.innerHTML = `
-        <label>ช่วงวันที่ (dd/mm/yyyy)</label>
+      container.innerHTML = `<label>ช่วงวันที่</label>
         <div class="date-range-group">
-          <div><input type="date" id="weekStart" value="${start}" placeholder="เริ่มต้น"></div>
-          <div><input type="date" id="weekEnd" value="${end}" placeholder="สิ้นสุด"></div>
+          <div><input type="date" id="weekStart" value="${weekStartVal || todayISO}" placeholder="เริ่มต้น"></div>
+          <div><input type="date" id="weekEnd"   value="${weekEndVal   || todayISO}" placeholder="สิ้นสุด"></div>
         </div>
-        <div style="font-size:12px; color:#6F99BF; margin-top:6px;">ⓘ ระบบจะส่งค่าเป็น YYYY-MM-DD ให้อัตโนมัติ</div>
-      `;
+        <div style="font-size:12px;color:#6F99BF;margin-top:6px;">ⓘ ระบบจะส่งค่าเป็น YYYY-MM-DD ให้อัตโนมัติ</div>`;
+
     } else if (currentView === 'month') {
       const ym = monthVal || `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
-      container.innerHTML = `<label>เลือกเดือน-ปี</label><input type="month" id="monthPicker" value="${ym}">`;
+      container.innerHTML = `<label>เลือกเดือน-ปี</label>
+        <input type="month" id="monthPicker" value="${ym}">`;
+
     } else if (currentView === 'year') {
       const y = yearVal || new Date().getFullYear();
-      container.innerHTML = `<label>เลือกปี</label><select id="yearPicker"><option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select>`;
-      const yearSelect = document.getElementById('yearPicker');
-      if (yearSelect) yearSelect.value = y;
+      container.innerHTML = `<label>เลือกปี</label>
+        <select id="yearPicker">
+          <option value="2023">2023</option><option value="2024">2024</option>
+          <option value="2025">2025</option><option value="2026">2026</option>
+          <option value="2027">2027</option>
+        </select>`;
+      const ys = document.getElementById('yearPicker');
+      if (ys) ys.value = y;
+
     } else {
       container.innerHTML = '<span style="font-size:13px;color:#6F99BF">แสดงข้อมูลทั้งหมด (ไม่จำกัดช่วง)</span>';
     }
   }
 
+  /* ── Modal ── */
   function openFilterModal() {
     document.getElementById('filterModal').classList.add('active');
     renderDynamicFields();
     document.getElementById('deptFilterSelect').value = selectedDept;
-    document.querySelectorAll('.view-card').forEach(card => {
-      card.classList.toggle('active', card.dataset.view === currentView);
-    });
+    document.querySelectorAll('.view-card').forEach(c => c.classList.toggle('active', c.dataset.view === currentView));
   }
   function closeFilterModal() { document.getElementById('filterModal').classList.remove('active'); }
 
   function resetAllFilters() {
-    currentView = 'dept';
-    selectedDept = '';
+    currentView = 'dept'; selectedDept = '';
     dayVal = ''; weekStartVal = ''; weekEndVal = ''; monthVal = ''; yearVal = '';
     closeFilterModal();
     fetchDataAndRender();
@@ -622,65 +518,67 @@
     const activeCard = document.querySelector('.view-card.active');
     if (activeCard) currentView = activeCard.dataset.view;
     selectedDept = document.getElementById('deptFilterSelect').value;
-    
-    if (currentView === 'day') {
-      dayVal = document.getElementById('dayPicker')?.value || '';
-    } else if (currentView === 'week') {
-      weekStartVal = document.getElementById('weekStart')?.value || '';
-      weekEndVal = document.getElementById('weekEnd')?.value || '';
-    } else if (currentView === 'month') {
-      monthVal = document.getElementById('monthPicker')?.value || '';
-    } else if (currentView === 'year') {
-      yearVal = document.getElementById('yearPicker')?.value || '';
-    }
+
+    if (currentView === 'day')   dayVal       = document.getElementById('dayPicker')?.value   || '';
+    if (currentView === 'week') { weekStartVal = document.getElementById('weekStart')?.value   || '';
+                                  weekEndVal   = document.getElementById('weekEnd')?.value     || ''; }
+    if (currentView === 'month') monthVal     = document.getElementById('monthPicker')?.value  || '';
+    if (currentView === 'year')  yearVal      = document.getElementById('yearPicker')?.value   || '';
+
     closeFilterModal();
     await fetchDataAndRender();
     updateFilterChip();
   }
 
+  /* ── Fetch + render ── */
   async function fetchDataAndRender() {
     setTableLoading();
     try {
       const params = new URLSearchParams({ action: 'getData', view: currentView });
-      if (currentView === 'day' && dayVal) params.set('date', dayVal);
-      if (currentView === 'week') { 
+      if (currentView === 'day'   && dayVal)       params.set('date', dayVal);
+      if (currentView === 'week') {
         if (weekStartVal) params.set('weekStart', weekStartVal);
-        if (weekEndVal) params.set('weekEnd', weekEndVal);
+        if (weekEndVal)   params.set('weekEnd',   weekEndVal);
       }
       if (currentView === 'month' && monthVal) params.set('month', monthVal);
-      if (currentView === 'year' && yearVal) params.set('year', yearVal);
+      if (currentView === 'year'  && yearVal)  params.set('year',  yearVal);
 
-      const res = await fetch(`${API_BASE}?${params.toString()}`);
+      const res  = await fetch(`${API_BASE}?${params.toString()}`);
       const data = await res.json();
       rawRecords = data.records || [];
-      
+
       if (data.departments) {
         allDepartments = [...new Set([...allDepartments, ...data.departments])];
-        const deptSel = document.getElementById('deptFilterSelect');
-        if (deptSel && allDepartments.length) {
-          deptSel.innerHTML = '<option value="">— ทุกแผนก —</option>' + allDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
-          deptSel.value = selectedDept;
+        const sel = document.getElementById('deptFilterSelect');
+        if (sel && allDepartments.length) {
+          sel.innerHTML = '<option value="">— ทุกแผนก —</option>' +
+            allDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
+          sel.value = selectedDept;
         }
       }
       renderTableWithFilter();
       updateKPIs(data);
-    } catch (err) { 
+    } catch(err) {
       console.error(err);
-      showErrorTable(); 
+      showErrorTable();
     }
   }
 
   function renderTableWithFilter() {
     let filtered = [...rawRecords];
     if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
+
     const tbody = document.getElementById('reportTableBody');
     document.getElementById('rowCount').innerText = filtered.length + ' รายการ';
-    
+
     if (!filtered.length) {
-      tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg><p>ไม่มีข้อมูลในช่วงที่เลือก</p></div></td></tr>';
+      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+        <p>ไม่มีข้อมูลในช่วงที่เลือก</p>
+      </div></td></tr>`;
       return;
     }
-    
+
     tbody.innerHTML = filtered.map((rec, idx) => `
       <tr>
         <td>${idx + 1}</td>
@@ -689,7 +587,8 @@
         <td style="font-weight:500">${rec.name || '-'}</td>
         <td><span class="dept-pill dept-from">${rec.deptFrom || '-'}</span></td>
         <td><span class="dept-pill dept-to">${rec.deptTo || '-'}</span></td>
-        <td>${rec.unit || '-'}</td>
+        <td>${renderUnit(rec.unit)}</td>
+        <td style="color:#7E9EC2">${rec.status || '-'}</td>
         <td style="color:#7E9EC2">${rec.note || '-'}</td>
       </tr>
     `).join('');
@@ -698,38 +597,39 @@
   function updateKPIs(data) {
     let filtered = [...(data.records || [])];
     if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
-    const total = filtered.length;
-    const uniqueEmp = new Set(filtered.map(r => r.empId).filter(Boolean)).size;
     const deptsSet = new Set();
     filtered.forEach(r => { deptsSet.add(r.deptFrom); deptsSet.add(r.deptTo); });
-    document.getElementById('totalRecords').innerText = total;
-    document.getElementById('uniqueEmployees').innerText = uniqueEmp;
-    document.getElementById('deptCount').innerText = deptsSet.size;
-    let range = data.range || (currentView === 'dept' ? 'ข้อมูลล่าสุดทั้งหมด' : 'ช่วงที่เลือก');
-    document.getElementById('dateRangeLabel').innerHTML = range;
+    document.getElementById('totalRecords').innerText    = filtered.length;
+    document.getElementById('uniqueEmployees').innerText = new Set(filtered.map(r => r.empId).filter(Boolean)).size;
+    document.getElementById('deptCount').innerText       = deptsSet.size;
+    document.getElementById('dateRangeLabel').innerHTML  = data.range || (currentView === 'dept' ? 'ข้อมูลล่าสุดทั้งหมด' : 'ช่วงที่เลือก');
   }
 
   function updateFilterChip() {
     const chip = document.getElementById('activeFilterChip');
     if (selectedDept || currentView !== 'dept') {
-      let txt = [];
-      if (currentView !== 'dept') {
-        txt.push(currentView === 'day' ? 'รายวัน' : currentView === 'week' ? 'รายสัปดาห์' : currentView === 'month' ? 'รายเดือน' : 'รายปี');
-      }
-      if (selectedDept) txt.push(`แผนก: ${selectedDept}`);
+      const txt = [];
+      if (currentView !== 'dept') txt.push({ day:'รายวัน', week:'รายสัปดาห์', month:'รายเดือน', year:'รายปี' }[currentView]);
+      if (selectedDept) txt.push('แผนก: ' + selectedDept);
       chip.innerText = txt.join(' · ');
       chip.style.display = 'inline-block';
-    } else chip.style.display = 'none';
+    } else {
+      chip.style.display = 'none';
+    }
   }
 
   function exportToCSV() {
     let filtered = [...rawRecords];
     if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
     if (!filtered.length) return alert('ไม่มีข้อมูลสำหรับส่งออก');
-    const headers = ['ลำดับ', 'วันที่', 'รหัสพนักงาน', 'ชื่อ', 'แผนกต้นทาง', 'แผนกปลายทาง', 'หน่วยงาน','หมายเหตุ'];
-    const rows = filtered.map((r, i) => [i+1, formatDateThai(r.date), r.empId, r.name, r.deptFrom, r.deptTo, r.unit || '', r.note || '']);
-    let csv = headers.join(',') + '\n' + rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-    const blob = new Blob(["\uFEFF" + csv], {type: 'text/csv;charset=utf-8;'});
+    const headers = ['ลำดับ','วันที่','รหัสพนักงาน','ชื่อ','แผนกต้นทาง','แผนกปลายทาง','หน่วยงาน','สถานะ','หมายเหตุ'];
+    const rows = filtered.map((r, i) => [
+      i+1, formatDateThai(r.date), r.empId, r.name,
+      r.deptFrom, r.deptTo, r.unit || '', r.status || '', r.note || ''
+    ]);
+    const csv = headers.join(',') + '\n' +
+      rows.map(row => row.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `TST_transfer_${new Date().toISOString().slice(0,19)}.csv`;
@@ -737,13 +637,16 @@
     URL.revokeObjectURL(link.href);
   }
 
-  function setTableLoading() { 
-    document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="8"><div class="empty-state">⏳ กำลังโหลดข้อมูล...</div></td></tr>'; 
+  function setTableLoading() {
+    document.getElementById('reportTableBody').innerHTML =
+      '<tr><td colspan="9"><div class="empty-state">⏳ กำลังโหลดข้อมูล...</div></td></tr>';
   }
-  function showErrorTable() { 
-    document.getElementById('reportTableBody').innerHTML = '<tr><td colspan="8"><div class="empty-state">⚠️ โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</div></td></tr>'; 
+  function showErrorTable() {
+    document.getElementById('reportTableBody').innerHTML =
+      '<tr><td colspan="9"><div class="empty-state">⚠️ โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</div></td></tr>';
   }
 
+  /* ── View card clicks ── */
   document.querySelectorAll('.view-card').forEach(card => {
     card.addEventListener('click', function() {
       document.querySelectorAll('.view-card').forEach(c => c.classList.remove('active'));
@@ -752,19 +655,21 @@
       renderDynamicFields();
     });
   });
-  
+
+  /* ── Init ── */
+  fetchUnitCodes();
   fetchDepartments();
   fetchDataAndRender();
   document.getElementById('yearSpan').innerText = new Date().getFullYear();
   setInterval(() => {
     document.getElementById('liveTimestamp').innerHTML = '🕘 ' + new Date().toLocaleString('th-TH');
   }, 1000);
-  
-  window.openFilterModal = openFilterModal;
+
+  window.openFilterModal  = openFilterModal;
   window.closeFilterModal = closeFilterModal;
-  window.resetAllFilters = resetAllFilters;
-  window.applyFilters = applyFilters;
-  window.exportToCSV = exportToCSV;
+  window.resetAllFilters  = resetAllFilters;
+  window.applyFilters     = applyFilters;
+  window.exportToCSV      = exportToCSV;
 </script>
 </body>
 </html>
