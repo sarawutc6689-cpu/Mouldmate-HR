@@ -623,76 +623,128 @@
   if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
   if (!filtered.length) return alert('ไม่มีข้อมูลสำหรับส่งออก');
 
-  // ── 1. หาช่วงวันที่ทั้งหมดในข้อมูล ──
-  const dateSet = new Set(filtered.map(r => r.date).filter(Boolean));
-  const allDates = [...dateSet].sort(); // ['2026-05-01', '2026-05-03', ...]
+  // ── debug: ดู structure ของ record แรก ──
+  console.log('Sample record:', JSON.stringify(filtered[0]));
 
-  // ── 2. สร้าง Map: empId → record (ใช้ empId + name + unit เป็น key)
-  //        และ Map: empId+date → รหัสปฏิบัติงานจริง (deptTo)
-  const empMap = new Map(); // key = empId, value = { empId, name, unit, deptFrom }
-  const cellMap = new Map(); // key = `${empId}__${date}`, value = deptTo (รหัสปฏิบัติงานจริง)
+  // ── 1. normalize วันที่ให้เป็น 'YYYY-MM-DD' ──
+  function toYMD(val) {
+    if (!val) return '';
+    if (val instanceof Date) {
+      const y = val.getFullYear();
+      const m = String(val.getMonth()+1).padStart(2,'0');
+      const d = String(val.getDate()).padStart(2,'0');
+      return `${y}-${m}-${d}`;
+    }
+    const s = String(val).trim();
+    // รองรับ dd/mm/yyyy, dd/mm/yy, yyyy-mm-dd
+    const dmyFull = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (dmyFull) return `${dmyFull[3]}-${dmyFull[2].padStart(2,'0')}-${dmyFull[1].padStart(2,'0')}`;
+    const dmyShort = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
+    if (dmyShort) return `20${dmyShort[3]}-${dmyShort[2].padStart(2,'0')}-${dmyShort[1].padStart(2,'0')}`;
+    if (s.match(/^\d{4}-\d{2}-\d{2}/)) return s.slice(0,10);
+    // fallback: ลอง parse
+    const d2 = new Date(s);
+    if (!isNaN(d2)) {
+      const y = d2.getFullYear();
+      const m = String(d2.getMonth()+1).padStart(2,'0');
+      const d = String(d2.getDate()).padStart(2,'0');
+      return `${y}-${m}-${d}`;
+    }
+    return '';
+  }
+
+  // ── 2. หาช่วงวันที่จาก filter ปัจจุบัน ──
+  function buildDateRange() {
+    // ถ้ากรองรายเดือน ใช้ทุกวันในเดือนนั้น
+    if (currentView === 'month' && monthVal) {
+      const [y, m] = monthVal.split('-').map(Number);
+      const daysInMonth = new Date(y, m, 0).getDate();
+      const dates = [];
+      for (let d = 1; d <= daysInMonth; d++) {
+        dates.push(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+      }
+      return dates;
+    }
+    // ถ้ากรองรายสัปดาห์
+    if (currentView === 'week' && weekStartVal && weekEndVal) {
+      const dates = [];
+      const cur = new Date(weekStartVal);
+      const end = new Date(weekEndVal);
+      while (cur <= end) {
+        dates.push(toYMD(new Date(cur)));
+        cur.setDate(cur.getDate() + 1);
+      }
+      return dates;
+    }
+    // ถ้ากรองรายวัน
+    if (currentView === 'day' && dayVal) return [dayVal];
+    // fallback: ใช้วันที่ที่มีในข้อมูลจริง
+    const dateSet = new Set(filtered.map(r => toYMD(r.date)).filter(Boolean));
+    return [...dateSet].sort();
+  }
+
+  const allDates = buildDateRange();
+  console.log('allDates:', allDates);
+
+  if (!allDates.length) return alert('ไม่สามารถระบุช่วงวันที่ได้ กรุณากรองข้อมูลก่อน export');
+
+  // ── 3. สร้าง empMap และ cellMap ──
+  const empMap = new Map();
+  const cellMap = new Map();
 
   filtered.forEach(r => {
-    if (!empMap.has(r.empId)) {
-      empMap.set(r.empId, { empId: r.empId, name: r.name, unit: r.unit, deptFrom: r.deptFrom });
+    const empKey = r.empId || r.name;
+    if (!empMap.has(empKey)) {
+      empMap.set(empKey, { empId: r.empId, name: r.name, unit: r.unit, deptFrom: r.deptFrom });
     }
-    const cellKey = `${r.empId}__${r.date}`;
-    cellMap.set(cellKey, r.deptTo || '');
+    const dateKey = toYMD(r.date);
+    if (dateKey) cellMap.set(`${empKey}__${dateKey}`, r.deptTo || '');
   });
 
-  // ── 3. สร้างแถว header ──
-  // แถวที่ 1: ชื่อเดือน (merge แบบ CSV ทำได้แค่ว่างๆ ใช้ชื่อเดือนในคอลัมน์แรกของกลุ่ม)
+  // ── 4. แถว header ──
+  // แถว 1: ชื่อเดือน
   const monthGroups = {};
   allDates.forEach(d => {
-    const ym = d.slice(0, 7); // '2026-05'
+    const ym = d.slice(0,7);
     if (!monthGroups[ym]) monthGroups[ym] = [];
     monthGroups[ym].push(d);
   });
 
-  // แถว row1: ลำดับ, รหัส, ชื่อ-นามสกุล, รหัสปฏิบัติงานจริง, ชื่อแผนก, [ชื่อเดือน, "", "", ...]
-  const row1 = ['ลำดับ', 'รหัส', 'ชื่อ - นามสกุล', 'รหัสปฏิบัติงานจริง', 'ชื่อแผนก'];
+  const row1 = ['ลำดับ','รหัส','ชื่อ - นามสกุล','รหัสปฏิบัติงานจริง','ชื่อแผนก'];
   Object.keys(monthGroups).sort().forEach(ym => {
     const [y, m] = ym.split('-');
-    const monthName = new Date(`${y}-${m}-01`).toLocaleDateString('th-TH', { month: 'short', year: '2-digit' });
-    row1.push(monthName); // ชื่อเดือนในคอลัมน์แรกของกลุ่ม
-    for (let i = 1; i < monthGroups[ym].length; i++) row1.push(''); // ว่างสำหรับวันที่เหลือ
+    const monthName = new Date(Number(y), Number(m)-1, 1)
+      .toLocaleDateString('th-TH', { month: 'short', year: '2-digit' });
+    row1.push(monthName);
+    monthGroups[ym].slice(1).forEach(() => row1.push(''));
   });
 
-  // แถว row2: header วันที่
-  const row2 = ['', '', '', '', ''];
+  // แถว 2: วันที่
+  const row2 = ['','','','',''];
   allDates.forEach(d => {
-    // แสดงเป็น dd/mm/yyyy
-    const [y, mo, dy] = d.split('-');
+    const [y,mo,dy] = d.split('-');
     row2.push(`${dy}/${mo}/${y}`);
   });
 
-  // ── 4. สร้างแถวข้อมูลพนักงาน ──
-  const empList = [...empMap.values()];
-  const dataRows = empList.map((emp, idx) => {
-    const row = [
-      idx + 1,
-      emp.empId || '',
-      emp.name || '',
-      emp.deptFrom || '',   // รหัสปฏิบัติงานจริง (แผนกต้นทาง)
-      emp.unit || '',        // ชื่อแผนก
-    ];
+  // ── 5. แถวข้อมูล ──
+  const dataRows = [...empMap.values()].map((emp, idx) => {
+    const empKey = emp.empId || emp.name;
+    const row = [idx+1, emp.empId||'', emp.name||'', emp.deptFrom||'', emp.unit||''];
     allDates.forEach(d => {
-      const cellKey = `${emp.empId}__${d}`;
-      row.push(cellMap.get(cellKey) || '');
+      row.push(cellMap.get(`${empKey}__${d}`) || '');
     });
     return row;
   });
 
-  // ── 5. รวมเป็น CSV ──
-  const allRows = [row1, row2, ...dataRows];
-  const csv = allRows
-    .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+  // ── 6. export ──
+  const csv = [row1, row2, ...dataRows]
+    .map(row => row.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(','))
     .join('\n');
 
   const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
-  link.download = `TST_transfer_${new Date().toISOString().slice(0, 10)}.csv`;
+  link.download = `TST_transfer_${new Date().toISOString().slice(0,10)}.csv`;
   link.click();
   URL.revokeObjectURL(link.href);
 }
