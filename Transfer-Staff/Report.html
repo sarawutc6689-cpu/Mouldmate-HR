@@ -743,6 +743,33 @@ const dataRows = [...empMap.entries()].map(([key, emp], idx) => {
   return row;
 });
 
+    // ── Header แถว 1: เดือน ─────────────────────────────────────
+  const monthGroups = {};
+  allDates.forEach(d => {
+    const ym = d.slice(0,7);
+    if (!monthGroups[ym]) monthGroups[ym] = [];
+    monthGroups[ym].push(d);
+  });
+
+  const row1 = ['ลำดับ','รหัส','ชื่อ - นามสกุล','รหัสปฏิบัติงานจริง','ชื่อแผนก'];
+  Object.keys(monthGroups).sort().forEach(ym => {
+    const [y, m] = ym.split('-');
+    const label = new Date(Number(y), Number(m)-1, 1)
+      .toLocaleDateString('th-TH', { month: 'short', year: '2-digit' });
+    row1.push(label);
+    monthGroups[ym].slice(1).forEach(() => row1.push(''));
+  });
+
+  // ── Header แถว 2: วันที่ ─────────────────────────────────────
+  const row2 = ['','','','',''];
+  allDates.forEach(d => {
+    const [y,mo,dy] = d.split('-');
+    row2.push(`${dy}/${mo}/${y}`);
+  });
+
+  // ── Export ─── ← ต่อด้วย const csv = ... ที่มีอยู่แล้ว
+
+    
   // ── Export ───────────────────────────────────────────────────
   const csv = [row1, row2, ...dataRows]
     .map(row => row.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(','))
