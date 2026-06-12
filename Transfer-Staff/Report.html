@@ -489,7 +489,7 @@
           <tr><th>#</th><th>วันที่โอนย้าย</th><th>รหัสพนักงาน</th><th>ชื่อ-นามสกุล</th><th>แผนกต้นทาง</th><th>แผนกปลายทาง</th><th>หน่วยงาน</th><th>หมายเหตุ</th></tr>
         </thead>
         <tbody id="reportTableBody">
-          <tr><td colspan="7"><div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="#A2C2DF"/></svg><p style="margin-top:10px">กรุณาเลือกตัวกรองและกดค้นหา</p></div></td></tr>
+          <tr><td colspan="8"><div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="#A2C2DF"/></svg><p style="margin-top:10px">กรุณาเลือกตัวกรองและกดค้นหา</p></div></td></tr>
         </tbody>
        </table>
     </div>
@@ -689,6 +689,7 @@
         <td style="font-weight:500">${rec.name || '-'}</td>
         <td><span class="dept-pill dept-from">${rec.deptFrom || '-'}</span></td>
         <td><span class="dept-pill dept-to">${rec.deptTo || '-'}</span></td>
+        <td>${rec.unit || '-'}</td>
         <td style="color:#7E9EC2">${rec.note || '-'}</td>
       </tr>
     `).join('');
