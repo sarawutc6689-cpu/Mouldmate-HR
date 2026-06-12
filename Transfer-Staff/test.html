@@ -400,6 +400,7 @@
   let selectedDept  = '';
   let rawRecords    = [];
   let allDepartments = [];
+  let codeDepMap = {}; // unit → nameDep
   let unitCodeMap   = {};   // codeDep → nameDep
 
   let dayVal = '', weekStartVal = '', weekEndVal = '', monthVal = '', yearVal = '';
@@ -459,6 +460,14 @@
         allDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
     } catch(e) { console.warn(e); }
   }
+
+  async function fetchCodeDep() {
+  try {
+    const res = await fetch(`${API_BASE}?action=getCodeDep`);
+    const json = await res.json();
+    codeDepMap = json.codeDepMap || {};
+  } catch(e) { console.warn('fetchCodeDep error:', e); }
+}
 
   /* ── Dynamic filter fields ── */
   function renderDynamicFields() {
@@ -623,120 +632,90 @@
   if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
   if (!filtered.length) return alert('ไม่มีข้อมูลสำหรับส่งออก');
 
-  // ── debug: ดู structure ของ record แรก ──
-  console.log('Sample record:', JSON.stringify(filtered[0]));
-
-  // ── 1. normalize วันที่ให้เป็น 'YYYY-MM-DD' ──
   function toYMD(val) {
     if (!val) return '';
     if (val instanceof Date) {
-      const y = val.getFullYear();
-      const m = String(val.getMonth()+1).padStart(2,'0');
-      const d = String(val.getDate()).padStart(2,'0');
-      return `${y}-${m}-${d}`;
+      return `${val.getFullYear()}-${String(val.getMonth()+1).padStart(2,'0')}-${String(val.getDate()).padStart(2,'0')}`;
     }
     const s = String(val).trim();
-    // รองรับ dd/mm/yyyy, dd/mm/yy, yyyy-mm-dd
-    const dmyFull = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-    if (dmyFull) return `${dmyFull[3]}-${dmyFull[2].padStart(2,'0')}-${dmyFull[1].padStart(2,'0')}`;
-    const dmyShort = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
-    if (dmyShort) return `20${dmyShort[3]}-${dmyShort[2].padStart(2,'0')}-${dmyShort[1].padStart(2,'0')}`;
+    const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (dmy) return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;
     if (s.match(/^\d{4}-\d{2}-\d{2}/)) return s.slice(0,10);
-    // fallback: ลอง parse
     const d2 = new Date(s);
-    if (!isNaN(d2)) {
-      const y = d2.getFullYear();
-      const m = String(d2.getMonth()+1).padStart(2,'0');
-      const d = String(d2.getDate()).padStart(2,'0');
-      return `${y}-${m}-${d}`;
-    }
+    if (!isNaN(d2)) return `${d2.getFullYear()}-${String(d2.getMonth()+1).padStart(2,'0')}-${String(d2.getDate()).padStart(2,'0')}`;
     return '';
   }
 
-  // ── 2. หาช่วงวันที่จาก filter ปัจจุบัน ──
+  // สร้าง date range ตาม filter ที่เลือก
   function buildDateRange() {
-    // ถ้ากรองรายเดือน ใช้ทุกวันในเดือนนั้น
     if (currentView === 'month' && monthVal) {
       const [y, m] = monthVal.split('-').map(Number);
-      const daysInMonth = new Date(y, m, 0).getDate();
-      const dates = [];
-      for (let d = 1; d <= daysInMonth; d++) {
-        dates.push(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
-      }
-      return dates;
+      const days = new Date(y, m, 0).getDate();
+      return Array.from({length: days}, (_, i) =>
+        `${y}-${String(m).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
     }
-    // ถ้ากรองรายสัปดาห์
     if (currentView === 'week' && weekStartVal && weekEndVal) {
-      const dates = [];
-      const cur = new Date(weekStartVal);
-      const end = new Date(weekEndVal);
-      while (cur <= end) {
-        dates.push(toYMD(new Date(cur)));
-        cur.setDate(cur.getDate() + 1);
-      }
+      const dates = [], cur = new Date(weekStartVal), end = new Date(weekEndVal);
+      while (cur <= end) { dates.push(toYMD(new Date(cur))); cur.setDate(cur.getDate()+1); }
       return dates;
     }
-    // ถ้ากรองรายวัน
     if (currentView === 'day' && dayVal) return [dayVal];
-    // fallback: ใช้วันที่ที่มีในข้อมูลจริง
-    const dateSet = new Set(filtered.map(r => toYMD(r.date)).filter(Boolean));
-    return [...dateSet].sort();
+    // fallback: วันที่ที่มีในข้อมูลจริง
+    return [...new Set(filtered.map(r => toYMD(r.date)).filter(Boolean))].sort();
   }
 
   const allDates = buildDateRange();
-  console.log('allDates:', allDates);
+  if (!allDates.length) return alert('ไม่สามารถระบุช่วงวันที่ได้');
 
-  if (!allDates.length) return alert('ไม่สามารถระบุช่วงวันที่ได้ กรุณากรองข้อมูลก่อน export');
-
-  // ── 3. สร้าง empMap และ cellMap ──
+  // สร้าง empMap และ cellMap
   const empMap = new Map();
   const cellMap = new Map();
-
   filtered.forEach(r => {
-    const empKey = r.empId || r.name;
-    if (!empMap.has(empKey)) {
-      empMap.set(empKey, { empId: r.empId, name: r.name, unit: r.unit, deptFrom: r.deptFrom });
+    const key = r.empId || r.name;
+    if (!empMap.has(key)) {
+      empMap.set(key, {
+        empId:   r.empId   || '',
+        name:    r.name    || '',
+        unit:    r.unit    || '',                          // คอลัมน์ D
+        nameDep: codeDepMap[String(r.unit||'').trim()] || '' // คอลัมน์ E
+      });
     }
     const dateKey = toYMD(r.date);
-    if (dateKey) cellMap.set(`${empKey}__${dateKey}`, r.deptTo || '');
+    if (dateKey) cellMap.set(`${key}__${dateKey}`, r.deptTo || '');
   });
 
-  // ── 4. แถว header ──
-  // แถว 1: ชื่อเดือน
+  // header แถว 1: ชื่อเดือน
   const monthGroups = {};
   allDates.forEach(d => {
     const ym = d.slice(0,7);
     if (!monthGroups[ym]) monthGroups[ym] = [];
     monthGroups[ym].push(d);
   });
-
   const row1 = ['ลำดับ','รหัส','ชื่อ - นามสกุล','รหัสปฏิบัติงานจริง','ชื่อแผนก'];
   Object.keys(monthGroups).sort().forEach(ym => {
     const [y, m] = ym.split('-');
-    const monthName = new Date(Number(y), Number(m)-1, 1)
+    const label = new Date(Number(y), Number(m)-1, 1)
       .toLocaleDateString('th-TH', { month: 'short', year: '2-digit' });
-    row1.push(monthName);
+    row1.push(label);
     monthGroups[ym].slice(1).forEach(() => row1.push(''));
   });
 
-  // แถว 2: วันที่
+  // header แถว 2: วันที่
   const row2 = ['','','','',''];
   allDates.forEach(d => {
     const [y,mo,dy] = d.split('-');
     row2.push(`${dy}/${mo}/${y}`);
   });
 
-  // ── 5. แถวข้อมูล ──
+  // แถวข้อมูล
   const dataRows = [...empMap.values()].map((emp, idx) => {
-    const empKey = emp.empId || emp.name;
-    const row = [idx+1, emp.empId||'', emp.name||'', emp.deptFrom||'', emp.unit||''];
-    allDates.forEach(d => {
-      row.push(cellMap.get(`${empKey}__${d}`) || '');
-    });
+    const key = emp.empId || emp.name;
+    const row = [idx+1, emp.empId, emp.name, emp.unit, emp.nameDep];
+    allDates.forEach(d => row.push(cellMap.get(`${key}__${d}`) || ''));
     return row;
   });
 
-  // ── 6. export ──
+  // export
   const csv = [row1, row2, ...dataRows]
     .map(row => row.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(','))
     .join('\n');
@@ -771,6 +750,7 @@
   /* ── Init ── */
   fetchUnitCodes();
   fetchDepartments();
+  fetchCodeDep();
   fetchDataAndRender();
   document.getElementById('yearSpan').innerText = new Date().getFullYear();
   setInterval(() => {
