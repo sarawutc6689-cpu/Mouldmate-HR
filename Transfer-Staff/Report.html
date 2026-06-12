@@ -691,7 +691,6 @@
     return '';
   }
 
-  // สร้าง date range ตาม filter ที่เลือก
   function buildDateRange() {
     if (currentView === 'month' && monthVal) {
       const [y, m] = monthVal.split('-').map(Number);
@@ -705,37 +704,50 @@
       return dates;
     }
     if (currentView === 'day' && dayVal) return [dayVal];
-    // fallback: วันที่ที่มีในข้อมูลจริง
     return [...new Set(filtered.map(r => toYMD(r.date)).filter(Boolean))].sort();
   }
 
   const allDates = buildDateRange();
   if (!allDates.length) return alert('ไม่สามารถระบุช่วงวันที่ได้');
 
-  // สร้าง empMap และ cellMap
-  const empMap = new Map();
-  const cellMap = new Map();
+  // ── สร้าง empMap (1 คน = 1 แถว) และ cellMap ──────────────────
+  const empMap  = new Map();   // empId → { empId, name, unit, nameDep }
+  const cellMap = new Map();   // "empId__date" → unit
+
   filtered.forEach(r => {
-    const key = r.empId || r.name;
+    const key     = r.empId || r.name;
+    const dateKey = toYMD(r.date);
+    const unit    = String(r.unit || '').trim();
+
+    // เก็บพนักงาน (ใช้ข้อมูล row แรก แต่ unit อาจมีหลายค่า — เก็บทุกค่า)
     if (!empMap.has(key)) {
       empMap.set(key, {
-        empId:   r.empId   || '',
-        name:    r.name    || '',
-        unit:    r.unit    || '',                          // คอลัมน์ D
-        nameDep: codeDepMap[String(r.unit||'').trim()] || '' // คอลัมน์ E
+        empId:   r.empId || '',
+        name:    r.name  || '',
+        // unit หลักของพนักงาน (จะเติมทีหลังจาก set ทุก cell แล้ว)
+        units: new Set()
       });
     }
-    const dateKey = toYMD(r.date);
-    if (dateKey) cellMap.set(`${key}__${dateKey}`, r.unit || '');
+    if (unit) empMap.get(key).units.add(unit);
+
+    // เก็บ cell — ถ้าวันเดิมมีหลาย unit ให้ต่อกันด้วย /
+    const cellKey = `${key}__${dateKey}`;
+    if (cellMap.has(cellKey)) {
+      const prev = cellMap.get(cellKey);
+      if (prev !== unit && unit) cellMap.set(cellKey, prev + '/' + unit);
+    } else {
+      cellMap.set(cellKey, unit);
+    }
   });
 
-  // header แถว 1: ชื่อเดือน
+  // ── Header แถว 1: เดือน ─────────────────────────────────────
   const monthGroups = {};
   allDates.forEach(d => {
     const ym = d.slice(0,7);
     if (!monthGroups[ym]) monthGroups[ym] = [];
     monthGroups[ym].push(d);
   });
+
   const row1 = ['ลำดับ','รหัส','ชื่อ - นามสกุล','รหัสปฏิบัติงานจริง','ชื่อแผนก'];
   Object.keys(monthGroups).sort().forEach(ym => {
     const [y, m] = ym.split('-');
@@ -745,22 +757,30 @@
     monthGroups[ym].slice(1).forEach(() => row1.push(''));
   });
 
-  // header แถว 2: วันที่
+  // ── Header แถว 2: วันที่ ─────────────────────────────────────
   const row2 = ['','','','',''];
   allDates.forEach(d => {
     const [y,mo,dy] = d.split('-');
     row2.push(`${dy}/${mo}/${y}`);
   });
 
-  // แถวข้อมูล
-  const dataRows = [...empMap.values()].map((emp, idx) => {
-    const key = emp.empId || emp.name;
-    const row = [idx+1, emp.empId, emp.name, emp.unit, emp.nameDep];
-    allDates.forEach(d => row.push(cellMap.get(`${key}__${d}`) || ''));
+  // ── แถวข้อมูล (1 คน = 1 แถว) ────────────────────────────────
+  const dataRows = [...empMap.entries()].map(([key, emp], idx) => {
+    // unit หลัก = ค่าเดียว ถ้ามีหลายค่าต่อด้วย /
+    const unitMain = [...emp.units].join('/');
+    const nameDep  = [...emp.units]
+      .map(u => codeDepMap[u] || '')
+      .filter(Boolean)
+      .join('/');
+
+    const row = [idx + 1, emp.empId, emp.name, unitMain, nameDep];
+    allDates.forEach(d => {
+      row.push(cellMap.get(`${key}__${d}`) || '');
+    });
     return row;
   });
 
-  // export
+  // ── Export ───────────────────────────────────────────────────
   const csv = [row1, row2, ...dataRows]
     .map(row => row.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(','))
     .join('\n');
