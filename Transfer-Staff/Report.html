@@ -233,6 +233,48 @@
       .view-type-grid { grid-template-columns: repeat(2,1fr); }
       .date-range-group { flex-direction: column; gap: 8px; }
     }
+
+    .unit-tooltip {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dashed #8FB9E2;
+  display: inline-block;
+}
+.unit-tooltip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0F3B6F;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.unit-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 1px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #0F3B6F;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+}
+.unit-tooltip:hover::after,
+.unit-tooltip:hover::before {
+  opacity: 1;
+}
   </style>
 </head>
 <body>
@@ -325,8 +367,8 @@
             <th>แผนกต้นทาง</th>
             <th>แผนกปลายทาง</th>
             <th>หน่วยงาน</th>
-            <th>สถานะ</th>
             <th>หมายเหตุ</th>
+            <th>สถานะ</th>
           </tr>
         </thead>
         <tbody id="reportTableBody">
@@ -400,6 +442,7 @@
   let selectedDept  = '';
   let rawRecords    = [];
   let allDepartments = [];
+  let codeDepMap = {}; // unit → nameDep
   let unitCodeMap   = {};   // codeDep → nameDep
 
   let dayVal = '', weekStartVal = '', weekEndVal = '', monthVal = '', yearVal = '';
@@ -459,6 +502,14 @@
         allDepartments.map(d => `<option value="${d}">${d}</option>`).join('');
     } catch(e) { console.warn(e); }
   }
+
+  async function fetchCodeDep() {
+  try {
+    const res = await fetch(`${API_BASE}?action=getCodeDep`);
+    const json = await res.json();
+    codeDepMap = json.codeDepMap || {};
+  } catch(e) { console.warn('fetchCodeDep error:', e); }
+}
 
   /* ── Dynamic filter fields ── */
   function renderDynamicFields() {
@@ -587,7 +638,10 @@
         <td style="font-weight:500">${rec.name || '-'}</td>
         <td><span class="dept-pill dept-from">${rec.deptFrom || '-'}</span></td>
         <td><span class="dept-pill dept-to">${rec.deptTo || '-'}</span></td>
-        <td>${renderUnit(rec.unit)}</td>
+        <td>${rec.unit
+  ? `<span class="unit-tooltip" data-tip="${codeDepMap[String(rec.unit).trim()] || rec.unit}">${rec.unit}</span>`
+  : '-'
+}</td>
         <td style="color:#7E9EC2">${rec.status || '-'}</td>
         <td style="color:#7E9EC2">${rec.note || '-'}</td>
       </tr>
@@ -619,23 +673,105 @@
   }
 
   function exportToCSV() {
-    let filtered = [...rawRecords];
-    if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
-    if (!filtered.length) return alert('ไม่มีข้อมูลสำหรับส่งออก');
-    const headers = ['ลำดับ','วันที่','รหัสพนักงาน','ชื่อ','แผนกต้นทาง','แผนกปลายทาง','หน่วยงาน','สถานะ','หมายเหตุ'];
-    const rows = filtered.map((r, i) => [
-      i+1, formatDateThai(r.date), r.empId, r.name,
-      r.deptFrom, r.deptTo, r.unit || '', r.status || '', r.note || ''
-    ]);
-    const csv = headers.join(',') + '\n' +
-      rows.map(row => row.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `TST_transfer_${new Date().toISOString().slice(0,19)}.csv`;
-    link.click();
-    URL.revokeObjectURL(link.href);
+  let filtered = [...rawRecords];
+  if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
+  if (!filtered.length) return alert('ไม่มีข้อมูลสำหรับส่งออก');
+
+  function toYMD(val) {
+    if (!val) return '';
+    if (val instanceof Date) {
+      return `${val.getFullYear()}-${String(val.getMonth()+1).padStart(2,'0')}-${String(val.getDate()).padStart(2,'0')}`;
+    }
+    const s = String(val).trim();
+    const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (dmy) return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;
+    if (s.match(/^\d{4}-\d{2}-\d{2}/)) return s.slice(0,10);
+    const d2 = new Date(s);
+    if (!isNaN(d2)) return `${d2.getFullYear()}-${String(d2.getMonth()+1).padStart(2,'0')}-${String(d2.getDate()).padStart(2,'0')}`;
+    return '';
   }
+
+  // สร้าง date range ตาม filter ที่เลือก
+  function buildDateRange() {
+    if (currentView === 'month' && monthVal) {
+      const [y, m] = monthVal.split('-').map(Number);
+      const days = new Date(y, m, 0).getDate();
+      return Array.from({length: days}, (_, i) =>
+        `${y}-${String(m).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
+    }
+    if (currentView === 'week' && weekStartVal && weekEndVal) {
+      const dates = [], cur = new Date(weekStartVal), end = new Date(weekEndVal);
+      while (cur <= end) { dates.push(toYMD(new Date(cur))); cur.setDate(cur.getDate()+1); }
+      return dates;
+    }
+    if (currentView === 'day' && dayVal) return [dayVal];
+    // fallback: วันที่ที่มีในข้อมูลจริง
+    return [...new Set(filtered.map(r => toYMD(r.date)).filter(Boolean))].sort();
+  }
+
+  const allDates = buildDateRange();
+  if (!allDates.length) return alert('ไม่สามารถระบุช่วงวันที่ได้');
+
+  // สร้าง empMap และ cellMap
+  const empMap = new Map();
+  const cellMap = new Map();
+  filtered.forEach(r => {
+    const key = r.empId || r.name;
+    if (!empMap.has(key)) {
+      empMap.set(key, {
+        empId:   r.empId   || '',
+        name:    r.name    || '',
+        unit:    r.unit    || '',                          // คอลัมน์ D
+        nameDep: codeDepMap[String(r.unit||'').trim()] || '' // คอลัมน์ E
+      });
+    }
+    const dateKey = toYMD(r.date);
+    if (dateKey) cellMap.set(`${key}__${dateKey}`, r.deptTo || '');
+  });
+
+  // header แถว 1: ชื่อเดือน
+  const monthGroups = {};
+  allDates.forEach(d => {
+    const ym = d.slice(0,7);
+    if (!monthGroups[ym]) monthGroups[ym] = [];
+    monthGroups[ym].push(d);
+  });
+  const row1 = ['ลำดับ','รหัส','ชื่อ - นามสกุล','รหัสปฏิบัติงานจริง','ชื่อแผนก'];
+  Object.keys(monthGroups).sort().forEach(ym => {
+    const [y, m] = ym.split('-');
+    const label = new Date(Number(y), Number(m)-1, 1)
+      .toLocaleDateString('th-TH', { month: 'short', year: '2-digit' });
+    row1.push(label);
+    monthGroups[ym].slice(1).forEach(() => row1.push(''));
+  });
+
+  // header แถว 2: วันที่
+  const row2 = ['','','','',''];
+  allDates.forEach(d => {
+    const [y,mo,dy] = d.split('-');
+    row2.push(`${dy}/${mo}/${y}`);
+  });
+
+  // แถวข้อมูล
+  const dataRows = [...empMap.values()].map((emp, idx) => {
+    const key = emp.empId || emp.name;
+    const row = [idx+1, emp.empId, emp.name, emp.unit, emp.nameDep];
+    allDates.forEach(d => row.push(cellMap.get(`${key}__${d}`) || ''));
+    return row;
+  });
+
+  // export
+  const csv = [row1, row2, ...dataRows]
+    .map(row => row.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `TST_transfer_${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
 
   function setTableLoading() {
     document.getElementById('reportTableBody').innerHTML =
@@ -659,6 +795,7 @@
   /* ── Init ── */
   fetchUnitCodes();
   fetchDepartments();
+  fetchCodeDep();
   fetchDataAndRender();
   document.getElementById('yearSpan').innerText = new Date().getFullYear();
   setInterval(() => {
