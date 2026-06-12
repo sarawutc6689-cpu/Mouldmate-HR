@@ -726,7 +726,7 @@
       });
     }
     const dateKey = toYMD(r.date);
-    if (dateKey) cellMap.set(`${key}__${dateKey}`, r.deptTo || '');
+    if (dateKey) cellMap.set(`${key}__${dateKey}`, r.unit || '');
   });
 
   // header แถว 1: ชื่อเดือน
