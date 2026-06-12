@@ -233,6 +233,48 @@
       .view-type-grid { grid-template-columns: repeat(2,1fr); }
       .date-range-group { flex-direction: column; gap: 8px; }
     }
+
+    .unit-tooltip {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dashed #8FB9E2;
+  display: inline-block;
+}
+.unit-tooltip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0F3B6F;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.unit-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 1px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #0F3B6F;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+}
+.unit-tooltip:hover::after,
+.unit-tooltip:hover::before {
+  opacity: 1;
+}
   </style>
 </head>
 <body>
@@ -596,7 +638,10 @@
         <td style="font-weight:500">${rec.name || '-'}</td>
         <td><span class="dept-pill dept-from">${rec.deptFrom || '-'}</span></td>
         <td><span class="dept-pill dept-to">${rec.deptTo || '-'}</span></td>
-        <td>${renderUnit(rec.unit)}</td>
+        <td>${rec.unit
+  ? `<span class="unit-tooltip" data-tip="${codeDepMap[String(rec.unit).trim()] || rec.unit}">${rec.unit}</span>`
+  : '-'
+}</td>
         <td style="color:#7E9EC2">${rec.status || '-'}</td>
         <td style="color:#7E9EC2">${rec.note || '-'}</td>
       </tr>
