@@ -350,10 +350,10 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           CSV
         </button>
-        <button class="icon-btn" onclick="window.print()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          PDF
-        </button>
+        <button class="icon-btn" onclick="exportToPDF()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+  PDF
+</button>
       </div>
     </div>
     <div style="overflow-x: auto;">
@@ -691,7 +691,6 @@
     return '';
   }
 
-  // สร้าง date range ตาม filter ที่เลือก
   function buildDateRange() {
     if (currentView === 'month' && monthVal) {
       const [y, m] = monthVal.split('-').map(Number);
@@ -705,37 +704,53 @@
       return dates;
     }
     if (currentView === 'day' && dayVal) return [dayVal];
-    // fallback: วันที่ที่มีในข้อมูลจริง
     return [...new Set(filtered.map(r => toYMD(r.date)).filter(Boolean))].sort();
   }
 
   const allDates = buildDateRange();
   if (!allDates.length) return alert('ไม่สามารถระบุช่วงวันที่ได้');
 
-  // สร้าง empMap และ cellMap
-  const empMap = new Map();
-  const cellMap = new Map();
-  filtered.forEach(r => {
-    const key = r.empId || r.name;
-    if (!empMap.has(key)) {
-      empMap.set(key, {
-        empId:   r.empId   || '',
-        name:    r.name    || '',
-        unit:    r.unit    || '',                          // คอลัมน์ D
-        nameDep: codeDepMap[String(r.unit||'').trim()] || '' // คอลัมน์ E
-      });
-    }
-    const dateKey = toYMD(r.date);
-    if (dateKey) cellMap.set(`${key}__${dateKey}`, r.deptTo || '');
-  });
+  // ── สร้าง empMap และ cellMap ──────────────────
+const empMap  = new Map();   // "empId__unit" → { empId, name, unit, nameDep }
+const cellMap = new Map();   // "empId__unit__date" → unit
 
-  // header แถว 1: ชื่อเดือน
+filtered.forEach(r => {
+  const empId   = r.empId || r.name;
+  const unit    = String(r.unit || '').trim();
+  const key     = `${empId}__${unit}`;          // ← key รวม unit
+  const dateKey = toYMD(r.date);
+
+  if (!empMap.has(key)) {
+    empMap.set(key, {
+      empId:   r.empId  || '',
+      name:    r.name   || '',
+      unit:    unit,
+      nameDep: codeDepMap[unit] || ''
+    });
+  }
+
+  if (dateKey) {
+    cellMap.set(`${key}__${dateKey}`, unit);
+  }
+});
+
+// ── แถวข้อมูล (1 คน/unit = 1 แถว) ────────────────────────────────
+const dataRows = [...empMap.entries()].map(([key, emp], idx) => {
+  const row = [idx + 1, emp.empId, emp.name, emp.unit, emp.nameDep];
+  allDates.forEach(d => {
+    row.push(cellMap.get(`${key}__${d}`) || '');
+  });
+  return row;
+});
+
+    // ── Header แถว 1: เดือน ─────────────────────────────────────
   const monthGroups = {};
   allDates.forEach(d => {
     const ym = d.slice(0,7);
     if (!monthGroups[ym]) monthGroups[ym] = [];
     monthGroups[ym].push(d);
   });
+
   const row1 = ['ลำดับ','รหัส','ชื่อ - นามสกุล','รหัสปฏิบัติงานจริง','ชื่อแผนก'];
   Object.keys(monthGroups).sort().forEach(ym => {
     const [y, m] = ym.split('-');
@@ -745,22 +760,17 @@
     monthGroups[ym].slice(1).forEach(() => row1.push(''));
   });
 
-  // header แถว 2: วันที่
+  // ── Header แถว 2: วันที่ ─────────────────────────────────────
   const row2 = ['','','','',''];
   allDates.forEach(d => {
     const [y,mo,dy] = d.split('-');
     row2.push(`${dy}/${mo}/${y}`);
   });
 
-  // แถวข้อมูล
-  const dataRows = [...empMap.values()].map((emp, idx) => {
-    const key = emp.empId || emp.name;
-    const row = [idx+1, emp.empId, emp.name, emp.unit, emp.nameDep];
-    allDates.forEach(d => row.push(cellMap.get(`${key}__${d}`) || ''));
-    return row;
-  });
+  // ── Export ─── ← ต่อด้วย const csv = ... ที่มีอยู่แล้ว
 
-  // export
+    
+  // ── Export ───────────────────────────────────────────────────
   const csv = [row1, row2, ...dataRows]
     .map(row => row.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(','))
     .join('\n');
@@ -807,6 +817,274 @@
   window.resetAllFilters  = resetAllFilters;
   window.applyFilters     = applyFilters;
   window.exportToCSV      = exportToCSV;
+
+function exportToPDF() {
+  let filtered = [...rawRecords];
+  if (selectedDept) filtered = filtered.filter(r => r.deptFrom === selectedDept || r.deptTo === selectedDept);
+  if (!filtered.length) return alert('ไม่มีข้อมูลสำหรับส่งออก');
+
+  // ── ชื่อช่วงเวลา ──────────────────────────────────────────
+  const viewLabel = {
+    dept:  'ข้อมูลทั้งหมด',
+    day:   'รายวัน: '   + (dayVal || ''),
+    week:  'รายสัปดาห์: ' + (weekStartVal || '') + ' – ' + (weekEndVal || ''),
+    month: 'รายเดือน: ' + (monthVal || ''),
+    year:  'รายปี: '    + (yearVal  || '')
+  }[currentView] || '';
+
+  const deptLabel = selectedDept ? ` | แผนก: ${selectedDept}` : '';
+  const printDate = new Date().toLocaleDateString('th-TH', {
+    year:'numeric', month:'long', day:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+
+  // ── สร้าง HTML ───────────────────────────────────────────
+  const rows = filtered.map((rec, idx) => `
+    <tr>
+      <td style="text-align:center">${idx + 1}</td>
+      <td style="white-space:nowrap">${formatDateThai(rec.date)}</td>
+      <td>${rec.empId || '-'}</td>
+      <td><strong>${rec.name || '-'}</strong></td>
+      <td>${rec.deptFrom || '-'}</td>
+      <td>${rec.deptTo || '-'}</td>
+      <td>${rec.unit || '-'}</td>
+      <td>${rec.status || '-'}</td>
+      <td>${rec.note || '-'}</td>
+    </tr>
+  `).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>รายงานโอนย้ายพนักงาน</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Sarabun', sans-serif;
+    font-size: 13px;
+    color: #1a1a2e;
+    background: white;
+    position: relative;
+  }
+
+  /* ── ลายน้ำ ── */
+  body::before {
+    content: 'TOKAISOLIDTIRE';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-35deg);
+    font-size: 72px;
+    font-weight: 900;
+    color: rgba(15,59,111,0.07);
+    letter-spacing: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrap {
+    padding: 28px 32px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Header ── */
+  .report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid #0F3B6F;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .company-badge {
+    background: #0F3B6F;
+    color: white;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    padding: 8px 16px;
+    border-radius: 8px;
+  }
+  .company-name { font-size: 20px; font-weight: 700; color: #0F3B6F; }
+  .report-subtitle { font-size: 13px; color: #5a7fa3; margin-top: 3px; }
+  .header-right { text-align: right; font-size: 12px; color: #6a8dad; }
+  .header-right .print-date { font-weight: 600; color: #2d5a8a; margin-top: 4px; }
+
+  /* ── Info bar ── */
+  .info-bar {
+    background: #f0f7ff;
+    border: 1px solid #c5ddf5;
+    border-radius: 10px;
+    padding: 12px 18px;
+    display: flex;
+    gap: 28px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .info-item { font-size: 12px; color: #4f7ea3; }
+  .info-item strong { color: #0F3B6F; font-size: 13px; }
+
+  /* ── KPI ── */
+  .kpi-row {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .kpi-box {
+    flex: 1;
+    background: #f8fbfe;
+    border: 1px solid #dce8f5;
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+  }
+  .kpi-num { font-size: 28px; font-weight: 800; color: #0a3e7a; }
+  .kpi-lbl { font-size: 11px; color: #7a9bc2; font-weight: 600; margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+
+  /* ── Table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  thead tr {
+    background: #0F3B6F;
+    color: white;
+  }
+  thead th {
+    padding: 10px 10px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: .4px;
+    white-space: nowrap;
+  }
+  tbody tr:nth-child(even) { background: #f4f9fe; }
+  tbody tr:nth-child(odd)  { background: white; }
+  tbody tr:hover { background: #e8f3fb; }
+  tbody td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #e8f0f8;
+    vertical-align: middle;
+  }
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .pill-from { background: #e8f0fe; color: #1156a8; }
+  .pill-to   { background: #e4f3e8; color: #2c6e2f; }
+  .pill-unit { background: #e0f2fe; color: #075985; }
+
+  /* ── Footer ── */
+  .report-footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #0F3B6F;
+    color: rgba(255,255,255,0.85);
+    text-align: center;
+    padding: 10px 24px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-center { font-weight: 600; }
+  .footer-right { font-size: 11px; color: rgba(255,255,255,0.6); }
+
+  @media print {
+    body::before { position: fixed; }
+    .report-footer { position: fixed; bottom: 0; }
+    @page { margin: 0; size: A4 landscape; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="report-header">
+    <div class="header-left">
+      <div class="company-badge">TST</div>
+      <div>
+        <div class="company-name">TOKAI SOLID TIRE</div>
+        <div class="report-subtitle">รายงานการโอนย้ายพนักงาน · HR Analytics</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div>พิมพ์เมื่อ</div>
+      <div class="print-date">${printDate}</div>
+    </div>
+  </div>
+
+  <div class="info-bar">
+    <div class="info-item">ช่วงข้อมูล : <strong>${viewLabel}${deptLabel}</strong></div>
+    <div class="info-item">จำนวนรายการ : <strong>${filtered.length} รายการ</strong></div>
+    <div class="info-item">พนักงาน (ไม่ซ้ำ) : <strong>${new Set(filtered.map(r=>r.empId).filter(Boolean)).size} คน</strong></div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-box">
+      <div class="kpi-num">${filtered.length}</div>
+      <div class="kpi-lbl">รายการทั้งหมด</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-num">${new Set(filtered.map(r=>r.empId).filter(Boolean)).size}</div>
+      <div class="kpi-lbl">พนักงาน (คน)</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-num">${new Set([...filtered.map(r=>r.deptFrom),...filtered.map(r=>r.deptTo)]).size}</div>
+      <div class="kpi-lbl">แผนกที่เกี่ยวข้อง</div>
+    </div>
+    <div class="kpi-box">
+      <div class="kpi-num">${new Set(filtered.map(r=>r.unit).filter(Boolean)).size}</div>
+      <div class="kpi-lbl">หน่วยงาน</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>วันที่โอนย้าย</th>
+        <th>รหัสพนักงาน</th>
+        <th>ชื่อ-นามสกุล</th>
+        <th>แผนกต้นทาง</th>
+        <th>แผนกปลายทาง</th>
+        <th>หน่วยงาน</th>
+        <th>สถานะ</th>
+        <th>หมายเหตุ</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+
+</div>
+
+<div class="report-footer">
+  <div>TOKAISOLIDTIRE · ระบบรายงานการโอนย้ายบุคลากร</div>
+  <div class="footer-center">ระบบบันทึก | พัฒนาโดย Sarawut.C</div>
+  <div class="footer-right">© ${new Date().getFullYear()} All rights reserved.</div>
+</div>
+
+<script>
+  window.onload = function() { window.print(); };
+<\/script>
+</body>
+</html>`;
+
+  // เปิดหน้าต่างใหม่แล้ว print
+  const win = window.open('', '_blank', 'width=1100,height=800');
+  win.document.write(html);
+  win.document.close();
+}
+  
 </script>
 </body>
 </html>
