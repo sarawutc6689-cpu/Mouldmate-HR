@@ -309,7 +309,8 @@
         <thead>
           <tr>
             <th>ลำดับที่</th>
-            <th>ช่วงวันที่โอนย้าย</th>
+            <th>ตั้งแต่วันที่</th>
+            <th>ถึงวันที่</th>
             <th>รหัสพนักงาน</th>
             <th>ชื่อ-นามสกุล</th>
             <th>แผนกต้นทาง</th>
@@ -319,7 +320,7 @@
           </tr>
         </thead>
         <tbody id="reportTableBody">
-          <tr><td colspan="8"><div class="empty-state">
+          <tr><td colspan="9"><div class="empty-state">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="#A2C2DF"/></svg>
             <p style="margin-top:10px">กรุณาเลือกตัวกรองและกดค้นหา</p>
           </div></td></tr>
@@ -555,7 +556,7 @@
     document.getElementById('rowCount').innerText = filtered.length + ' รายการ';
 
     if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#A2C2DF"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
         <p>ไม่มีข้อมูลในช่วงที่เลือก</p>
       </div></td></tr>`;
@@ -565,7 +566,8 @@
     tbody.innerHTML = filtered.map((rec, idx) => `
       <tr>
         <td>${idx + 1}</td>
-        <td>${renderDateRange(rec)}</td>
+        <td style="white-space:nowrap">${formatDateThai(rec.dateStart)}</td>
+        <td style="white-space:nowrap">${formatDateThai(rec.dateEnd || rec.dateStart)}</td>
         <td>${rec.empId || '-'}</td>
         <td style="font-weight:500">${rec.name || '-'}</td>
         <td><span class="dept-pill dept-from">${rec.deptFrom || '-'}</span></td>
@@ -636,11 +638,11 @@
 
   function setTableLoading() {
     document.getElementById('reportTableBody').innerHTML =
-      '<tr><td colspan="8"><div class="empty-state">⏳ กำลังโหลดข้อมูล...</div></td></tr>';
+      '<tr><td colspan="9"><div class="empty-state">⏳ กำลังโหลดข้อมูล...</div></td></tr>';
   }
   function showErrorTable() {
     document.getElementById('reportTableBody').innerHTML =
-      '<tr><td colspan="8"><div class="empty-state">⚠️ โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</div></td></tr>';
+      '<tr><td colspan="9"><div class="empty-state">⚠️ โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง</div></td></tr>';
   }
 
   /* ── View card clicks ── */
@@ -680,7 +682,8 @@
     const rows = filtered.map((rec, idx) => `
       <tr>
         <td style="text-align:center">${idx + 1}</td>
-        <td style="white-space:nowrap">${renderDateRange(rec)}</td>
+        <td style="white-space:nowrap">${formatDateThai(rec.dateStart)}</td>
+        <td style="white-space:nowrap">${formatDateThai(rec.dateEnd || rec.dateStart)}</td>
         <td>${rec.empId || '-'}</td>
         <td><strong>${rec.name || '-'}</strong></td>
         <td>${rec.deptFrom || '-'}</td>
@@ -750,7 +753,8 @@
     <thead>
       <tr>
         <th>ลำดับที่</th>
-        <th>ช่วงวันที่โอนย้าย</th>
+        <th>ตั้งแต่วันที่</th>
+        <th>ถึงวันที่</th>
         <th>รหัสพนักงาน</th>
         <th>ชื่อ-นามสกุล</th>
         <th>แผนกต้นทาง</th>
