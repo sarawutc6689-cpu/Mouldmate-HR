@@ -286,10 +286,11 @@ function renderCards() {
 
 // ══════════════════════════════════════════════════════
 //  FETCH VIA GOOGLE SHEETS gviz JSON API (per-department sheet, sheet tab "data")
-//  คอลัมน์ G (index 6) = สถานะ : "ตกลง" / "ปฏิเสธ" / อื่นๆ = รอ
+//  คอลัมน์ H (index 7) = สถานะ : "ตกลง" / "รอดำเนินการ" / "ปฏิเสธ"
+//  นับเฉพาะ 3 ค่านี้เท่านั้น ค่าอื่น (เช่น คืนแล้ว ฯลฯ) ไม่นับ
 // ══════════════════════════════════════════════════════
 function fetchSheetStats(dept) {
-  var tq = encodeURIComponent("select G where G is not null");
+  var tq = encodeURIComponent("select H where H is not null");
   var url = 'https://docs.google.com/spreadsheets/d/' + dept.sheetId +
             '/gviz/tq?tqx=out:json&sheet=data&headers=1&tq=' + tq;
   fetch(url)
@@ -306,10 +307,10 @@ function fetchSheetStats(dept) {
       rows.forEach(function(row) {
         if (!row.c || !row.c[0] || row.c[0].v === null || row.c[0].v === undefined) return;
         var val = row.c[0].v.toString().trim();
-        if (!val || val === 'สถานะ' || val === 'Status' || val.toLowerCase() === 'status') return;
-        if      (val === 'ตกลง')   ok++;
-        else if (val === 'ปฏิเสธ') rejected++;
-        else                       pending++;
+        if      (val === 'ตกลง')         ok++;
+        else if (val === 'ปฏิเสธ')       rejected++;
+        else if (val === 'รอดำเนินการ')  pending++;
+        // ค่าอื่นๆ (รวมถึง header ที่หลุดมา หรือสถานะอื่นที่ไม่ใช่ 3 ค่านี้) ไม่นับ
       });
       updateBadge(dept.id, ok, pending, rejected);
     })
