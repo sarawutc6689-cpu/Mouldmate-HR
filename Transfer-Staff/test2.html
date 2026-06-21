@@ -214,7 +214,7 @@ function getIconFor(name) {
 function loadDeptConfig() {
   var tq = encodeURIComponent("select A, B, C where A is not null");
   var url = 'https://docs.google.com/spreadsheets/d/' + CONFIG_SHEET_ID +
-            '/gviz/tq?tqx=out:json&sheet=' + CONFIG_SHEET_NAME + '&tq=' + tq;
+            '/gviz/tq?tqx=out:json&sheet=' + CONFIG_SHEET_NAME + '&headers=1&tq=' + tq;
 
   var grid = document.getElementById('destGrid');
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#6482A2;font-size:14px;">⏳ กำลังโหลดรายชื่อแผนก...</div>';
@@ -291,7 +291,7 @@ function renderCards() {
 function fetchSheetStats(dept) {
   var tq = encodeURIComponent("select G where G is not null");
   var url = 'https://docs.google.com/spreadsheets/d/' + dept.sheetId +
-            '/gviz/tq?tqx=out:json&sheet=data&tq=' + tq;
+            '/gviz/tq?tqx=out:json&sheet=data&headers=1&tq=' + tq;
   fetch(url)
     .then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -306,7 +306,7 @@ function fetchSheetStats(dept) {
       rows.forEach(function(row) {
         if (!row.c || !row.c[0] || row.c[0].v === null || row.c[0].v === undefined) return;
         var val = row.c[0].v.toString().trim();
-        if (!val || val === 'สถานะ' || val === 'Status') return;
+        if (!val || val === 'สถานะ' || val === 'Status' || val.toLowerCase() === 'status') return;
         if      (val === 'ตกลง')   ok++;
         else if (val === 'ปฏิเสธ') rejected++;
         else                       pending++;
