@@ -147,6 +147,7 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
         <button class="pt active" onclick="setPeriod('day')">รายวัน</button>
         <button class="pt" onclick="setPeriod('month')">รายเดือน</button>
         <button class="pt" onclick="setPeriod('year')">รายปี</button>
+        <button class="pt" onclick="setPeriod('range')">ช่วงวันที่</button>
       </div>
     </div>
     <div class="cg" id="grpDay">
@@ -160,6 +161,14 @@ tbody td{padding:9px 12px;font-size:13px;vertical-align:middle}
     <div class="cg" id="grpYear" style="display:none">
       <label>ปี</label>
       <select id="inYear" onchange="applyFilters()"></select>
+    </div>
+    <div class="cg" id="grpRange" style="display:none">
+      <label>ตั้งแต่วันที่</label>
+      <input type="date" id="inRangeStart" onchange="applyFilters()">
+    </div>
+    <div class="cg" id="grpRangeEnd" style="display:none">
+      <label>ถึงวันที่</label>
+      <input type="date" id="inRangeEnd" onchange="applyFilters()">
     </div>
     <div style="display:flex;gap:7px;margin-left:auto">
       <button class="btn-ref" onclick="reloadCurrent()">🔄 รีเฟรช</button>
@@ -250,6 +259,18 @@ function initDefaults() {
     o.value=yr; o.textContent=`${yr} (พ.ศ. ${yr+543})`; if(yr===y)o.selected=true;
     sel.appendChild(o);
   }
+  // Set default range to current month
+  const firstDay = new Date(y, n.getMonth(), 1);
+  const lastDay = new Date(y, n.getMonth() + 1, 0);
+  document.getElementById('inRangeStart').value = formatDateInput(firstDay);
+  document.getElementById('inRangeEnd').value = formatDateInput(lastDay);
+}
+
+function formatDateInput(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 function buildTabs() {
@@ -392,10 +413,15 @@ function fmtDate(d) {
 
 function setPeriod(p) {
   period = p;
-  document.querySelectorAll('.pt').forEach((t,i)=>t.classList.toggle('active',['day','month','year'][i]===p));
+  document.querySelectorAll('.pt').forEach((t,i)=> {
+    const periods = ['day', 'month', 'year', 'range'];
+    t.classList.toggle('active', periods[i] === p);
+  });
   document.getElementById('grpDay').style.display   = p==='day'  ?'':'none';
   document.getElementById('grpMonth').style.display = p==='month'?'':'none';
   document.getElementById('grpYear').style.display  = p==='year' ?'':'none';
+  document.getElementById('grpRange').style.display = p==='range'?'':'none';
+  document.getElementById('grpRangeEnd').style.display = p==='range'?'':'none';
   applyFilters();
 }
 
@@ -410,9 +436,21 @@ function applyFilters() {
   } else if (period==='month') {
     const v=document.getElementById('inMonth').value;
     if(v){const[y,mo]=v.split('-').map(Number);rows=rows.filter(r=>r.date.getFullYear()===y&&r.date.getMonth()===mo-1);}
-  } else {
+  } else if (period==='year') {
     const y=+document.getElementById('inYear').value;
     rows=rows.filter(r=>r.date.getFullYear()===y);
+  } else if (period==='range') {
+    const startVal = document.getElementById('inRangeStart').value;
+    const endVal = document.getElementById('inRangeEnd').value;
+    if (startVal && endVal) {
+      const [sy, sm, sd] = startVal.split('-').map(Number);
+      const [ey, em, ed] = endVal.split('-').map(Number);
+      const startDate = new Date(sy, sm-1, sd);
+      const endDate = new Date(ey, em-1, ed);
+      // Set endDate to end of day
+      endDate.setHours(23, 59, 59, 999);
+      rows = rows.filter(r => r.date >= startDate && r.date <= endDate);
+    }
   }
 
   const q=document.getElementById('srch').value.trim().toLowerCase();
@@ -537,9 +575,15 @@ function exportCSV() {
 function exportPDF() {
   if (!filtered.length) { alert('ไม่มีข้อมูลสำหรับ Export'); return; }
   const deptName = document.getElementById('deptSelect').value;
-  const dateLabel = period==='day'   ? document.getElementById('inDay').value
-                  : period==='month' ? document.getElementById('inMonth').value
-                  : document.getElementById('inYear').value;
+  let dateLabel = '';
+  if (period === 'day') dateLabel = document.getElementById('inDay').value;
+  else if (period === 'month') dateLabel = document.getElementById('inMonth').value;
+  else if (period === 'year') dateLabel = document.getElementById('inYear').value;
+  else if (period === 'range') {
+    const start = document.getElementById('inRangeStart').value;
+    const end = document.getElementById('inRangeEnd').value;
+    dateLabel = `${start} ถึง ${end}`;
+  }
   const empCount = new Set(filtered.map(r => r.empId)).size;
   const totW = filtered.reduce((s,r) => s+r.workHrs, 0);
   const rows = filtered.map(r =>
