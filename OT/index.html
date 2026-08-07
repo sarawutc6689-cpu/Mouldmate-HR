@@ -18,14 +18,12 @@ body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; 
   --r:10px; --rs:7px; --sh:0 1px 4px rgba(30,58,138,0.08); --sh-md:0 4px 16px rgba(30,58,138,0.10);
 }
 
-/* LOADING OVERLAY */
 #loadingOverlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
 .loading-spinner{background:#fff;padding:20px 30px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
 .spinner{width:40px;height:40px;border:3px solid #e2e8f0;border-top-color:#1e3a8a;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:14px;color:#1e3a8a;font-weight:500}
 
-/* SIDEBAR */
 .sidebar{position:fixed;top:0;left:0;width:260px;height:100vh;background:linear-gradient(180deg,#0f2b4d 0%,#0a1e38 100%);color:#fff;z-index:1000;box-shadow:2px 0 12px rgba(0,0,0,0.15);overflow-y:auto}
 .sidebar-header{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:20px}
 .sidebar-header .logo-area{display:flex;align-items:center;gap:12px}
@@ -53,7 +51,6 @@ body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; 
 }
 @media(min-width:769px){ .menu-toggle,.mobile-overlay{display:none} }
 
-/* HEADER */
 .hdr{background:var(--header);height:64px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(30,58,138,0.22)}
 .hdr-l{display:flex;align-items:center;gap:14px}
 .logo{width:40px;height:40px;border-radius:9px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
@@ -61,11 +58,9 @@ body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; 
 .hdr-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-top:2px}
 .hdr-date{font-size:13px;color:rgba(255,255,255,0.82);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:6px 18px;border-radius:6px}
 
-/* LAYOUT */
 .page{padding:20px 24px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;min-height:calc(100vh - 104px)}
 
-/* PANEL */
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);display:flex;flex-direction:column;overflow:hidden}
 .ph{padding:16px 22px;border-bottom:1px solid var(--border);background:var(--card);display:flex;align-items:center;gap:12px}
 .phi{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
@@ -76,7 +71,6 @@ body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; 
 .pb::-webkit-scrollbar{width:4px}
 .pb::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 
-/* FORM */
 .field{display:flex;flex-direction:column;gap:7px}
 .lbl{font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.7px}
 .iw{position:relative}
@@ -91,7 +85,6 @@ textarea:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(37,99,235,0.1
 textarea::placeholder{color:var(--t3)}
 .tg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-/* EMP CARD */
 .ecard{background:var(--accent-lt);border:1.5px solid #bfdbfe;border-radius:var(--rs);padding:16px;display:none}
 .ecard.on{display:block;animation:fu .2s ease}
 @keyframes fu{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
@@ -102,19 +95,16 @@ textarea::placeholder{color:var(--t3)}
 .etags{display:flex;flex-wrap:wrap;gap:7px}
 .tag{font-size:13px;color:var(--t2);background:#fff;border:1px solid var(--border);padding:4px 12px;border-radius:20px}
 
-/* ALERTS */
 .alert{padding:10px 14px;border-radius:var(--rs);font-size:14px;display:none}
 .alert.err{background:var(--err-lt);border:1px solid #fecaca;color:var(--err)}
 .alert.ok{background:var(--ok-lt);border:1px solid #a7f3d0;color:var(--ok)}
 .alert.on{display:block;animation:fu .2s ease}
 
-/* SUBMIT */
 .btn-sub{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s}
 .btn-sub:hover:not(:disabled){background:#1d40b0}
 .btn-sub:disabled{background:#93c5fd;cursor:not-allowed}
 .div{height:1px;background:var(--border);margin:0 -22px}
 
-/* STATS */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .sc{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:16px 18px}
 .sl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
@@ -122,7 +112,6 @@ textarea::placeholder{color:var(--t3)}
 .sv.bl{color:var(--accent)} .sv.gr{color:var(--ok)}
 .su{font-size:13px;color:var(--t3);margin-top:4px}
 
-/* LIST */
 .list-container{flex:1;overflow-y:auto;max-height:calc(100vh - 280px);min-height:300px;margin-top:8px}
 .list-container::-webkit-scrollbar{width:6px}
 .list-container::-webkit-scrollbar-track{background:var(--bg);border-radius:3px}
@@ -149,7 +138,6 @@ textarea::placeholder{color:var(--t3)}
 .btn-edit{color:var(--accent)} .btn-edit:hover{background:var(--accent-lt);transform:scale(1.1)}
 .btn-delete{color:var(--err)} .btn-delete:hover{background:var(--err-lt);transform:scale(1.1)}
 
-/* MODAL */
 .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center}
 .modal.active{display:flex}
 .modal-content{background:var(--surface);border-radius:var(--r);padding:24px;max-width:500px;width:90%;box-shadow:var(--sh-md)}
@@ -160,7 +148,6 @@ textarea::placeholder{color:var(--t3)}
 .modal-btn.confirm{background:var(--err);color:#fff} .modal-btn.confirm:hover{background:#b91c1c}
 .modal-btn.cancel{background:var(--card);border:1px solid var(--border)} .modal-btn.cancel:hover{background:var(--bg)}
 
-/* EMPTY / LOADING DOTS */
 .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px 0}
 .eico{width:52px;height:52px;border-radius:13px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px}
 .etxt{font-size:14px;color:var(--t3);text-align:center;line-height:1.7}
@@ -234,7 +221,6 @@ textarea::placeholder{color:var(--t3)}
   <div class="page">
     <div class="grid">
 
-      <!-- LEFT PANEL -->
       <div class="panel">
         <div class="ph">
           <div class="phi b">📝</div>
@@ -302,7 +288,6 @@ textarea::placeholder{color:var(--t3)}
         </div>
       </div>
 
-      <!-- RIGHT PANEL -->
       <div class="panel">
         <div class="ph">
           <div class="phi t">📊</div>
@@ -326,7 +311,6 @@ textarea::placeholder{color:var(--t3)}
   </div>
 </div>
 
-<!-- DELETE MODAL -->
 <div class="modal" id="deleteModal">
   <div class="modal-content">
     <div class="modal-header">⚠️ ยืนยันการลบ</div>
@@ -341,7 +325,6 @@ textarea::placeholder{color:var(--t3)}
   </div>
 </div>
 
-<!-- EDIT MODAL -->
 <div class="modal" id="editModal">
   <div class="modal-content">
     <div class="modal-header">✏️ แก้ไขข้อมูลโอที</div>
@@ -363,11 +346,14 @@ textarea::placeholder{color:var(--t3)}
 
 <script>
 /* ==========================================
-   SUPABASE CONFIG - แก้ 2 บรรทัดนี้เป็นของคุณ
+   SUPABASE CONFIG
+   หมายเหตุ: ตั้งชื่อตัวแปรว่า sb (ไม่ใช่ supabase)
+   เพราะ library ที่โหลดจาก CDN ประกาศชื่อ "supabase"
+   ไว้ใน global scope แล้ว ถ้าตั้งชื่อซ้ำจะ error ทันที
    ========================================== */
 const SUPABASE_URL = 'https://gjmgzjsbgqaaxlpbyykt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqbWd6anNiZ3FhYXhscGJ5eWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMjQyMjUsImV4cCI6MjEwMTYwMDIyNX0.wacphD2FPgaaETYc0N-Ze4q9gPr2BaO0MKNo9RBnlm0';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 var emp = null;
 var newCode = null;
@@ -399,14 +385,12 @@ function initials(name){
   return s.length >= 2 ? s.substring(0,2) : (s || 'EMP');
 }
 
-/* dd/MM/yyyy -> yyyy-MM-dd */
 function toISODate(d){
   if (!d) return null;
   var p = d.split('/');
   if (p.length !== 3) return d;
   return p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
 }
-/* yyyy-MM-dd -> dd/MM/yyyy */
 function isoToDisplay(iso){
   if (!iso) return '';
   var p = iso.split('-');
@@ -437,7 +421,6 @@ window.onload = function(){
   loadList();
 };
 
-/* ===== ค้นหาพนักงาน (แทน getEmployeeInfo) ===== */
 function onEmpCodeInput(){
   clearTimeout(searchTimer);
   var code = document.getElementById('empCode').value.trim();
@@ -453,7 +436,7 @@ function onEmpCodeInput(){
   searchTimer = setTimeout(async function(){
     document.getElementById('searchIco').textContent = '🔄';
     try {
-      const { data, error } = await supabase.rpc('get_employee', { p_code: code });
+      const { data, error } = await sb.rpc('get_employee', { p_code: code });
       document.getElementById('searchIco').textContent = '';
       if (error) { showAlert('err', 'เกิดข้อผิดพลาด: ' + error.message); return; }
       if (!data || !data.length) { showAlert('err', 'ไม่พบรหัสพนักงาน'); return; }
@@ -477,7 +460,6 @@ function onEmpCodeInput(){
   }, 600);
 }
 
-/* ===== บันทึกโอที (แทน submitOT) ===== */
 async function submitForm(){
   if (!emp) { showAlert('err','กรุณากรอกรหัสพนักงาน'); return; }
   var date     = document.getElementById('workDate').value.trim();
@@ -496,7 +478,7 @@ async function submitForm(){
   btn.textContent = '⏳ กำลังบันทึก...'; btn.disabled = true;
 
   try {
-    const { error } = await supabase.rpc('submit_ot', {
+    const { error } = await sb.rpc('submit_ot', {
       p_emp_code: emp.code,
       p_date: toISODate(date),
       p_start: start,
@@ -535,13 +517,12 @@ function resetForm(){
   emp = null;
 }
 
-/* ===== โหลดรายการวันนี้ (แทน getTodayOTList) ===== */
 async function loadList(){
   document.getElementById('olist').innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
   var todayISO = toISODate(today());
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('ot_records')
       .select('*')
       .eq('work_date', todayISO)
@@ -627,7 +608,6 @@ function fixEmpTotal(input){
   input.style.borderColor = isValidEmpTotal(input.value) ? 'var(--ok)' : 'var(--err)';
 }
 
-/* ===== ลบ (แทน deleteOTRecord) ===== */
 function showDeleteModal(rowData){
   currentDeleteRow = rowData.id;
   document.getElementById('deleteInfo').innerHTML =
@@ -645,7 +625,7 @@ async function confirmDelete(){
   if (currentDeleteRow === null) return;
   showLoading();
   try {
-    const { error } = await supabase.rpc('delete_ot', { p_id: currentDeleteRow });
+    const { error } = await sb.rpc('delete_ot', { p_id: currentDeleteRow });
     hideLoading();
     if (!error) {
       showAlert('ok', 'ลบข้อมูลสำเร็จ');
@@ -661,7 +641,6 @@ async function confirmDelete(){
   closeDeleteModal();
 }
 
-/* ===== แก้ไข (แทน updateOTRecord) ===== */
 function showEditModal(rowData){
   currentEditRow = rowData.id;
   document.getElementById('editDate').value = isoToDisplay(rowData.work_date);
@@ -694,7 +673,7 @@ async function confirmEdit(){
 
   showLoading();
   try {
-    const { error } = await supabase.rpc('update_ot', {
+    const { error } = await sb.rpc('update_ot', {
       p_id: currentEditRow,
       p_date: toISODate(updatedData.date),
       p_start: updatedData.startTime,
