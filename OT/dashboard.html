@@ -1,1 +1,321 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+  :root{
+    --bg:#0f1115;
+    --panel:#161923;
+    --panel-2:#1d2130;
+    --border:#2a2f42;
+    --text:#e8eaf0;
+    --muted:#8b90a5;
+    --accent:#5b8def;
+    --accent-2:#3fd0c9;
+    --warn:#f2a641;
+    --danger:#ef5a6f;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  header{
+    padding:28px 32px 20px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  header h1{
+    margin:0;
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+  }
+  header p{
+    margin:4px 0 0;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--muted);
+    padding:6px 12px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:999px;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
+  .dot.ok{background:var(--accent-2);}
+  .dot.err{background:var(--danger);}
 
+  main{padding:24px 32px 48px; max-width:1200px; margin:0 auto;}
+
+  .cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px,1fr));
+    gap:16px;
+    margin-bottom:24px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+  }
+  .card .label{
+    font-size:12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:8px;
+  }
+  .card .value{
+    font-size:30px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+  }
+  .card .delta{
+    font-size:12px;
+    margin-top:6px;
+    color:var(--accent-2);
+  }
+  .card .delta.down{color:var(--danger);}
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:800px){ .grid-2{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+  }
+  .panel h2{
+    margin:0 0 16px;
+    font-size:15px;
+    font-weight:600;
+  }
+  .row{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+  }
+  .row:last-child{border-bottom:none;}
+  .row .name{color:var(--text);}
+  .row .n{color:var(--muted);}
+
+  canvas{max-height:280px;}
+
+  .config-note{
+    margin-top:24px;
+    padding:14px 16px;
+    background:var(--panel-2);
+    border:1px dashed var(--border);
+    border-radius:10px;
+    font-size:12.5px;
+    color:var(--muted);
+    line-height:1.6;
+  }
+  .config-note code{
+    background:#0d0f16;
+    padding:1px 6px;
+    border-radius:4px;
+    color:var(--accent-2);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Dashboard</h1>
+    <p id="subtitle">ข้อมูลตัวอย่าง (mock) — ยังไม่ได้เชื่อมต่อ Supabase</p>
+  </div>
+  <div class="status">
+    <span class="dot" id="statusDot"></span>
+    <span id="statusText">Not connected</span>
+  </div>
+</header>
+
+<main>
+  <div class="cards" id="cards"></div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <h2>รายการ/เวลา</h2>
+      <canvas id="mainChart"></canvas>
+    </div>
+    <div class="panel">
+      <h2>อันดับสูงสุด</h2>
+      <div id="topList"></div>
+    </div>
+  </div>
+
+  <div class="config-note">
+    <strong>วิธีเชื่อมต่อ Supabase จริง:</strong> แก้ค่าในบล็อก <code>CONFIG</code> ท้ายไฟล์นี้
+    ให้เป็น <code>supabaseUrl</code>, <code>supabaseKey</code> และชื่อ <code>table</code> ของคุณ
+    แล้วปรับ field ที่ query ให้ตรงกับ schema จริง (ตอนนี้ใช้ข้อมูลจำลองไว้ก่อนเพื่อให้เห็นหน้าตาก่อน)
+    อย่าลืมเปิด Row Level Security (RLS) และตั้ง policy บนตารางใน Supabase ด้วย
+  </div>
+</main>
+
+<script>
+/* ============ CONFIG: แก้ตรงนี้ให้ตรงกับโปรเจกต์ของคุณ ============ */
+const CONFIG = {
+  supabaseUrl: 'https://gjmgzjsbgqaaxlpbyykt.supabase.co',
+  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqbWd6anNiZ3FhYXhscGJ5eWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMjQyMjUsImV4cCI6MjEwMTYwMDIyNX0.wacphD2FPgaaETYc0N-Ze4q9gPr2BaO0MKNo9RBnlm0',
+  table: 'orders',           // ชื่อตารางที่จะดึงมาสรุป
+  dateField: 'created_at',   // คอลัมน์วันที่ ใช้ทำกราฟรายวัน
+  amountField: 'amount',     // คอลัมน์ตัวเลขที่จะรวมยอด (เช่นยอดขาย)
+  categoryField: 'category', // คอลัมน์ที่จะใช้จัดอันดับ (top list)
+  useMockData: true          // ตั้งเป็น false เมื่อพร้อมต่อ Supabase จริง
+};
+/* =================================================================== */
+
+let supabaseClient = null;
+if (!CONFIG.useMockData && window.supabase) {
+  supabaseClient = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+}
+
+function setStatus(ok, text){
+  document.getElementById('statusDot').className = 'dot ' + (ok ? 'ok' : 'err');
+  document.getElementById('statusText').textContent = text;
+}
+
+function mockRows(){
+  const cats = ['Electronics','Apparel','Home','Beauty','Sports'];
+  const rows = [];
+  const now = Date.now();
+  for(let i=0;i<120;i++){
+    rows.push({
+      [CONFIG.dateField]: new Date(now - i*3600*1000*6).toISOString(),
+      [CONFIG.amountField]: Math.round(Math.random()*4000+200),
+      [CONFIG.categoryField]: cats[Math.floor(Math.random()*cats.length)]
+    });
+  }
+  return rows;
+}
+
+async function fetchRows(){
+  if (CONFIG.useMockData || !supabaseClient){
+    setStatus(false, 'Mock data (ยังไม่ได้ต่อ Supabase)');
+    return mockRows();
+  }
+  const { data, error } = await supabaseClient
+    .from(CONFIG.table)
+    .select('*')
+    .order(CONFIG.dateField, { ascending: false })
+    .limit(500);
+
+  if (error){
+    console.error(error);
+    setStatus(false, 'Error: ' + error.message);
+    document.getElementById('subtitle').textContent = 'เชื่อมต่อไม่สำเร็จ — ตรวจสอบ URL/Key/RLS policy';
+    return [];
+  }
+  setStatus(true, 'Connected to Supabase');
+  document.getElementById('subtitle').textContent = `ข้อมูลล่าสุดจากตาราง "${CONFIG.table}"`;
+  return data;
+}
+
+function renderCards(rows){
+  const total = rows.reduce((s,r)=> s + (Number(r[CONFIG.amountField])||0), 0);
+  const count = rows.length;
+  const avg = count ? total/count : 0;
+  const cats = new Set(rows.map(r=>r[CONFIG.categoryField])).size;
+
+  const cards = [
+    { label:'ยอดรวม', value: total.toLocaleString(undefined,{maximumFractionDigits:0}) },
+    { label:'จำนวนรายการ', value: count.toLocaleString() },
+    { label:'ค่าเฉลี่ย/รายการ', value: avg.toLocaleString(undefined,{maximumFractionDigits:0}) },
+    { label:'จำนวนหมวดหมู่', value: cats },
+  ];
+  document.getElementById('cards').innerHTML = cards.map(c => `
+    <div class="card">
+      <div class="label">${c.label}</div>
+      <div class="value">${c.value}</div>
+    </div>
+  `).join('');
+}
+
+function renderChart(rows){
+  const byDay = {};
+  rows.forEach(r=>{
+    const d = new Date(r[CONFIG.dateField]);
+    const key = d.toISOString().slice(0,10);
+    byDay[key] = (byDay[key]||0) + (Number(r[CONFIG.amountField])||0);
+  });
+  const labels = Object.keys(byDay).sort();
+  const values = labels.map(l=>byDay[l]);
+
+  new Chart(document.getElementById('mainChart'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'ยอดรวมรายวัน',
+        data: values,
+        borderColor:'#5b8def',
+        backgroundColor:'rgba(91,141,239,0.15)',
+        fill:true,
+        tension:0.3,
+        pointRadius:0,
+      }]
+    },
+    options:{
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ ticks:{ color:'#8b90a5', maxTicksLimit:8 }, grid:{ color:'#2a2f42' } },
+        y:{ ticks:{ color:'#8b90a5' }, grid:{ color:'#2a2f42' } }
+      }
+    }
+  });
+}
+
+function renderTopList(rows){
+  const sums = {};
+  rows.forEach(r=>{
+    const k = r[CONFIG.categoryField] || 'Unknown';
+    sums[k] = (sums[k]||0) + (Number(r[CONFIG.amountField])||0);
+  });
+  const sorted = Object.entries(sums).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('topList').innerHTML = sorted.map(([name,val])=>`
+    <div class="row">
+      <span class="name">${name}</span>
+      <span class="n">${val.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+    </div>
+  `).join('') || '<div class="row"><span class="n">ไม่มีข้อมูล</span></div>';
+}
+
+async function init(){
+  const rows = await fetchRows();
+  renderCards(rows);
+  renderChart(rows);
+  renderTopList(rows);
+}
+
+init();
+</script>
+</body>
+</html>
