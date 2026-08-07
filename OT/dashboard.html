@@ -3,319 +3,375 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard</title>
+<title>Dashboard โอที - OT Time Tracking</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
-  :root{
-    --bg:#0f1115;
-    --panel:#161923;
-    --panel-2:#1d2130;
-    --border:#2a2f42;
-    --text:#e8eaf0;
-    --muted:#8b90a5;
-    --accent:#5b8def;
-    --accent-2:#3fd0c9;
-    --warn:#f2a641;
-    --danger:#ef5a6f;
-    --radius:14px;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    min-height:100vh;
-  }
-  header{
-    padding:28px 32px 20px;
-    border-bottom:1px solid var(--border);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:12px;
-  }
-  header h1{
-    margin:0;
-    font-size:22px;
-    font-weight:700;
-    letter-spacing:-0.02em;
-  }
-  header p{
-    margin:4px 0 0;
-    color:var(--muted);
-    font-size:13px;
-  }
-  .status{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-size:13px;
-    color:var(--muted);
-    padding:6px 12px;
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:999px;
-  }
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
-  .dot.ok{background:var(--accent-2);}
-  .dot.err{background:var(--danger);}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; }
 
-  main{padding:24px 32px 48px; max-width:1200px; margin:0 auto;}
+:root {
+  --bg:#eef2f7; --surface:#ffffff; --card:#f5f8fc; --border:#d0daea;
+  --focus:#2563eb; --accent:#1d4ed8; --accent-lt:#eff6ff; --header:#1e3a8a;
+  --ok:#059669; --ok-lt:#ecfdf5; --err:#dc2626; --err-lt:#fef2f2;
+  --t1:#0f172a; --t2:#475569; --t3:#94a3b8;
+  --r:10px; --rs:7px; --sh:0 1px 4px rgba(30,58,138,0.08); --sh-md:0 4px 16px rgba(30,58,138,0.10);
+}
 
-  .cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(200px,1fr));
-    gap:16px;
-    margin-bottom:24px;
-  }
-  .card{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:20px;
-  }
-  .card .label{
-    font-size:12px;
-    color:var(--muted);
-    text-transform:uppercase;
-    letter-spacing:.06em;
-    margin-bottom:8px;
-  }
-  .card .value{
-    font-size:30px;
-    font-weight:700;
-    letter-spacing:-0.02em;
-  }
-  .card .delta{
-    font-size:12px;
-    margin-top:6px;
-    color:var(--accent-2);
-  }
-  .card .delta.down{color:var(--danger);}
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;left:0;width:260px;height:100vh;background:linear-gradient(180deg,#0f2b4d 0%,#0a1e38 100%);color:#fff;z-index:1000;box-shadow:2px 0 12px rgba(0,0,0,0.15);overflow-y:auto}
+.sidebar-header{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:20px}
+.sidebar-header .logo-area{display:flex;align-items:center;gap:12px}
+.sidebar-header .logo-icon{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0}
+.sidebar-header .logo-text{font-size:18px;font-weight:700;letter-spacing:1px}
+.sidebar-header .logo-sub{font-size:10px;color:rgba(255,255,255,0.6);margin-top:4px}
+.sidebar-nav{padding:0 12px}
+.nav-item{margin-bottom:4px}
+.nav-link{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;color:rgba(255,255,255,0.75);text-decoration:none;transition:all .2s ease;font-size:15px;font-weight:500}
+.nav-link:hover{background:rgba(255,255,255,0.1);color:#fff}
+.nav-link.active{background:rgba(59,130,246,0.3);color:#fff;border-left:3px solid #3b82f6}
+.nav-icon{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.nav-text{white-space:nowrap}
+.sidebar-footer{position:absolute;bottom:0;left:0;right:0;padding:20px 16px;border-top:1px solid rgba(255,255,255,0.1);font-size:11px;color:rgba(255,255,255,0.5);text-align:center}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:4px}
+.main-content{margin-left:260px;min-height:100vh}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s ease}
+  .sidebar.open-mobile{transform:translateX(0)}
+  .main-content{margin-left:0}
+  .menu-toggle{position:fixed;left:16px;top:16px;width:40px;height:40px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1001;box-shadow:0 2px 8px rgba(0,0,0,0.1);font-size:20px;color:#1e3a8a}
+  .mobile-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;display:none}
+  .mobile-overlay.active{display:block}
+}
+@media(min-width:769px){ .menu-toggle,.mobile-overlay{display:none} }
 
-  .grid-2{
-    display:grid;
-    grid-template-columns:2fr 1fr;
-    gap:16px;
-  }
-  @media (max-width:800px){ .grid-2{grid-template-columns:1fr;} }
+/* HEADER */
+.hdr{background:var(--header);height:64px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(30,58,138,0.22);flex-wrap:wrap;gap:10px}
+.hdr-l{display:flex;align-items:center;gap:14px}
+.logo{width:40px;height:40px;border-radius:9px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.hdr-title{font-size:18px;font-weight:700;color:#fff}
+.hdr-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-top:2px}
 
-  .panel{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:20px;
-  }
-  .panel h2{
-    margin:0 0 16px;
-    font-size:15px;
-    font-weight:600;
-  }
-  .row{
-    display:flex;
-    justify-content:space-between;
-    padding:10px 0;
-    border-bottom:1px solid var(--border);
-    font-size:13px;
-  }
-  .row:last-child{border-bottom:none;}
-  .row .name{color:var(--text);}
-  .row .n{color:var(--muted);}
+.page{padding:20px 24px}
 
-  canvas{max-height:280px;}
+/* FILTER BAR */
+.filterbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:14px 20px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.ffield{display:flex;flex-direction:column;gap:5px}
+.flbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px}
+.ffield input[type="date"]{background:#fff;border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 12px;font-size:14px;font-family:inherit;color:var(--t1);outline:none}
+.ffield input[type="date"]:focus{border-color:var(--focus)}
+.fbtn{padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s}
+.fbtn:hover{background:#1d40b0}
+.fspacer{flex:1}
+.fquick{display:flex;gap:6px}
+.fqbtn{padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);font-size:13px;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s}
+.fqbtn:hover{background:var(--accent-lt);border-color:#bfdbfe;color:var(--accent)}
+.fqbtn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
-  .config-note{
-    margin-top:24px;
-    padding:14px 16px;
-    background:var(--panel-2);
-    border:1px dashed var(--border);
-    border-radius:10px;
-    font-size:12.5px;
-    color:var(--muted);
-    line-height:1.6;
-  }
-  .config-note code{
-    background:#0d0f16;
-    padding:1px 6px;
-    border-radius:4px;
-    color:var(--accent-2);
-  }
+/* STAT CARDS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:18px 20px}
+.stat .sl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.stat .sv{font-size:30px;font-weight:700;line-height:1;color:var(--t1)}
+.stat .sv.bl{color:var(--accent)} .stat .sv.gr{color:var(--ok)}
+.stat .su{font-size:13px;color:var(--t3);margin-top:5px}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:18px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);display:flex;flex-direction:column;overflow:hidden}
+.ph{padding:16px 22px;border-bottom:1px solid var(--border);background:var(--card);display:flex;align-items:center;gap:12px}
+.phi{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.phi.b{background:#dbeafe} .phi.t{background:#ccfbf1}
+.ph-title{font-size:16px;font-weight:700;color:var(--t1)}
+.ph-sub{font-size:12px;color:var(--t3);margin-top:2px}
+.pb{padding:20px 22px;flex:1}
+
+.rank-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.rank-row:last-child{border-bottom:none}
+.rank-n{width:26px;height:26px;border-radius:6px;background:var(--accent-lt);color:var(--accent);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rank-i{flex:1;min-width:0}
+.rank-name{font-size:14px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-code{font-size:12px;color:var(--t3)}
+.rank-v{font-size:14px;font-weight:700;color:var(--ok);flex-shrink:0}
+
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px 0}
+.eico{width:52px;height:52px;border-radius:13px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px}
+.etxt{font-size:14px;color:var(--t3);text-align:center;line-height:1.7}
+.dots{display:flex;gap:6px;align-items:center;justify-content:center;padding:28px}
+.dots span{width:8px;height:8px;border-radius:50%;background:#93c5fd;animation:bc 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s} .dots span:nth-child(3){animation-delay:.4s}
+@keyframes bc{0%,80%,100%{transform:scale(.7);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+@media(max-width:768px){.page{padding:14px}}
 </style>
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>Dashboard</h1>
-    <p id="subtitle">ข้อมูลตัวอย่าง (mock) — ยังไม่ได้เชื่อมต่อ Supabase</p>
-  </div>
-  <div class="status">
-    <span class="dot" id="statusDot"></span>
-    <span id="statusText">Not connected</span>
-  </div>
-</header>
-
-<main>
-  <div class="cards" id="cards"></div>
-
-  <div class="grid-2">
-    <div class="panel">
-      <h2>รายการ/เวลา</h2>
-      <canvas id="mainChart"></canvas>
-    </div>
-    <div class="panel">
-      <h2>อันดับสูงสุด</h2>
-      <div id="topList"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-area">
+      <div class="logo-icon">OT</div>
+      <div>
+        <div class="logo-text">OT-AT</div>
+        <div class="logo-sub">ระบบลงเวลาโอที</div>
+      </div>
     </div>
   </div>
-
-  <div class="config-note">
-    <strong>วิธีเชื่อมต่อ Supabase จริง:</strong> แก้ค่าในบล็อก <code>CONFIG</code> ท้ายไฟล์นี้
-    ให้เป็น <code>supabaseUrl</code>, <code>supabaseKey</code> และชื่อ <code>table</code> ของคุณ
-    แล้วปรับ field ที่ query ให้ตรงกับ schema จริง (ตอนนี้ใช้ข้อมูลจำลองไว้ก่อนเพื่อให้เห็นหน้าตาก่อน)
-    อย่าลืมเปิด Row Level Security (RLS) และตั้ง policy บนตารางใน Supabase ด้วย
+  <div class="sidebar-nav">
+    <div class="nav-item">
+      <a href="index.html" class="nav-link">
+        <span class="nav-icon">📝</span><span class="nav-text">บันทึกโอที</span>
+      </a>
+    </div>
+    <div class="nav-item">
+      <a href="report.html" class="nav-link">
+        <span class="nav-icon">📊</span><span class="nav-text">รายงานโอที</span>
+      </a>
+    </div>
+    <div class="nav-item">
+      <a href="dashboard.html" class="nav-link active">
+        <span class="nav-icon">📈</span><span class="nav-text">Dashboard</span>
+      </a>
+    </div>
   </div>
-</main>
+  <div class="sidebar-footer">
+    <div>ระบบบันทึกเวลาทำงานล่วงเวลา</div>
+    <div style="margin-top:6px">พัฒนาโดย Sarawut.C</div>
+  </div>
+</div>
+
+<div class="menu-toggle" id="menuToggle" onclick="openMobileSidebar()">☰</div>
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileSidebar()"></div>
+
+<div class="main-content">
+  <header class="hdr">
+    <div class="hdr-l">
+      <div class="logo">OT</div>
+      <div>
+        <div class="hdr-title">Dashboard ภาพรวมโอที</div>
+        <div class="hdr-sub">Overtime Dashboard - แผนก Automation</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <div class="filterbar">
+      <div class="ffield">
+        <div class="flbl">ตั้งแต่วันที่</div>
+        <input type="date" id="fromDate">
+      </div>
+      <div class="ffield">
+        <div class="flbl">ถึงวันที่</div>
+        <input type="date" id="toDate">
+      </div>
+      <button class="fbtn" onclick="loadDashboard()">ค้นหา</button>
+      <div class="fspacer"></div>
+      <div class="fquick">
+        <button class="fqbtn" data-range="today" onclick="quickRange('today')">วันนี้</button>
+        <button class="fqbtn" data-range="week" onclick="quickRange('week')">7 วัน</button>
+        <button class="fqbtn active" data-range="month" onclick="quickRange('month')">เดือนนี้</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="sl">จำนวนพนักงาน</div><div class="sv bl" id="statEmp">—</div><div class="su">คนที่ลงโอที</div></div>
+      <div class="stat"><div class="sl">รวมชั่วโมงโอที</div><div class="sv gr" id="statHr">—</div><div class="su">ชั่วโมง</div></div>
+      <div class="stat"><div class="sl">จำนวนรายการ</div><div class="sv" id="statCnt">—</div><div class="su">รายการ</div></div>
+      <div class="stat"><div class="sl">เฉลี่ยต่อคน</div><div class="sv" id="statAvg">—</div><div class="su">ชั่วโมง/คน</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <div class="ph">
+          <div class="phi b">📈</div>
+          <div>
+            <div class="ph-title">ชั่วโมงโอทีรายวัน</div>
+            <div class="ph-sub" id="chartSub">—</div>
+          </div>
+        </div>
+        <div class="pb">
+          <canvas id="mainChart" height="110"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph">
+          <div class="phi t">🏆</div>
+          <div>
+            <div class="ph-title">พนักงานโอทีสูงสุด</div>
+            <div class="ph-sub">เรียงตามชั่วโมงรวม</div>
+          </div>
+        </div>
+        <div class="pb" id="rankBox">
+          <div class="dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <script>
-/* ============ CONFIG: แก้ตรงนี้ให้ตรงกับโปรเจกต์ของคุณ ============ */
-const CONFIG = {
-  supabaseUrl: 'https://gjmgzjsbgqaaxlpbyykt.supabase.co',
-  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqbWd6anNiZ3FhYXhscGJ5eWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMjQyMjUsImV4cCI6MjEwMTYwMDIyNX0.wacphD2FPgaaETYc0N-Ze4q9gPr2BaO0MKNo9RBnlm0',
-  table: 'orders',           // ชื่อตารางที่จะดึงมาสรุป
-  dateField: 'created_at',   // คอลัมน์วันที่ ใช้ทำกราฟรายวัน
-  amountField: 'amount',     // คอลัมน์ตัวเลขที่จะรวมยอด (เช่นยอดขาย)
-  categoryField: 'category', // คอลัมน์ที่จะใช้จัดอันดับ (top list)
-  useMockData: true          // ตั้งเป็น false เมื่อพร้อมต่อ Supabase จริง
-};
-/* =================================================================== */
+/* ==========================================
+   SUPABASE CONFIG - ใช้ค่าเดียวกับ index.html
+   ========================================== */
+const SUPABASE_URL = 'https://gjmgzjsbgqaaxlpbyykt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqbWd6anNiZ3FhYXhscGJ5eWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMjQyMjUsImV4cCI6MjEwMTYwMDIyNX0.wacphD2FPgaaETYc0N-Ze4q9gPr2BaO0MKNo9RBnlm0';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let supabaseClient = null;
-if (!CONFIG.useMockData && window.supabase) {
-  supabaseClient = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+let chartInstance = null;
+
+function openMobileSidebar(){ document.getElementById('sidebar').classList.add('open-mobile'); document.getElementById('mobileOverlay').classList.add('active'); }
+function closeMobileSidebar(){ document.getElementById('sidebar').classList.remove('open-mobile'); document.getElementById('mobileOverlay').classList.remove('active'); }
+
+function pad(n){ return n<10 ? '0'+n : ''+n; }
+function toISO(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function displayDate(iso){
+  var p = iso.split('-'); if (p.length!==3) return iso;
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+function decToHHmm(dec){
+  if (!dec || dec <= 0) return '0:00';
+  var h = Math.floor(dec), m = Math.round((dec-h)*60);
+  if (m===60){ h++; m=0; }
+  return h + ':' + (m<10?'0'+m:''+m);
+}
+function escapeHtml(str){
+  if (!str) return '';
+  return String(str).replace(/[&<>]/g, function(m){ return m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'; });
 }
 
-function setStatus(ok, text){
-  document.getElementById('statusDot').className = 'dot ' + (ok ? 'ok' : 'err');
-  document.getElementById('statusText').textContent = text;
+function quickRange(kind){
+  document.querySelectorAll('.fqbtn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.fqbtn[data-range="'+kind+'"]').classList.add('active');
+
+  var now = new Date();
+  var from, to = new Date(now);
+
+  if (kind === 'today'){ from = new Date(now); }
+  else if (kind === 'week'){ from = new Date(now); from.setDate(from.getDate()-6); }
+  else { from = new Date(now.getFullYear(), now.getMonth(), 1); }
+
+  document.getElementById('fromDate').value = toISO(from);
+  document.getElementById('toDate').value = toISO(to);
+  loadDashboard();
 }
 
-function mockRows(){
-  const cats = ['Electronics','Apparel','Home','Beauty','Sports'];
-  const rows = [];
-  const now = Date.now();
-  for(let i=0;i<120;i++){
-    rows.push({
-      [CONFIG.dateField]: new Date(now - i*3600*1000*6).toISOString(),
-      [CONFIG.amountField]: Math.round(Math.random()*4000+200),
-      [CONFIG.categoryField]: cats[Math.floor(Math.random()*cats.length)]
-    });
+async function loadDashboard(){
+  var from = document.getElementById('fromDate').value;
+  var to = document.getElementById('toDate').value;
+  if (!from || !to) return;
+
+  document.getElementById('chartSub').textContent = displayDate(from) + ' – ' + displayDate(to);
+  document.getElementById('rankBox').innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+
+  try {
+    const { data, error } = await supabase
+      .from('ot_records')
+      .select('*')
+      .gte('work_date', from)
+      .lte('work_date', to)
+      .order('work_date', { ascending: true });
+
+    if (error) throw error;
+
+    renderStats(data || []);
+    renderChart(data || [], from, to);
+    renderRanking(data || []);
+  } catch (e) {
+    document.getElementById('rankBox').innerHTML =
+      '<p style="color:var(--err);padding:20px;text-align:center;font-size:14px;">โหลดข้อมูลไม่สำเร็จ: ' + escapeHtml(e.message) + '</p>';
   }
-  return rows;
 }
 
-async function fetchRows(){
-  if (CONFIG.useMockData || !supabaseClient){
-    setStatus(false, 'Mock data (ยังไม่ได้ต่อ Supabase)');
-    return mockRows();
+function renderStats(rows){
+  var totalHr = rows.reduce((s,r)=> s + (Number(r.emp_total)||0), 0);
+  var empSet = new Set(rows.map(r=>r.emp_code));
+  var count = rows.length;
+  var avg = empSet.size ? totalHr/empSet.size : 0;
+
+  document.getElementById('statEmp').textContent = empSet.size;
+  document.getElementById('statHr').textContent = decToHHmm(totalHr);
+  document.getElementById('statCnt').textContent = count;
+  document.getElementById('statAvg').textContent = decToHHmm(avg);
+}
+
+function renderChart(rows, from, to){
+  var byDay = {};
+  var cur = new Date(from);
+  var end = new Date(to);
+  while (cur <= end){
+    byDay[toISO(cur)] = 0;
+    cur.setDate(cur.getDate()+1);
   }
-  const { data, error } = await supabaseClient
-    .from(CONFIG.table)
-    .select('*')
-    .order(CONFIG.dateField, { ascending: false })
-    .limit(500);
-
-  if (error){
-    console.error(error);
-    setStatus(false, 'Error: ' + error.message);
-    document.getElementById('subtitle').textContent = 'เชื่อมต่อไม่สำเร็จ — ตรวจสอบ URL/Key/RLS policy';
-    return [];
-  }
-  setStatus(true, 'Connected to Supabase');
-  document.getElementById('subtitle').textContent = `ข้อมูลล่าสุดจากตาราง "${CONFIG.table}"`;
-  return data;
-}
-
-function renderCards(rows){
-  const total = rows.reduce((s,r)=> s + (Number(r[CONFIG.amountField])||0), 0);
-  const count = rows.length;
-  const avg = count ? total/count : 0;
-  const cats = new Set(rows.map(r=>r[CONFIG.categoryField])).size;
-
-  const cards = [
-    { label:'ยอดรวม', value: total.toLocaleString(undefined,{maximumFractionDigits:0}) },
-    { label:'จำนวนรายการ', value: count.toLocaleString() },
-    { label:'ค่าเฉลี่ย/รายการ', value: avg.toLocaleString(undefined,{maximumFractionDigits:0}) },
-    { label:'จำนวนหมวดหมู่', value: cats },
-  ];
-  document.getElementById('cards').innerHTML = cards.map(c => `
-    <div class="card">
-      <div class="label">${c.label}</div>
-      <div class="value">${c.value}</div>
-    </div>
-  `).join('');
-}
-
-function renderChart(rows){
-  const byDay = {};
   rows.forEach(r=>{
-    const d = new Date(r[CONFIG.dateField]);
-    const key = d.toISOString().slice(0,10);
-    byDay[key] = (byDay[key]||0) + (Number(r[CONFIG.amountField])||0);
+    byDay[r.work_date] = (byDay[r.work_date]||0) + (Number(r.emp_total)||0);
   });
-  const labels = Object.keys(byDay).sort();
-  const values = labels.map(l=>byDay[l]);
 
-  new Chart(document.getElementById('mainChart'), {
-    type:'line',
+  var labels = Object.keys(byDay).sort();
+  var values = labels.map(l=>byDay[l]);
+  var labelsDisplay = labels.map(displayDate);
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('mainChart'), {
+    type:'bar',
     data:{
-      labels,
+      labels: labelsDisplay,
       datasets:[{
-        label:'ยอดรวมรายวัน',
+        label:'ชั่วโมงโอที',
         data: values,
-        borderColor:'#5b8def',
-        backgroundColor:'rgba(91,141,239,0.15)',
-        fill:true,
-        tension:0.3,
-        pointRadius:0,
+        backgroundColor:'#2563eb',
+        borderRadius:5,
+        maxBarThickness:34,
       }]
     },
     options:{
       plugins:{ legend:{ display:false } },
       scales:{
-        x:{ ticks:{ color:'#8b90a5', maxTicksLimit:8 }, grid:{ color:'#2a2f42' } },
-        y:{ ticks:{ color:'#8b90a5' }, grid:{ color:'#2a2f42' } }
+        x:{ ticks:{ color:'#94a3b8', maxTicksLimit:10 }, grid:{ display:false } },
+        y:{ ticks:{ color:'#94a3b8' }, grid:{ color:'#e2e8f0' }, beginAtZero:true }
       }
     }
   });
 }
 
-function renderTopList(rows){
-  const sums = {};
+function renderRanking(rows){
+  var byEmp = {};
   rows.forEach(r=>{
-    const k = r[CONFIG.categoryField] || 'Unknown';
-    sums[k] = (sums[k]||0) + (Number(r[CONFIG.amountField])||0);
+    var k = r.emp_code;
+    if (!byEmp[k]) byEmp[k] = { name:r.emp_name, code:r.emp_code, total:0 };
+    byEmp[k].total += (Number(r.emp_total)||0);
   });
-  const sorted = Object.entries(sums).sort((a,b)=>b[1]-a[1]);
-  document.getElementById('topList').innerHTML = sorted.map(([name,val])=>`
-    <div class="row">
-      <span class="name">${name}</span>
-      <span class="n">${val.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+  var sorted = Object.values(byEmp).sort((a,b)=>b.total-a.total).slice(0,10);
+
+  var box = document.getElementById('rankBox');
+  if (!sorted.length){
+    box.innerHTML = '<div class="empty"><div class="eico">📋</div><div class="etxt">ไม่มีข้อมูลในช่วงที่เลือก</div></div>';
+    return;
+  }
+  box.innerHTML = sorted.map((r,i)=>`
+    <div class="rank-row">
+      <div class="rank-n">${i+1}</div>
+      <div class="rank-i">
+        <div class="rank-name">${escapeHtml(r.name)}</div>
+        <div class="rank-code">รหัส: ${escapeHtml(r.code)}</div>
+      </div>
+      <div class="rank-v">${decToHHmm(r.total)} ชม.</div>
     </div>
-  `).join('') || '<div class="row"><span class="n">ไม่มีข้อมูล</span></div>';
+  `).join('');
 }
 
-async function init(){
-  const rows = await fetchRows();
-  renderCards(rows);
-  renderChart(rows);
-  renderTopList(rows);
-}
-
-init();
+window.onload = function(){
+  quickRange('month');
+};
 </script>
 </body>
 </html>
