@@ -246,7 +246,7 @@ tbody tr:hover{background:var(--accent-lt)}
    ========================================== */
 const SUPABASE_URL = 'https://gjmgzjsbgqaaxlpbyykt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqbWd6anNiZ3FhYXhscGJ5eWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMjQyMjUsImV4cCI6MjEwMTYwMDIyNX0.wacphD2FPgaaETYc0N-Ze4q9gPr2BaO0MKNo9RBnlm0';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sbApp = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const PAGE_SIZE = 20;
 let allRows = [];
@@ -287,7 +287,7 @@ async function setupDepartmentField(){
     wrap.innerHTML = '<div class="flbl">แผนก</div>' + html;
 
     try {
-      const { data, error } = await supabase.rpc('list_departments');
+      const { data, error } = await sbApp.rpc('list_departments');
       if (!error && data){
         var sel = document.getElementById('deptSelect');
         data.forEach(function(d){
@@ -316,7 +316,7 @@ async function loadReport(){
   document.getElementById('emptyState').style.display = 'none';
 
   try {
-    const { data, error } = await supabase.rpc('get_ot_report', {
+    const { data, error } = await sbApp.rpc('get_ot_report', {
       p_manager_token: currentManager.token,
       p_from: from,
       p_to: to,
