@@ -6,6 +6,7 @@
 <title>บันทึกโอที - OT Time Tracking</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; }
@@ -51,12 +52,16 @@ body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; 
 }
 @media(min-width:769px){ .menu-toggle,.mobile-overlay{display:none} }
 
-.hdr{background:var(--header);height:64px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(30,58,138,0.22)}
+.hdr{background:var(--header);height:64px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(30,58,138,0.22);flex-wrap:wrap;gap:10px}
 .hdr-l{display:flex;align-items:center;gap:14px}
 .logo{width:40px;height:40px;border-radius:9px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
 .hdr-title{font-size:18px;font-weight:700;color:#fff}
 .hdr-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-top:2px}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .hdr-date{font-size:13px;color:rgba(255,255,255,0.82);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:6px 18px;border-radius:6px}
+.hdr-user{font-size:13px;color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:6px 14px;border-radius:6px}
+.hdr-logout{font-size:13px;font-weight:700;color:#fff;background:rgba(220,38,38,0.25);border:1px solid rgba(248,113,113,0.5);padding:6px 14px;border-radius:6px;cursor:pointer;font-family:inherit;transition:background .15s}
+.hdr-logout:hover{background:rgba(220,38,38,0.4)}
 
 .page{padding:20px 24px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;min-height:calc(100vh - 104px)}
@@ -215,7 +220,11 @@ textarea::placeholder{color:var(--t3)}
         <div class="hdr-sub">Overtime Time Recording System - Test Pogest</div>
       </div>
     </div>
-    <div class="hdr-date" id="hdrDate">—</div>
+    <div class="hdr-r">
+      <div class="hdr-date" id="hdrDate">—</div>
+      <div class="hdr-user" id="hdrUser">—</div>
+      <button class="hdr-logout" id="logoutBtn" type="button">ออกจากระบบ</button>
+    </div>
   </header>
 
   <div class="page">
@@ -361,6 +370,7 @@ var searchTimer = null;
 var _currentList = [];
 var currentEditRow = null;
 var currentDeleteRow = null;
+var currentManager = null; // { token, department, name } หลังผ่านการตรวจสอบสิทธิ์
 
 function showLoading(){ var o=document.getElementById('loadingOverlay'); if(o) o.style.display='flex'; }
 function hideLoading(){ var o=document.getElementById('loadingOverlay'); if(o) o.style.display='none'; }
@@ -413,13 +423,26 @@ function escapeHtml(str){
   });
 }
 
-window.onload = function(){
+window.onload = async function(){
+  showLoading();
+  currentManager = await window.OTAuth.requireLogin();
+  hideLoading();
+  if (!currentManager) return; // ไม่ผ่านสิทธิ์ -> ถูกเด้งไปหน้า login แล้ว
+
+  document.getElementById('hdrUser').textContent =
+    (currentManager.department === 'ALL' ? 'ผู้ดูแลระบบ (ทุกแผนก)' : 'แผนก: ' + currentManager.department) +
+    ' · ' + currentManager.name;
+
   var now = new Date();
   document.getElementById('hdrDate').textContent = thaiDate(now);
   document.getElementById('sumDate').textContent = thaiDate(now);
   document.getElementById('workDate').value = today();
   loadList();
 };
+
+document.getElementById('logoutBtn').addEventListener('click', function(){
+  window.OTAuth.logout();
+});
 
 function onEmpCodeInput(){
   clearTimeout(searchTimer);
@@ -436,10 +459,10 @@ function onEmpCodeInput(){
   searchTimer = setTimeout(async function(){
     document.getElementById('searchIco').textContent = '🔄';
     try {
-      const { data, error } = await sb.rpc('get_employee', { p_code: code });
+      const { data, error } = await sb.rpc('get_employee', { p_code: code, p_manager_token: currentManager.token });
       document.getElementById('searchIco').textContent = '';
       if (error) { showAlert('err', 'เกิดข้อผิดพลาด: ' + error.message); return; }
-      if (!data || !data.length) { showAlert('err', 'ไม่พบรหัสพนักงาน'); return; }
+      if (!data || !data.length) { showAlert('err', 'ไม่พบรหัสพนักงาน หรือพนักงานคนนี้ไม่ได้อยู่ในแผนกของท่าน'); return; }
 
       var res = data[0];
       emp = res;
@@ -484,7 +507,8 @@ async function submitForm(){
       p_start: start,
       p_end: end,
       p_emp_total: parseFloat(empTotal),
-      p_remark: document.getElementById('remark').value.trim()
+      p_remark: document.getElementById('remark').value.trim(),
+      p_manager_token: currentManager.token
     });
     btn.textContent = '✔ ยืนยันการลงเวลาโอที';
     if (!error) {
@@ -522,20 +546,22 @@ async function loadList(){
   var todayISO = toISODate(today());
 
   try {
-    const { data, error } = await sb
-      .from('ot_records')
-      .select('*')
-      .eq('work_date', todayISO)
-      .order('id', { ascending: true });
+    const { data, error } = await sb.rpc('get_ot_report', {
+      p_manager_token: currentManager.token,
+      p_from: todayISO,
+      p_to: todayISO
+    });
 
     if (error) throw error;
 
-    _currentList = data || [];
-    var dayTotal = (data && data.length) ? Number(data[0].day_total) : 0;
+    var rows = (data || []).slice().sort(function(a,b){ return a.id - b.id; });
+    _currentList = rows;
 
-    document.getElementById('cntEmp').textContent = data ? data.length : 0;
+    var dayTotal = rows.reduce(function(s,r){ return s + (Number(r.emp_total)||0); }, 0);
+
+    document.getElementById('cntEmp').textContent = rows.length;
     document.getElementById('cntHr').textContent = decToHHmm(dayTotal);
-    document.getElementById('lhCnt').textContent = (data ? data.length : 0) + ' คน';
+    document.getElementById('lhCnt').textContent = rows.length + ' คน';
 
     renderList(_currentList);
   } catch (e) {
@@ -625,7 +651,7 @@ async function confirmDelete(){
   if (currentDeleteRow === null) return;
   showLoading();
   try {
-    const { error } = await sb.rpc('delete_ot', { p_id: currentDeleteRow });
+    const { error } = await sb.rpc('delete_ot', { p_id: currentDeleteRow, p_manager_token: currentManager.token });
     hideLoading();
     if (!error) {
       showAlert('ok', 'ลบข้อมูลสำเร็จ');
@@ -679,7 +705,8 @@ async function confirmEdit(){
       p_start: updatedData.startTime,
       p_end: updatedData.endTime,
       p_emp_total: parseFloat(updatedData.empTotal),
-      p_remark: updatedData.remark
+      p_remark: updatedData.remark,
+      p_manager_token: currentManager.token
     });
     hideLoading();
     if (!error) {
