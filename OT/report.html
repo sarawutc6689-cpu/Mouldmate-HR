@@ -6,6 +6,7 @@
 <title>รายงานโอที - OT Time Tracking</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; }
@@ -17,6 +18,11 @@ body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; 
   --t1:#0f172a; --t2:#475569; --t3:#94a3b8;
   --r:10px; --rs:7px; --sh:0 1px 4px rgba(30,58,138,0.08); --sh-md:0 4px 16px rgba(30,58,138,0.10);
 }
+
+#authOverlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#authOverlay .spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent);animation:spin .7s linear infinite}
+#authOverlay p{color:var(--t3);font-size:14px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* SIDEBAR */
 .sidebar{position:fixed;top:0;left:0;width:260px;height:100vh;background:linear-gradient(180deg,#0f2b4d 0%,#0a1e38 100%);color:#fff;z-index:1000;box-shadow:2px 0 12px rgba(0,0,0,0.15);overflow-y:auto}
@@ -52,6 +58,10 @@ body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; 
 .logo{width:40px;height:40px;border-radius:9px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
 .hdr-title{font-size:18px;font-weight:700;color:#fff}
 .hdr-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-top:2px}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hdr-user{font-size:13px;color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:6px 14px;border-radius:6px}
+.hdr-logout{font-size:13px;font-weight:700;color:#fff;background:rgba(220,38,38,0.25);border:1px solid rgba(248,113,113,0.5);padding:6px 14px;border-radius:6px;cursor:pointer;font-family:inherit;transition:background .15s}
+.hdr-logout:hover{background:rgba(220,38,38,0.4)}
 
 .page{padding:20px 24px}
 
@@ -59,9 +69,11 @@ body { font-family:'Sarabun', sans-serif; background:#eef2f7; min-height:100vh; 
 .filterbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:14px 20px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
 .ffield{display:flex;flex-direction:column;gap:5px}
 .flbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px}
-.ffield input[type="date"],.ffield input[type="text"]{background:#fff;border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 12px;font-size:14px;font-family:inherit;color:var(--t1);outline:none}
-.ffield input:focus{border-color:var(--focus)}
+.ffield input[type="date"],.ffield input[type="text"],.ffield select{background:#fff;border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 12px;font-size:14px;font-family:inherit;color:var(--t1);outline:none}
+.ffield input:focus,.ffield select:focus{border-color:var(--focus)}
 .ffield input[type="text"]{min-width:200px}
+.ffield select{min-width:180px}
+.ffield .locked-dept{padding:9px 12px;font-size:14px;color:var(--t2);background:var(--card);border:1.5px solid var(--border);border-radius:var(--rs);min-width:180px}
 .fbtn{padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .18s}
 .fbtn:hover{background:#1d40b0}
 .fbtn.secondary{background:var(--card);border:1px solid var(--border);color:var(--t2)}
@@ -85,6 +97,7 @@ tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--accent-lt)}
 .hrcell{font-weight:700;color:var(--ok)}
 .remark-cell{color:var(--t3);font-size:12.5px}
+.dept-cell{color:var(--t2);font-size:12.5px}
 
 .empty{padding:50px 20px;text-align:center;color:var(--t3);font-size:14px}
 .dots{display:flex;gap:6px;align-items:center;justify-content:center;padding:40px}
@@ -103,6 +116,11 @@ tbody tr:hover{background:var(--accent-lt)}
 </style>
 </head>
 <body>
+
+<div id="authOverlay">
+  <div class="spin"></div>
+  <p>กำลังตรวจสอบสิทธิ์การเข้าใช้งาน...</p>
+</div>
 
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
@@ -146,8 +164,12 @@ tbody tr:hover{background:var(--accent-lt)}
       <div class="logo">OT</div>
       <div>
         <div class="hdr-title">รายงานโอทีทั้งหมด</div>
-        <div class="hdr-sub">Overtime Report - แผนก Automation</div>
+        <div class="hdr-sub" id="hdrSub">Overtime Report</div>
       </div>
+    </div>
+    <div class="hdr-r">
+      <div class="hdr-user" id="hdrUser">—</div>
+      <button class="hdr-logout" id="logoutBtn" type="button">ออกจากระบบ</button>
     </div>
   </header>
 
@@ -161,6 +183,10 @@ tbody tr:hover{background:var(--accent-lt)}
       <div class="ffield">
         <div class="flbl">ถึงวันที่</div>
         <input type="date" id="toDate">
+      </div>
+      <div class="ffield" id="deptFieldWrap">
+        <div class="flbl">แผนก</div>
+        <!-- เติมด้วย JS: dropdown (admin) หรือกล่องข้อความล็อก (ธุรการแผนก) -->
       </div>
       <div class="ffield">
         <div class="flbl">ค้นหา (ชื่อ/รหัส)</div>
@@ -189,6 +215,7 @@ tbody tr:hover{background:var(--accent-lt)}
             <th data-key="work_date">วันที่</th>
             <th data-key="emp_code">รหัส</th>
             <th data-key="emp_name">ชื่อพนักงาน</th>
+            <th data-key="department">แผนก</th>
             <th data-key="start_time">เวลาเริ่ม</th>
             <th data-key="end_time">เวลาสิ้นสุด</th>
             <th data-key="emp_total">ชั่วโมง</th>
@@ -196,7 +223,7 @@ tbody tr:hover{background:var(--accent-lt)}
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="7"><div class="dots"><span></span><span></span><span></span></div></td></tr>
+          <tr><td colspan="8"><div class="dots"><span></span><span></span><span></span></div></td></tr>
         </tbody>
       </table>
       <div class="empty" id="emptyState" style="display:none;">ไม่พบข้อมูลในช่วงที่เลือก</div>
@@ -227,6 +254,7 @@ let filteredRows = [];
 let currentPage = 1;
 let sortKey = 'work_date';
 let sortDir = -1;
+let currentManager = null; // { token, department, name }
 
 function openMobileSidebar(){ document.getElementById('sidebar').classList.add('open-mobile'); document.getElementById('mobileOverlay').classList.add('active'); }
 function closeMobileSidebar(){ document.getElementById('sidebar').classList.remove('open-mobile'); document.getElementById('mobileOverlay').classList.remove('active'); }
@@ -249,17 +277,51 @@ function escapeHtml(str){
   return String(str).replace(/[&<>]/g, function(m){ return m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'; });
 }
 
+/* สร้างช่องเลือกแผนก: ถ้าเป็นแอดมิน (department='ALL') โชว์ dropdown เลือกได้ทุกแผนก
+   ถ้าเป็นธุรการแผนกทั่วไป ล็อกให้เห็นแค่แผนกตัวเอง แก้ไขไม่ได้ */
+async function setupDepartmentField(){
+  var wrap = document.getElementById('deptFieldWrap');
+
+  if (currentManager.department === 'ALL'){
+    var html = '<select id="deptSelect"><option value="">ทุกแผนก</option></select>';
+    wrap.innerHTML = '<div class="flbl">แผนก</div>' + html;
+
+    try {
+      const { data, error } = await supabase.rpc('list_departments');
+      if (!error && data){
+        var sel = document.getElementById('deptSelect');
+        data.forEach(function(d){
+          var opt = document.createElement('option');
+          opt.value = d; opt.textContent = d;
+          sel.appendChild(opt);
+        });
+      }
+    } catch(e){ /* ไม่ต้อง block การใช้งานถ้าโหลดรายชื่อแผนกไม่สำเร็จ */ }
+
+  } else {
+    wrap.innerHTML = '<div class="flbl">แผนก</div><div class="locked-dept">' + escapeHtml(currentManager.department) + '</div>';
+  }
+}
+
+function getSelectedDepartment(){
+  var sel = document.getElementById('deptSelect');
+  if (sel) return sel.value || null; // แอดมิน: '' = ทุกแผนก
+  return null; // ธุรการแผนก: ไม่ต้องส่งค่า เพราะฝั่งฐานข้อมูลจะล็อกให้เองอยู่แล้ว
+}
+
 async function loadReport(){
   var from = document.getElementById('fromDate').value;
   var to = document.getElementById('toDate').value;
-  document.getElementById('tableBody').innerHTML = '<tr><td colspan="7"><div class="dots"><span></span><span></span><span></span></div></td></tr>';
+  document.getElementById('tableBody').innerHTML = '<tr><td colspan="8"><div class="dots"><span></span><span></span><span></span></div></td></tr>';
   document.getElementById('emptyState').style.display = 'none';
 
   try {
-    let q = supabase.from('ot_records').select('*');
-    if (from) q = q.gte('work_date', from);
-    if (to) q = q.lte('work_date', to);
-    const { data, error } = await q.order('work_date', { ascending: false });
+    const { data, error } = await supabase.rpc('get_ot_report', {
+      p_manager_token: currentManager.token,
+      p_from: from,
+      p_to: to,
+      p_department: getSelectedDepartment()
+    });
     if (error) throw error;
 
     allRows = data || [];
@@ -268,7 +330,7 @@ async function loadReport(){
     applyFilters();
   } catch (e) {
     document.getElementById('tableBody').innerHTML =
-      '<tr><td colspan="7"><div class="empty" style="color:var(--err)">โหลดข้อมูลไม่สำเร็จ: ' + escapeHtml(e.message) + '</div></td></tr>';
+      '<tr><td colspan="8"><div class="empty" style="color:var(--err)">โหลดข้อมูลไม่สำเร็จ: ' + escapeHtml(e.message) + '</div></td></tr>';
   }
 }
 
@@ -304,6 +366,7 @@ function renderTable(){
       <td>${displayDate(r.work_date)}</td>
       <td>${escapeHtml(r.emp_code)}</td>
       <td>${escapeHtml(r.emp_name)}</td>
+      <td class="dept-cell">${escapeHtml(r.department) || '—'}</td>
       <td>${r.start_time || '—'}</td>
       <td>${r.end_time || '—'}</td>
       <td class="hrcell">${decToHHmm(Number(r.emp_total))}</td>
@@ -319,11 +382,12 @@ function renderTable(){
 }
 
 function exportCsv(){
-  var header = ['วันที่','รหัส','ชื่อพนักงาน','เวลาเริ่ม','เวลาสิ้นสุด','ชั่วโมง','หมายเหตุ'].join(',');
+  var header = ['วันที่','รหัส','ชื่อพนักงาน','แผนก','เวลาเริ่ม','เวลาสิ้นสุด','ชั่วโมง','หมายเหตุ'].join(',');
   var lines = filteredRows.map(r => [
     displayDate(r.work_date),
     r.emp_code,
     r.emp_name,
+    r.department,
     r.start_time,
     r.end_time,
     Number(r.emp_total).toFixed(2),
@@ -348,7 +412,23 @@ document.getElementById('searchBox').addEventListener('input', applyFilters);
 document.getElementById('prevPage').addEventListener('click', ()=>{ currentPage--; renderTable(); });
 document.getElementById('nextPage').addEventListener('click', ()=>{ currentPage++; renderTable(); });
 
-window.onload = function(){
+document.getElementById('logoutBtn').addEventListener('click', function(){
+  window.OTAuth.logout();
+});
+
+window.onload = async function(){
+  currentManager = await window.OTAuth.requireLogin();
+  if (!currentManager) return; // เด้งไป login แล้ว
+
+  document.getElementById('authOverlay').style.display = 'none';
+  document.getElementById('hdrUser').textContent =
+    (currentManager.department === 'ALL' ? 'ผู้ดูแลระบบ (ทุกแผนก)' : 'แผนก: ' + currentManager.department) +
+    ' · ' + currentManager.name;
+  document.getElementById('hdrSub').textContent =
+    'Overtime Report - ' + (currentManager.department === 'ALL' ? 'ทุกแผนก' : currentManager.department);
+
+  await setupDepartmentField();
+
   var now = new Date();
   var from = new Date(now.getFullYear(), now.getMonth(), 1);
   document.getElementById('fromDate').value = toISO(from);
