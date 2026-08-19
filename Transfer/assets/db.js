@@ -1,0 +1,115 @@
+/* ========================================================
+   ชั้นเข้าถึงข้อมูล (Data Access Layer) — คุยกับ Supabase จริง
+   ทุกฟังก์ชัน throw Error เมื่อล้มเหลว ให้ผู้เรียกจับด้วย try/catch
+   ======================================================== */
+
+const db = {
+
+  /* ---------------- Lookups (แผนก / หน่วยงาน) ---------------- */
+  async getDepartments() {
+    const { data, error } = await sb.from('departments').select('*').order('name');
+    if (error) throw error;
+    return data;
+  },
+
+  async getUnits() {
+    const { data, error } = await sb.from('units').select('*').order('name');
+    if (error) throw error;
+    return data;
+  },
+
+  /* ---------------- หน้า 1: คำขอยืม ---------------- */
+  async getAvailableEmployees(departmentId) {
+    const { data, error } = await sb
+      .from('employees')
+      .select('id, employee_code, full_name, home_department_id, status')
+      .eq('home_department_id', departmentId)
+      .eq('status', 'normal')
+      .order('employee_code');
+    if (error) throw error;
+    return data;
+  },
+
+  async createTransferRequest({ sourceDeptId, destDeptId, startDate, endDate, note, employeeIds }) {
+    const { data: userData } = await sb.auth.getUser();
+    const { data, error } = await sb.rpc('create_transfer_request', {
+      p_source_department_id: sourceDeptId,
+      p_destination_department_id: destDeptId,
+      p_start_date: startDate,
+      p_end_date: endDate,
+      p_note: note || null,
+      p_employee_ids: employeeIds,
+      p_requested_by: userData?.user?.id || null,
+    });
+    if (error) throw error;
+    return data; // request id
+  },
+
+  /* ---------------- หน้า 2: การจัดการคำขอ ---------------- */
+  async getRequestItems({ status = 'pending', search = '' } = {}) {
+    let query = sb.from('v_transfer_requests_list').select('*');
+    if (status && status !== 'all') query = query.eq('item_status', status);
+    if (search) query = query.or(`employee_code.ilike.%${search}%,full_name.ilike.%${search}%`);
+    const { data, error } = await query.order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async approveItem(itemId, unitId) {
+    const { data: userData } = await sb.auth.getUser();
+    const { error } = await sb.rpc('approve_transfer_item', {
+      p_item_id: itemId,
+      p_unit_id: unitId || null,
+      p_approver_id: userData?.user?.id || null,
+    });
+    if (error) throw error;
+  },
+
+  async rejectItem(itemId, reason) {
+    const { data: userData } = await sb.auth.getUser();
+    const { error } = await sb.rpc('reject_transfer_item', {
+      p_item_id: itemId,
+      p_reason: reason || null,
+      p_approver_id: userData?.user?.id || null,
+    });
+    if (error) throw error;
+  },
+
+  /* ---------------- หน้า 3: ขอคืน ---------------- */
+  async getEmployeesOnLoan() {
+    const { data, error } = await sb.from('v_employees_on_loan').select('*').order('end_date');
+    if (error) throw error;
+    return data;
+  },
+
+  async returnItem(itemId, note) {
+    const { data: userData } = await sb.auth.getUser();
+    const { error } = await sb.rpc('return_transfer_item', {
+      p_item_id: itemId,
+      p_note: note || null,
+      p_actor_id: userData?.user?.id || null,
+    });
+    if (error) throw error;
+  },
+
+  /* ---------------- หน้า 4: สถานะการโอนย้าย ---------------- */
+  // ใช้ getEmployeesOnLoan() ร่วมกับหน้า 3 ได้เลย (view เดียวกัน)
+
+  /* ---------------- หน้า 5: ประวัติ ---------------- */
+  async getHistory({ search = '', action = '', from = '', to = '' } = {}) {
+    let query = sb.from('v_transfer_history').select('*');
+    if (action) query = query.eq('action', action);
+    if (from) query = query.gte('created_at', from);
+    if (to) query = query.lte('created_at', to + 'T23:59:59');
+    const { data, error } = await query.order('created_at', { ascending: false }).limit(300);
+    if (error) throw error;
+    if (search) {
+      const s = search.toLowerCase();
+      return data.filter(h =>
+        (h.request_no || '').toLowerCase().includes(s) ||
+        (h.employee_code || '').toLowerCase().includes(s) ||
+        (h.full_name || '').toLowerCase().includes(s));
+    }
+    return data;
+  },
+};
