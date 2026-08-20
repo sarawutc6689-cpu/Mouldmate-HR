@@ -28,6 +28,7 @@
 
 <script src="assets/config.js"></script>
 <script src="assets/supabaseClient.js"></script>
+<script src="assets/authGuard.js"></script>
 <script src="assets/db.js"></script>
 <script src="assets/ui.js"></script>
 <script>
@@ -62,6 +63,8 @@ document.getElementById('hub-grid').outerHTML = `
 (async function init() {
   const statusEl = document.getElementById('conn-status');
   try {
+    await requireAuth();
+    attachLogout();
     const [{ depts }] = await Promise.all([initLookups()]);
     const [{ count: empCount }, onLoan] = await Promise.all([
       sb.from('employees').select('*', { count: 'exact', head: true }),

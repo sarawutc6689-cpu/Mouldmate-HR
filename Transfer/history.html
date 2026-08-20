@@ -52,6 +52,7 @@
 
 <script src="assets/config.js"></script>
 <script src="assets/supabaseClient.js"></script>
+<script src="assets/authGuard.js"></script>
 <script src="assets/db.js"></script>
 <script src="assets/ui.js"></script>
 <script>
@@ -112,6 +113,8 @@ let debounceT;
 
 (async function init() {
   try {
+    await requireAuth();
+    attachLogout();
     await initLookups();
     await renderTable();
   } catch (err) {

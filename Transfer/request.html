@@ -97,6 +97,7 @@
 
 <script src="assets/config.js"></script>
 <script src="assets/supabaseClient.js"></script>
+<script src="assets/authGuard.js"></script>
 <script src="assets/db.js"></script>
 <script src="assets/ui.js"></script>
 <script>
@@ -222,6 +223,8 @@ document.getElementById('request-form').addEventListener('submit', async (ev) =>
 
 (async function init() {
   try {
+    await requireAuth();
+    attachLogout();
     const { depts } = await initLookups();
     populateDeptSelects(depts);
     await renderEmployeeList();

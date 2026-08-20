@@ -50,6 +50,7 @@
 
 <script src="assets/config.js"></script>
 <script src="assets/supabaseClient.js"></script>
+<script src="assets/authGuard.js"></script>
 <script src="assets/db.js"></script>
 <script src="assets/ui.js"></script>
 <script>
@@ -131,6 +132,8 @@ document.getElementById('f-dept').addEventListener('change', applyFiltersAndRend
 
 (async function init() {
   try {
+    await requireAuth();
+    attachLogout();
     const { depts } = await initLookups();
     document.getElementById('f-dept').innerHTML += depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
     await loadData();
