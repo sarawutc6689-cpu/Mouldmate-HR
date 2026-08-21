@@ -31,7 +31,6 @@ const db = {
   },
 
   async createTransferRequest({ sourceDeptId, destDeptId, startDate, endDate, note, employeeIds }) {
-    const { data: userData } = await sb.auth.getUser();
     const { data, error } = await sb.rpc('create_transfer_request', {
       p_source_department_id: sourceDeptId,
       p_destination_department_id: destDeptId,
@@ -39,7 +38,6 @@ const db = {
       p_end_date: endDate,
       p_note: note || null,
       p_employee_ids: employeeIds,
-      p_requested_by: userData?.user?.id || null,
     });
     if (error) throw error;
     return data; // request id
@@ -56,21 +54,17 @@ const db = {
   },
 
   async approveItem(itemId, unitId) {
-    const { data: userData } = await sb.auth.getUser();
     const { error } = await sb.rpc('approve_transfer_item', {
       p_item_id: itemId,
       p_unit_id: unitId || null,
-      p_approver_id: userData?.user?.id || null,
     });
     if (error) throw error;
   },
 
   async rejectItem(itemId, reason) {
-    const { data: userData } = await sb.auth.getUser();
     const { error } = await sb.rpc('reject_transfer_item', {
       p_item_id: itemId,
       p_reason: reason || null,
-      p_approver_id: userData?.user?.id || null,
     });
     if (error) throw error;
   },
@@ -83,11 +77,9 @@ const db = {
   },
 
   async returnItem(itemId, note) {
-    const { data: userData } = await sb.auth.getUser();
     const { error } = await sb.rpc('return_transfer_item', {
       p_item_id: itemId,
       p_note: note || null,
-      p_actor_id: userData?.user?.id || null,
     });
     if (error) throw error;
   },
@@ -110,6 +102,19 @@ const db = {
         (h.employee_code || '').toLowerCase().includes(s) ||
         (h.full_name || '').toLowerCase().includes(s));
     }
+    return data;
+  },
+
+  /* ---------------- หน้า 6: รายงาน ---------------- */
+  async getReportRows({ fromDate = '', toDate = '', sourceDeptId = '', destDeptId = '', status = '' } = {}) {
+    let query = sb.from('v_transfer_requests_list').select('*');
+    if (fromDate) query = query.gte('start_date', fromDate);
+    if (toDate) query = query.lte('start_date', toDate);
+    if (sourceDeptId) query = query.eq('source_department_id', sourceDeptId);
+    if (destDeptId) query = query.eq('destination_department_id', destDeptId);
+    if (status && status !== 'all') query = query.eq('item_status', status);
+    const { data, error } = await query.order('start_date', { ascending: false }).limit(2000);
+    if (error) throw error;
     return data;
   },
 };
