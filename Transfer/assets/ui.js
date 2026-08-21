@@ -96,6 +96,28 @@ function loadingRowHtml(colspan, label) {
   return `<tr><td colspan="${colspan}" style="text-align:center; padding:40px; color:var(--color-text-muted);">${label || 'กำลังโหลดข้อมูล...'}</td></tr>`;
 }
 
+/* ---------------- Export CSV ---------------- */
+function exportCsv(filename, headers, rows) {
+  const escapeCell = (v) => {
+    const s = (v === null || v === undefined) ? '' : String(v);
+    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+    return s;
+  };
+  const lines = [headers.map(escapeCell).join(',')];
+  rows.forEach(row => lines.push(row.map(escapeCell).join(',')));
+  // ใส่ BOM นำหน้า เพื่อให้ Excel เปิดภาษาไทยได้ถูกต้อง ไม่เพี้ยนเป็นอักขระแปลก
+  const csvContent = '\uFEFF' + lines.join('\r\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 /* ---------------- Sidebar navigation ---------------- */
 const NAV_ITEMS = [
   { key: 'request', href: 'request.html', label: 'คำขอยืมพนักงาน',
@@ -108,6 +130,8 @@ const NAV_ITEMS = [
     icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>' },
   { key: 'history', href: 'history.html', label: 'ประวัติการยืม',
     icon: '<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/>' },
+  { key: 'report', href: 'report.html', label: 'รายงาน',
+    icon: '<path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/>' },
 ];
 
 function renderShell(activeKey, opts) {
@@ -124,7 +148,7 @@ function renderShell(activeKey, opts) {
       <div class="sidebar-brand-text"><strong>ระบบโอนย้ายพนักงาน</strong><span>Employee Transfer System</span></div>
     </div>
     <nav>${navHtml}</nav>
-    <div class="sidebar-foot" id="sidebar-user">เชื่อมต่อ Supabase...</div>
+    <div class="sidebar-foot" id="sidebar-user">กำลังตรวจสอบการเข้าสู่ระบบ...</div>
   `;
 
   document.getElementById('topbar').innerHTML = `
@@ -135,12 +159,4 @@ function renderShell(activeKey, opts) {
     </div>
     ${opts.actionsHtml || ''}
   `;
-
-  sb.auth.getUser().then(({ data }) => {
-    const el = document.getElementById('sidebar-user');
-    if (!el) return;
-    el.innerHTML = data?.user
-      ? `เข้าสู่ระบบในนาม<br><strong style="color:#DCE1F5">${data.user.email || data.user.id}</strong>`
-      : `ยังไม่ได้เข้าสู่ระบบ<br><strong style="color:#DCE1F5">ใช้งานแบบ anon key</strong>`;
-  });
 }
