@@ -425,3 +425,15 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
   .content, .topbar { padding-left: 16px; padding-right: 16px; }
   .stat-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ---------- Print (ใช้เป็น Export PDF ผ่าน browser print) ---------- */
+@media print {
+  .sidebar, .topbar-eyebrow, .filter-bar, .no-print { display: none !important; }
+  .app-shell { display: block; }
+  .main { width: 100%; }
+  .content { padding: 0; }
+  .panel { border: none; box-shadow: none; }
+  table.data-table th { position: static; background: #F0F0F0 !important; -webkit-print-color-adjust: exact; }
+  body { font-size: 11px; }
+  .stat-grid { grid-template-columns: repeat(4, 1fr); }
+}
