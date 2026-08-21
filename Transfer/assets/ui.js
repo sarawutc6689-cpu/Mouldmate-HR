@@ -132,6 +132,8 @@ const NAV_ITEMS = [
     icon: '<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/>' },
   { key: 'report', href: 'report.html', label: 'รายงาน',
     icon: '<path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/>' },
+  { key: 'guide', href: 'guide.html', label: 'คู่มือการใช้งาน',
+    icon: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2 1.8-2 3.5"/><path d="M12 17h.01"/>' },
 ];
 
 function renderShell(activeKey, opts) {
