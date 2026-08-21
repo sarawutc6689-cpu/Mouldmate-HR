@@ -25,7 +25,7 @@ async function requireAuth() {
 function attachLogout() {
   const el = document.getElementById('sidebar-user');
   if (!el || !CURRENT_PROFILE) return;
-  const roleLabel = { staff: 'พนักงาน', dept_approver: 'หัวหน้าแผนก', admin: 'แอดมิน' }[CURRENT_PROFILE.role] || CURRENT_PROFILE.role;
+  const roleLabel = { staff: 'พนักงาน', dept_approver: 'พนักงานธุรการ', admin: 'แอดมิน' }[CURRENT_PROFILE.role] || CURRENT_PROFILE.role;
   el.innerHTML = `
     ${CURRENT_PROFILE.full_name} <span style="color:#8891B8;">(${CURRENT_PROFILE.employee_code})</span><br>
     <strong style="color:#DCE1F5">${CURRENT_PROFILE.department_name} · ${roleLabel}</strong><br>
