@@ -1,1 +1,545 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ฟอร์มตรวจ 5ส</title>
+<style>
+  :root {
+    --ink: #23281f;
+    --muted: #6b7263;
+    --line: #d9dccf;
+    --paper: #fbfaf5;
+    --card: #ffffff;
+    --accent: #3d6b3f;
+    --accent-dim: #e7efe4;
+    --warn: #b3541e;
+    --warn-dim: #f7e8dc;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", "Sarabun", sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    padding-bottom: 80px;
+  }
+  header {
+    padding: 20px 16px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--card);
+    position: sticky; top: 0; z-index: 10;
+  }
+  header h1 { font-size: 18px; margin: 0 0 2px; font-weight: 600; }
+  header p { margin: 0; font-size: 13px; color: var(--muted); }
+  main { max-width: 640px; margin: 0 auto; padding: 16px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 12px; font-weight: 600; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; margin-top: 12px; }
+  label:first-of-type { margin-top: 0; }
+  select, input[type="text"], input[type="date"], textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  textarea { min-height: 60px; resize: vertical; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; }
+  .checkbox-row input { width: auto; }
+  .item {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .item-head { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+  .item-no { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .item-text { font-size: 14px; margin: 2px 0 10px; }
+  .score-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .score-btn {
+    flex: 1; min-width: 42px;
+    padding: 8px 0;
+    text-align: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .score-btn.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .photo-input { margin-top: 8px; }
+  .photo-preview { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .photo-preview img { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
+  button.primary {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.primary:disabled { background: #a9b3a3; cursor: not-allowed; }
+  .status { margin-top: 10px; font-size: 13px; text-align: center; }
+  .status.error { color: var(--warn); }
+  .status.ok { color: var(--accent); }
+  .config-warning {
+    background: var(--warn-dim);
+    color: var(--warn);
+    border: 1px solid var(--warn);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .hidden { display: none !important; }
+  .summary-box {
+    background: var(--accent-dim);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+  }
+  .summary-box .pct { font-size: 32px; font-weight: 700; color: var(--accent); }
+  .summary-box .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
 
+<header>
+  <h1>ฟอร์มตรวจ 5ส</h1>
+  <p id="header-sub">เลือกแผนกเพื่อเริ่มการตรวจ</p>
+</header>
+
+<main>
+
+  <div id="config-warning" class="config-warning hidden">
+    ยังไม่ได้ใส่ SUPABASE_URL และ SUPABASE_ANON_KEY — เปิดไฟล์นี้ด้วยโปรแกรมแก้ไขข้อความ
+    แล้วแก้ค่าสองตัวนี้ในสคริปต์ด้านล่างของไฟล์ก่อนใช้งานจริง
+  </div>
+
+  <!-- STEP 1: เลือกแผนกและข้อมูลทีมตรวจ -->
+  <div id="step-setup" class="card">
+    <h2>1. ข้อมูลการตรวจ</h2>
+
+    <label for="dept-select">แผนกที่ตรวจ</label>
+    <select id="dept-select"><option value="">— เลือกแผนก —</option></select>
+
+    <label for="zone-select">โซน/พื้นที่ย่อย</label>
+    <select id="zone-select" disabled><option value="">— เลือกแผนกก่อน —</option></select>
+
+    <label for="audit-date">วันที่ตรวจ</label>
+    <input type="date" id="audit-date">
+
+    <label for="leader-select">หัวหน้าทีมตรวจสอบ</label>
+    <select id="leader-select"><option value="">— เลือก —</option></select>
+
+    <label for="owner-select">เจ้าของพื้นที่ที่รับผิดชอบ</label>
+    <select id="owner-select"><option value="">— เลือก —</option></select>
+
+    <label>กรรมการที่ร่วมตรวจ (เลือกได้หลายคน)</label>
+    <div id="inspector-list"></div>
+
+    <button class="primary" id="load-items-btn" style="margin-top:16px;">โหลดหัวข้อประเมิน</button>
+  </div>
+
+  <!-- STEP 2: หัวข้อประเมิน -->
+  <div id="step-items" class="hidden">
+    <div id="items-container"></div>
+
+    <div class="card">
+      <button class="primary" id="submit-btn">บันทึกผลการตรวจ</button>
+      <div id="submit-status" class="status"></div>
+    </div>
+  </div>
+
+  <!-- STEP 3: สรุปผล -->
+  <div id="step-summary" class="hidden card">
+    <h2>ผลการตรวจ</h2>
+    <div class="summary-box">
+      <div class="pct" id="summary-pct">–</div>
+      <div class="label" id="summary-label">คะแนนรวม</div>
+    </div>
+    <button class="primary" id="new-audit-btn" style="margin-top:16px;">ตรวจครั้งใหม่</button>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ============================================================
+// ตั้งค่าการเชื่อมต่อ — แก้สองค่านี้ก่อนใช้งานจริง
+// หาได้จาก Supabase Dashboard > Project Settings > API
+// ============================================================
+const SUPABASE_URL = "https://ibfljuxewamkbxyoacot.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliZmxqdXhld2Fta2J4eW9hY290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMzkxMTgsImV4cCI6MjEwMjkxNTExOH0.dZS5wqo0X5t7QoT93UwDYcXh4-inzgdYz-YhceR4GNc";
+
+// ============================================================
+// ตั้งค่าอัปโหลดรูปเข้า Google Drive (ผ่าน Apps Script)
+// นำ URL จากขั้นตอน Deploy Web App มาใส่ตรงนี้ (ลงท้ายด้วย /exec)
+// SECRET ต้องตรงกับค่าที่ตั้งไว้ในโค้ด Apps Script
+// ============================================================
+const DRIVE_UPLOAD_URL = "https://drive.google.com/drive/folders/1nV4BKZCg0wyoCwyeTSXG59ybdmC60VKe?usp=sharing";
+const DRIVE_UPLOAD_SECRET = "mm169Moo4";
+
+const CONFIGURED = !SUPABASE_URL.startsWith("YOUR_") && !SUPABASE_ANON_KEY.startsWith("YOUR_");
+const DRIVE_CONFIGURED = !DRIVE_UPLOAD_URL.startsWith("YOUR_") && !DRIVE_UPLOAD_SECRET.startsWith("YOUR_");
+if (!CONFIGURED || !DRIVE_CONFIGURED) {
+  const warn = document.getElementById("config-warning");
+  warn.classList.remove("hidden");
+  if (!DRIVE_CONFIGURED) {
+    warn.innerHTML += "<br>ยังไม่ได้ตั้งค่า DRIVE_UPLOAD_URL / DRIVE_UPLOAD_SECRET — จะอัปโหลดรูปไม่ได้จนกว่าจะแก้ค่านี้";
+  }
+}
+
+const supabase = CONFIGURED
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+// สถานะแอปทั้งหมดเก็บไว้ในตัวแปรนี้ตัวเดียว
+const state = {
+  departments: [],
+  subAreas: [],       // โซนของแผนกที่กำลังเลือกอยู่
+  employees: [],
+  checklistItems: [],
+  scores: {},   // { checklist_item_id: { score, problem_detail, files: [File,...] } }
+  lastAuditId: null,
+};
+
+document.getElementById("audit-date").valueAsDate = new Date();
+
+// แปลงไฟล์รูปเป็น base64 (ตัด prefix "data:image/...;base64," ออกก่อนส่ง)
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ------------------------------------------------------------
+// โหลดข้อมูลตั้งต้น: แผนก + พนักงาน
+// ------------------------------------------------------------
+async function loadInitialData() {
+  if (!supabase) return;
+
+  const { data: depts, error: deptErr } = await supabase
+    .from("departments")
+    .select("id, code, name")
+    .order("name");
+  if (deptErr) { console.error(deptErr); return; }
+  state.departments = depts;
+
+  const deptSelect = document.getElementById("dept-select");
+  depts.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d.id;
+    opt.textContent = d.name;
+    deptSelect.appendChild(opt);
+  });
+
+  const { data: emps, error: empErr } = await supabase
+    .from("employees")
+    .select("id, full_name, position")
+    .eq("is_active", true)
+    .order("full_name");
+  if (empErr) { console.error(empErr); return; }
+  state.employees = emps;
+
+  ["leader-select", "owner-select"].forEach(id => {
+    const sel = document.getElementById(id);
+    emps.forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e.id;
+      opt.textContent = e.full_name + (e.position ? " — " + e.position : "");
+      sel.appendChild(opt);
+    });
+  });
+
+  const inspectorList = document.getElementById("inspector-list");
+  emps.forEach(e => {
+    const row = document.createElement("label");
+    row.className = "checkbox-row";
+    row.innerHTML = `<input type="checkbox" value="${e.id}" class="inspector-check">
+                      <span>${e.full_name}</span>`;
+    inspectorList.appendChild(row);
+  });
+}
+loadInitialData();
+
+// ------------------------------------------------------------
+// พอเลือกแผนก → โหลดรายชื่อโซนของแผนกนั้น
+// ------------------------------------------------------------
+document.getElementById("dept-select").addEventListener("change", async () => {
+  const deptId = document.getElementById("dept-select").value;
+  const zoneSelect = document.getElementById("zone-select");
+  zoneSelect.innerHTML = "";
+  state.subAreas = [];
+
+  if (!deptId) {
+    zoneSelect.disabled = true;
+    zoneSelect.innerHTML = `<option value="">— เลือกแผนกก่อน —</option>`;
+    return;
+  }
+
+  zoneSelect.disabled = true;
+  zoneSelect.innerHTML = `<option value="">กำลังโหลด...</option>`;
+
+  const { data: zones, error } = await supabase
+    .from("sub_areas")
+    .select("id, code, name, target_pct")
+    .eq("department_id", deptId)
+    .eq("is_active", true)
+    .order("code");
+
+  if (error) { alert("โหลดโซนไม่สำเร็จ: " + error.message); return; }
+
+  state.subAreas = zones;
+  zoneSelect.innerHTML = zones.length
+    ? `<option value="">— เลือกโซน —</option>`
+    : `<option value="">แผนกนี้ยังไม่มีโซน กรุณาเพิ่มใน sub_areas ก่อน</option>`;
+  zones.forEach(z => {
+    const opt = document.createElement("option");
+    opt.value = z.id;
+    opt.textContent = z.name;
+    zoneSelect.appendChild(opt);
+  });
+  zoneSelect.disabled = zones.length === 0;
+});
+
+// ------------------------------------------------------------
+// โหลดหัวข้อประเมินของโซนที่เลือก
+// ------------------------------------------------------------
+document.getElementById("load-items-btn").addEventListener("click", async () => {
+  const deptId = document.getElementById("dept-select").value;
+  const zoneId = document.getElementById("zone-select").value;
+  if (!deptId) { alert("กรุณาเลือกแผนกก่อน"); return; }
+  if (!zoneId) { alert("กรุณาเลือกโซน/พื้นที่ย่อยก่อน"); return; }
+  if (!document.getElementById("leader-select").value) { alert("กรุณาเลือกหัวหน้าทีมตรวจสอบ"); return; }
+  if (!document.getElementById("owner-select").value) { alert("กรุณาเลือกเจ้าของพื้นที่"); return; }
+
+  const { data: items, error } = await supabase
+    .from("checklist_items")
+    .select("id, item_no, item_text, max_score")
+    .eq("sub_area_id", zoneId)
+    .eq("is_active", true)
+    .order("item_no");
+
+  if (error) { alert("โหลดหัวข้อไม่สำเร็จ: " + error.message); return; }
+  if (!items.length) { alert("โซนนี้ยังไม่มีหัวข้อประเมิน กรุณาเพิ่มใน checklist_items ก่อน"); return; }
+
+  state.checklistItems = items;
+  state.scores = {};
+  items.forEach(i => { state.scores[i.id] = { score: i.max_score, problem_detail: "", files: [] }; });
+
+  renderItems();
+  document.getElementById("step-items").classList.remove("hidden");
+  document.getElementById("step-items").scrollIntoView({ behavior: "smooth" });
+});
+
+function renderItems() {
+  const container = document.getElementById("items-container");
+  container.innerHTML = "";
+
+  state.checklistItems.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card item";
+
+    const scoreOptions = [];
+    for (let s = 0; s <= item.max_score; s++) scoreOptions.push(s);
+
+    div.innerHTML = `
+      <div class="item-head">
+        <span class="item-no">ข้อ ${item.item_no}</span>
+        <span class="item-no">เต็ม ${item.max_score} คะแนน</span>
+      </div>
+      <div class="item-text">${item.item_text}</div>
+      <div class="score-row" data-item="${item.id}">
+        ${scoreOptions.map(s => `<div class="score-btn ${s === item.max_score ? "selected" : ""}" data-score="${s}">${s}</div>`).join("")}
+      </div>
+      <label>รายละเอียดปัญหาที่พบ (ถ้ามี)</label>
+      <textarea class="problem-input" data-item="${item.id}" placeholder="เว้นว่างได้ถ้าไม่พบปัญหา"></textarea>
+      <label>แนบรูปถ่าย</label>
+      <input type="file" accept="image/*" capture="environment" multiple class="photo-input" data-item="${item.id}">
+      <div class="photo-preview" data-item="${item.id}"></div>
+    `;
+    container.appendChild(div);
+  });
+
+  // คลิกเลือกคะแนน
+  container.querySelectorAll(".score-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const row = btn.parentElement;
+      const itemId = row.dataset.item;
+      row.querySelectorAll(".score-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      state.scores[itemId].score = Number(btn.dataset.score);
+    });
+  });
+
+  // พิมพ์รายละเอียดปัญหา
+  container.querySelectorAll(".problem-input").forEach(ta => {
+    ta.addEventListener("input", () => {
+      state.scores[ta.dataset.item].problem_detail = ta.value;
+    });
+  });
+
+  // แนบรูป
+  container.querySelectorAll(".photo-input").forEach(input => {
+    input.addEventListener("change", () => {
+      const itemId = input.dataset.item;
+      state.scores[itemId].files = Array.from(input.files);
+      const preview = container.querySelector(`.photo-preview[data-item="${itemId}"]`);
+      preview.innerHTML = "";
+      state.scores[itemId].files.forEach(file => {
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        preview.appendChild(img);
+      });
+    });
+  });
+}
+
+// ------------------------------------------------------------
+// บันทึกผลการตรวจทั้งหมด
+// ------------------------------------------------------------
+document.getElementById("submit-btn").addEventListener("click", async () => {
+  const statusEl = document.getElementById("submit-status");
+  const submitBtn = document.getElementById("submit-btn");
+  submitBtn.disabled = true;
+  statusEl.textContent = "กำลังบันทึก...";
+  statusEl.className = "status";
+
+  try {
+    const deptId = document.getElementById("dept-select").value;
+    const zoneId = document.getElementById("zone-select").value;
+    const dept = state.departments.find(d => d.id === deptId);
+    const zone = state.subAreas.find(z => z.id === zoneId);
+    const auditDate = document.getElementById("audit-date").value;
+    const leaderId = document.getElementById("leader-select").value;
+    const ownerId = document.getElementById("owner-select").value;
+    const inspectorIds = Array.from(document.querySelectorAll(".inspector-check:checked")).map(c => c.value);
+
+    // คำนวณคะแนนรวม
+    let totalScore = 0, maxScore = 0;
+    state.checklistItems.forEach(item => {
+      totalScore += state.scores[item.id].score;
+      maxScore += item.max_score;
+    });
+    const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 10000) / 100 : 0;
+
+    // 1. สร้างแถว audits
+    const { data: auditRow, error: auditErr } = await supabase
+      .from("audits")
+      .insert({
+        sub_area_id: zoneId,
+        audit_date: auditDate,
+        team_leader_id: leaderId,
+        area_owner_id: ownerId,
+        total_score: totalScore,
+        max_score: maxScore,
+        percentage: percentage,
+      })
+      .select()
+      .single();
+    if (auditErr) throw auditErr;
+    const auditId = auditRow.id;
+    state.lastAuditId = auditId;
+
+    // 2. บันทึกกรรมการที่ร่วมตรวจ
+    if (inspectorIds.length) {
+      const { error: insErr } = await supabase
+        .from("audit_inspectors")
+        .insert(inspectorIds.map(id => ({ audit_id: auditId, employee_id: id })));
+      if (insErr) throw insErr;
+    }
+
+    // 3. บันทึกคะแนนแต่ละข้อ + อัปโหลดรูป
+    for (const item of state.checklistItems) {
+      const s = state.scores[item.id];
+
+      const { error: scoreErr } = await supabase
+        .from("audit_scores")
+        .insert({
+          audit_id: auditId,
+          checklist_item_id: item.id,
+          score: s.score,
+          problem_detail: s.problem_detail || null,
+        });
+      if (scoreErr) throw scoreErr;
+
+      // อัปโหลดรูปของข้อนี้ (ถ้ามี) — ส่งไปเก็บใน Google Drive ผ่าน Apps Script
+      for (let i = 0; i < s.files.length; i++) {
+        const file = s.files[i];
+        const ext = file.name.split(".").pop();
+        const filename = `item-${item.item_no}-${i + 1}.${ext}`;
+        const folderPath = `${dept.code}/${zone.code}/${auditDate}`;
+
+        const base64 = await fileToBase64(file);
+
+        const uploadRes = await fetch(DRIVE_UPLOAD_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" }, // กัน CORS preflight ของ Apps Script
+          body: JSON.stringify({
+            secret: DRIVE_UPLOAD_SECRET,
+            path: folderPath,
+            filename: filename,
+            mimeType: file.type || "image/jpeg",
+            base64: base64,
+          }),
+        });
+        const uploadJson = await uploadRes.json();
+        if (!uploadJson.success) throw new Error("อัปโหลดรูปไม่สำเร็จ: " + uploadJson.error);
+
+        const { error: photoRowErr } = await supabase
+          .from("audit_photos")
+          .insert({
+            audit_id: auditId,
+            checklist_item_id: item.id,
+            storage_path: uploadJson.fileId,   // เก็บ Google Drive file ID ไว้
+            caption: uploadJson.directUrl,     // เก็บลิงก์แสดงรูปโดยตรงไว้ด้วย เรียกใช้งานง่าย
+          });
+        if (photoRowErr) throw photoRowErr;
+      }
+    }
+
+    // สำเร็จ — แสดงหน้าสรุป
+    document.getElementById("summary-pct").textContent = percentage + "%";
+    document.getElementById("summary-label").textContent =
+      `คะแนนรวม ${totalScore} / ${maxScore} — เป้าหมายโซนนี้ ${zone.target_pct}%`;
+    document.getElementById("step-setup").classList.add("hidden");
+    document.getElementById("step-items").classList.add("hidden");
+    document.getElementById("step-summary").classList.remove("hidden");
+
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "บันทึกไม่สำเร็จ: " + (err.message || JSON.stringify(err));
+    statusEl.className = "status error";
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+
+// ------------------------------------------------------------
+// เริ่มตรวจครั้งใหม่
+// ------------------------------------------------------------
+document.getElementById("new-audit-btn").addEventListener("click", () => {
+  window.location.reload();
+});
+</script>
+</body>
+</html>
