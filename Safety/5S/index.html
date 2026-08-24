@@ -56,8 +56,6 @@
     color: var(--ink);
   }
   textarea { min-height: 60px; resize: vertical; }
-  .checkbox-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; }
-  .checkbox-row input { width: auto; }
   .item {
     border: 1px solid var(--line);
     border-radius: var(--radius);
@@ -97,6 +95,34 @@
   .status { margin-top: 10px; font-size: 13px; text-align: center; }
   .status.error { color: var(--warn); }
   .status.ok { color: var(--accent); }
+  .employee-result {
+    font-size: 13px;
+    margin-top: 4px;
+    min-height: 18px;
+  }
+  .employee-result.found { color: var(--accent); font-weight: 600; }
+  .employee-result.notfound { color: var(--warn); }
+  .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .chip button {
+    border: none;
+    background: none;
+    color: var(--accent);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
   .config-warning {
     background: var(--warn-dim);
     color: var(--warn);
@@ -144,14 +170,17 @@
     <label for="audit-date">วันที่ตรวจ</label>
     <input type="date" id="audit-date">
 
-    <label for="leader-select">หัวหน้าทีมตรวจสอบ</label>
-    <select id="leader-select"><option value="">— เลือก —</option></select>
+    <label for="leader-code">หัวหน้าทีมตรวจสอบ (กรอกรหัสพนักงาน)</label>
+    <input type="text" id="leader-code" placeholder="เช่น EMP001">
+    <div id="leader-name" class="employee-result"></div>
 
-    <label for="owner-select">เจ้าของพื้นที่ที่รับผิดชอบ</label>
-    <select id="owner-select"><option value="">— เลือก —</option></select>
+    <label for="owner-code">เจ้าของพื้นที่ที่รับผิดชอบ (กรอกรหัสพนักงาน)</label>
+    <input type="text" id="owner-code" placeholder="เช่น EMP001">
+    <div id="owner-name" class="employee-result"></div>
 
-    <label>กรรมการที่ร่วมตรวจ (เลือกได้หลายคน)</label>
-    <div id="inspector-list"></div>
+    <label for="inspector-code">กรรมการที่ร่วมตรวจ (กรอกรหัสพนักงานแล้วกด Enter เพื่อเพิ่ม)</label>
+    <input type="text" id="inspector-code" placeholder="เช่น EMP001 แล้วกด Enter">
+    <div id="inspector-chips" class="chip-list"></div>
 
     <button class="primary" id="load-items-btn" style="margin-top:16px;">โหลดหัวข้อประเมิน</button>
   </div>
@@ -217,7 +246,17 @@ const state = {
   checklistItems: [],
   scores: {},   // { checklist_item_id: { score, problem_detail, files: [File,...] } }
   lastAuditId: null,
+  leaderId: null,
+  ownerId: null,
+  inspectorIds: [],
 };
+
+// ค้นหาพนักงานจากรหัส (case-insensitive) — ค้นในข้อมูลที่โหลดไว้แล้ว ไม่ต้องยิง query ซ้ำ
+function findEmployeeByCode(code) {
+  const c = (code || "").trim().toLowerCase();
+  if (!c) return null;
+  return state.employees.find(e => (e.employee_code || "").toLowerCase() === c) || null;
+}
 
 document.getElementById("audit-date").valueAsDate = new Date();
 
@@ -254,31 +293,65 @@ async function loadInitialData() {
 
   const { data: emps, error: empErr } = await supabaseClient
     .from("employees")
-    .select("id, full_name, position")
+    .select("id, employee_code, full_name")
     .eq("is_active", true)
     .order("full_name");
   if (empErr) { console.error(empErr); return; }
   state.employees = emps;
+}
 
-  ["leader-select", "owner-select"].forEach(id => {
-    const sel = document.getElementById(id);
-    emps.forEach(e => {
-      const opt = document.createElement("option");
-      opt.value = e.id;
-      opt.textContent = e.full_name + (e.position ? " — " + e.position : "");
-      sel.appendChild(opt);
-    });
-  });
-
-  const inspectorList = document.getElementById("inspector-list");
-  emps.forEach(e => {
-    const row = document.createElement("label");
-    row.className = "checkbox-row";
-    row.innerHTML = `<input type="checkbox" value="${e.id}" class="inspector-check">
-                      <span>${e.full_name}</span>`;
-    inspectorList.appendChild(row);
+// ------------------------------------------------------------
+// หัวหน้าทีม / เจ้าของพื้นที่ — พิมพ์รหัสแล้วค้นหาชื่ออัตโนมัติ
+// ------------------------------------------------------------
+function setupEmployeeCodeField(inputId, resultId, onResolved) {
+  const input = document.getElementById(inputId);
+  const result = document.getElementById(resultId);
+  input.addEventListener("input", () => {
+    const emp = findEmployeeByCode(input.value);
+    onResolved(emp ? emp.id : null);
+    if (!input.value.trim()) {
+      result.textContent = "";
+      result.className = "employee-result";
+    } else if (emp) {
+      result.textContent = emp.full_name;
+      result.className = "employee-result found";
+    } else {
+      result.textContent = "ไม่พบรหัสนี้";
+      result.className = "employee-result notfound";
+    }
   });
 }
+setupEmployeeCodeField("leader-code", "leader-name", id => { state.leaderId = id; });
+setupEmployeeCodeField("owner-code", "owner-name", id => { state.ownerId = id; });
+
+// ------------------------------------------------------------
+// กรรมการที่ร่วมตรวจ — พิมพ์รหัสแล้วกด Enter เพื่อเพิ่มเป็น chip
+// ------------------------------------------------------------
+function renderInspectorChips() {
+  const container = document.getElementById("inspector-chips");
+  container.innerHTML = state.inspectorIds.map(id => {
+    const emp = state.employees.find(e => e.id === id);
+    return `<span class="chip">${emp ? emp.full_name : "?"}<button type="button" data-id="${id}">×</button></span>`;
+  }).join("");
+  container.querySelectorAll("button[data-id]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.inspectorIds = state.inspectorIds.filter(id => id !== btn.dataset.id);
+      renderInspectorChips();
+    });
+  });
+}
+
+document.getElementById("inspector-code").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  const input = e.target;
+  const emp = findEmployeeByCode(input.value);
+  if (!emp) { alert("ไม่พบรหัสพนักงานนี้"); return; }
+  if (state.inspectorIds.includes(emp.id)) { alert("เพิ่มคนนี้ไปแล้ว"); input.value = ""; return; }
+  state.inspectorIds.push(emp.id);
+  renderInspectorChips();
+  input.value = "";
+});
 loadInitialData();
 
 // ------------------------------------------------------------
@@ -329,8 +402,8 @@ document.getElementById("load-items-btn").addEventListener("click", async () => 
   const zoneId = document.getElementById("zone-select").value;
   if (!deptId) { alert("กรุณาเลือกแผนกก่อน"); return; }
   if (!zoneId) { alert("กรุณาเลือกโซน/พื้นที่ย่อยก่อน"); return; }
-  if (!document.getElementById("leader-select").value) { alert("กรุณาเลือกหัวหน้าทีมตรวจสอบ"); return; }
-  if (!document.getElementById("owner-select").value) { alert("กรุณาเลือกเจ้าของพื้นที่"); return; }
+  if (!state.leaderId) { alert("กรุณากรอกรหัสหัวหน้าทีมตรวจสอบให้ถูกต้อง"); return; }
+  if (!state.ownerId) { alert("กรุณากรอกรหัสเจ้าของพื้นที่ให้ถูกต้อง"); return; }
 
   const { data: items, error } = await supabaseClient
     .from("checklist_items")
@@ -430,9 +503,9 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
     const dept = state.departments.find(d => d.id === deptId);
     const zone = state.subAreas.find(z => z.id === zoneId);
     const auditDate = document.getElementById("audit-date").value;
-    const leaderId = document.getElementById("leader-select").value;
-    const ownerId = document.getElementById("owner-select").value;
-    const inspectorIds = Array.from(document.querySelectorAll(".inspector-check:checked")).map(c => c.value);
+    const leaderId = state.leaderId;
+    const ownerId = state.ownerId;
+    const inspectorIds = state.inspectorIds;
 
     // คำนวณคะแนนรวม
     let totalScore = 0, maxScore = 0;
