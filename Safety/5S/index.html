@@ -205,7 +205,7 @@ if (!CONFIGURED || !DRIVE_CONFIGURED) {
   }
 }
 
-const supabase = CONFIGURED
+const supabaseClient = CONFIGURED
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
@@ -235,9 +235,9 @@ function fileToBase64(file) {
 // โหลดข้อมูลตั้งต้น: แผนก + พนักงาน
 // ------------------------------------------------------------
 async function loadInitialData() {
-  if (!supabase) return;
+  if (!supabaseClient) return;
 
-  const { data: depts, error: deptErr } = await supabase
+  const { data: depts, error: deptErr } = await supabaseClient
     .from("departments")
     .select("id, code, name")
     .order("name");
@@ -252,7 +252,7 @@ async function loadInitialData() {
     deptSelect.appendChild(opt);
   });
 
-  const { data: emps, error: empErr } = await supabase
+  const { data: emps, error: empErr } = await supabaseClient
     .from("employees")
     .select("id, full_name, position")
     .eq("is_active", true)
@@ -299,7 +299,7 @@ document.getElementById("dept-select").addEventListener("change", async () => {
   zoneSelect.disabled = true;
   zoneSelect.innerHTML = `<option value="">กำลังโหลด...</option>`;
 
-  const { data: zones, error } = await supabase
+  const { data: zones, error } = await supabaseClient
     .from("sub_areas")
     .select("id, code, name, target_pct")
     .eq("department_id", deptId)
@@ -332,7 +332,7 @@ document.getElementById("load-items-btn").addEventListener("click", async () => 
   if (!document.getElementById("leader-select").value) { alert("กรุณาเลือกหัวหน้าทีมตรวจสอบ"); return; }
   if (!document.getElementById("owner-select").value) { alert("กรุณาเลือกเจ้าของพื้นที่"); return; }
 
-  const { data: items, error } = await supabase
+  const { data: items, error } = await supabaseClient
     .from("checklist_items")
     .select("id, item_no, item_text, max_score")
     .eq("sub_area_id", zoneId)
@@ -443,7 +443,7 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
     const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 10000) / 100 : 0;
 
     // 1. สร้างแถว audits
-    const { data: auditRow, error: auditErr } = await supabase
+    const { data: auditRow, error: auditErr } = await supabaseClient
       .from("audits")
       .insert({
         sub_area_id: zoneId,
@@ -462,7 +462,7 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
 
     // 2. บันทึกกรรมการที่ร่วมตรวจ
     if (inspectorIds.length) {
-      const { error: insErr } = await supabase
+      const { error: insErr } = await supabaseClient
         .from("audit_inspectors")
         .insert(inspectorIds.map(id => ({ audit_id: auditId, employee_id: id })));
       if (insErr) throw insErr;
@@ -472,7 +472,7 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
     for (const item of state.checklistItems) {
       const s = state.scores[item.id];
 
-      const { error: scoreErr } = await supabase
+      const { error: scoreErr } = await supabaseClient
         .from("audit_scores")
         .insert({
           audit_id: auditId,
@@ -505,7 +505,7 @@ document.getElementById("submit-btn").addEventListener("click", async () => {
         const uploadJson = await uploadRes.json();
         if (!uploadJson.success) throw new Error("อัปโหลดรูปไม่สำเร็จ: " + uploadJson.error);
 
-        const { error: photoRowErr } = await supabase
+        const { error: photoRowErr } = await supabaseClient
           .from("audit_photos")
           .insert({
             audit_id: auditId,
