@@ -157,8 +157,9 @@
 // ============================================================
 // ตั้งค่าการเชื่อมต่อ — แก้สองค่านี้ก่อนใช้งานจริง (ค่าเดียวกับฟอร์มตรวจ)
 // ============================================================
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://zsdcjutavrodcvkoolge.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZGNqdXRhdnJvZGN2a29vbGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczNTUxOTksImV4cCI6MjEwMjkzMTE5OX0.zdgDFGwXZmUbfx7kYawi1fhm-vdCg_bILO9yFLED-eY";
+
 
 const CONFIGURED = !SUPABASE_URL.startsWith("YOUR_") && !SUPABASE_ANON_KEY.startsWith("YOUR_");
 if (!CONFIGURED) document.getElementById("config-warning").classList.remove("hidden");
