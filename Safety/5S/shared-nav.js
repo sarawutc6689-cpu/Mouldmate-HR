@@ -16,7 +16,7 @@
 (function () {
   const NAV_LINKS = [
     { href: "index.html", label: "เมนูหลัก", icon: "🏠" },
-    { href: "audit.html", label: "ตรวจ 5ส", icon: "📋" },
+    { href: "5s_audit_form.html", label: "ตรวจ 5ส", icon: "📋" },
     { href: "5s_dashboard.html", label: "รายงานผลตรวจ", icon: "📊" },
     { href: "5s_followup.html", label: "ติดตามการแก้ไข", icon: "✅" },
   ];
