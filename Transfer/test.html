@@ -30,21 +30,10 @@
             <button class="btn btn-ghost btn-sm" id="sel-clear-btn">ล้าง</button>
           </div>
         </div>
-
-        <!-- แถบสรุปการเลือก + ปุ่มดำเนินการแบบ bulk แสดงเฉพาะตอนมีรายการถูกเลือก -->
-        <div class="selection-bar" id="selection-bar" style="display:none;">
-          <span id="sel-count" class="cell-muted"></span>
-          <div class="flex gap-8">
-            <button class="btn btn-accent btn-sm" id="sel-approve-btn">อนุมัติที่เลือก</button>
-            <button class="btn btn-danger-ghost btn-sm" id="sel-reject-btn">ปฏิเสธที่เลือก</button>
-          </div>
-        </div>
-
         <div class="table-wrap">
           <table class="data-table">
             <thead>
               <tr>
-                <th style="width:36px;"><input type="checkbox" id="check-all"></th>
                 <th style="width:44px;">ลำดับ</th>
                 <th>รหัสพนักงาน</th>
                 <th>ชื่อ</th>
@@ -65,7 +54,7 @@
   </div>
 </div>
 
-<!-- Modal: อนุมัติคำขอ (เลือกหน่วยงาน) — ใช้ได้ทั้งอนุมัติทีละรายการ และอนุมัติหลายรายการพร้อมกัน -->
+<!-- Modal: อนุมัติคำขอ (เลือกหน่วยงาน) -->
 <div class="modal-overlay" id="approve-modal">
   <div class="modal">
     <div class="modal-head">
@@ -90,7 +79,7 @@
   <div class="modal">
     <div class="modal-head">
       <h3>ปฏิเสธคำขอโอนย้าย</h3>
-      <p id="reject-sub">โปรดระบุเหตุผลการปฏิเสธ (แสดงให้แผนกต้นทางเห็น)</p>
+      <p>โปรดระบุเหตุผลการปฏิเสธ (แสดงให้แผนกต้นทางเห็น)</p>
     </div>
     <div class="modal-body">
       <div class="field mt-0">
@@ -117,8 +106,7 @@ renderShell('manage', {
   desc: 'ตรวจสอบและดำเนินการกับคำขอยืมตัวพนักงานที่ส่งเข้ามา',
 });
 
-let activeItems = [];          // แถวที่กำลังเปิด modal อยู่ (รองรับทั้งกดทีละแถว และเลือกหลายแถว)
-let selectedIds = new Set();   // item_id ของแถวที่ถูกติ๊กเลือกไว้
+let activeItem = null; // แถวที่กำลังเปิด modal อยู่
 
 async function loadRows() {
   const search = document.getElementById('f-search').value.trim();
@@ -128,9 +116,8 @@ async function loadRows() {
 
 async function renderTable() {
   const tbody = document.getElementById('req-tbody');
-  tbody.innerHTML = loadingRowHtml(9);
+  tbody.innerHTML = loadingRowHtml(8);
   document.getElementById('req-empty').innerHTML = '';
-  clearSelection(); // ข้อมูลชุดใหม่ ล้างของที่เลือกไว้ก่อนหน้ากันเลือกแถวที่ไม่มีอยู่แล้ว
 
   let rows;
   try {
@@ -155,7 +142,6 @@ async function renderTable() {
 
   tbody.innerHTML = rows.map((r, i) => `
     <tr>
-      <td>${r.item_status === 'pending' ? `<input type="checkbox" class="row-check" data-item="${r.item_id}">` : ''}</td>
       <td class="cell-muted">${i + 1}</td>
       <td class="cell-code">${r.employee_code}</td>
       <td>${r.full_name}</td>
@@ -177,121 +163,31 @@ async function renderTable() {
   window.__rows = rows;
   tbody.querySelectorAll('[data-action=approve]').forEach(btn => btn.addEventListener('click', () => openApprove(btn.dataset.item)));
   tbody.querySelectorAll('[data-action=reject]').forEach(btn => btn.addEventListener('click', () => openReject(btn.dataset.item)));
-  tbody.querySelectorAll('.row-check').forEach(cb => cb.addEventListener('change', () => onRowCheckChange(cb)));
 }
 
 function findRow(itemId) { return (window.__rows || []).find(r => r.item_id === itemId); }
 
-/* ========================= การเลือกหลายแถว ========================= */
-
-function onRowCheckChange(cb) {
-  if (cb.checked) selectedIds.add(cb.dataset.item);
-  else selectedIds.delete(cb.dataset.item);
-  syncHeaderCheckbox();
-  updateSelectionBar();
-}
-
-function syncHeaderCheckbox() {
-  const boxes = Array.from(document.querySelectorAll('.row-check'));
-  const headerBox = document.getElementById('check-all');
-  headerBox.checked = boxes.length > 0 && boxes.every(b => b.checked);
-  headerBox.indeterminate = boxes.some(b => b.checked) && !headerBox.checked;
-}
-
-function selectAllVisible() {
-  document.querySelectorAll('.row-check').forEach(cb => {
-    cb.checked = true;
-    selectedIds.add(cb.dataset.item);
-  });
-  syncHeaderCheckbox();
-  updateSelectionBar();
-}
-
-function clearSelection() {
-  selectedIds.clear();
-  document.querySelectorAll('.row-check').forEach(cb => { cb.checked = false; });
-  const headerBox = document.getElementById('check-all');
-  if (headerBox) { headerBox.checked = false; headerBox.indeterminate = false; }
-  updateSelectionBar();
-}
-
-function updateSelectionBar() {
-  const bar = document.getElementById('selection-bar');
-  const count = selectedIds.size;
-  if (count === 0) { bar.style.display = 'none'; return; }
-  bar.style.display = 'flex';
-  document.getElementById('sel-count').textContent = `เลือกไว้ ${count} รายการ`;
-}
-
-document.getElementById('check-all').addEventListener('change', (e) => {
-  if (e.target.checked) selectAllVisible();
-  else clearSelection();
-});
-document.getElementById('sel-all-btn').addEventListener('click', selectAllVisible);
-document.getElementById('sel-clear-btn').addEventListener('click', clearSelection);
-
-/* ========================= อนุมัติ (ทีละแถว / หลายแถว) ========================= */
-
 function openApprove(itemId) {
   const r = findRow(itemId);
   if (!r) return;
-  openApproveModal([r]);
-}
-
-document.getElementById('sel-approve-btn').addEventListener('click', () => {
-  const items = (window.__rows || []).filter(r => selectedIds.has(r.item_id) && r.item_status === 'pending');
-  if (items.length === 0) return;
-
-  // หน่วยงานผูกอยู่กับแผนก ถ้าปลายทางไม่เหมือนกันจะเลือกหน่วยงานร่วมกันไม่ได้
-  const destSet = new Set(items.map(r => r.destination_department_id));
-  if (destSet.size > 1) {
-    alert('เลือกได้เฉพาะคำขอที่มี "แผนกปลายทาง" เดียวกันเท่านั้น เพื่อเลือกหน่วยงานที่ถูกต้อง กรุณาเลือกใหม่ทีละแผนก');
-    return;
-  }
-  openApproveModal(items);
-});
-
-function openApproveModal(items) {
-  activeItems = items;
-  const destId = items[0].destination_department_id;
-  const label = items.length === 1
-    ? `${items[0].full_name} (${items[0].employee_code}) — ย้ายไป ${DEPT_CACHE.get(destId)?.name || ''}`
-    : `เลือก ${items.length} คน — ย้ายไป ${DEPT_CACHE.get(destId)?.name || ''}`;
-  document.getElementById('approve-sub').textContent = label;
-
+  activeItem = r;
+  document.getElementById('approve-sub').innerHTML = `${r.full_name} (${r.employee_code}) — ย้ายไป ${DEPT_CACHE.get(r.destination_department_id)?.name || ''}`;
   const unitSel = document.getElementById('approve-unit');
-  const units = UNITS_BY_DEPT.get(destId) || [];
+  const units = UNITS_BY_DEPT.get(r.destination_department_id) || [];
   unitSel.innerHTML = units.map(u => `<option value="${u.id}">${u.name}</option>`).join('') || `<option value="">— ไม่มีหน่วยงานย่อย —</option>`;
   document.getElementById('approve-modal').classList.add('is-open');
 }
-
-/* ========================= ปฏิเสธ (ทีละแถว / หลายแถว) ========================= */
-
 function openReject(itemId) {
   const r = findRow(itemId);
   if (!r) return;
-  openRejectModal([r]);
-}
-
-document.getElementById('sel-reject-btn').addEventListener('click', () => {
-  const items = (window.__rows || []).filter(r => selectedIds.has(r.item_id) && r.item_status === 'pending');
-  if (items.length === 0) return;
-  openRejectModal(items);
-});
-
-function openRejectModal(items) {
-  activeItems = items;
-  document.getElementById('reject-sub').textContent = items.length === 1
-    ? `โปรดระบุเหตุผลการปฏิเสธคำขอของ ${items[0].full_name} (แสดงให้แผนกต้นทางเห็น)`
-    : `โปรดระบุเหตุผลการปฏิเสธ (ใช้เหตุผลเดียวกันกับทั้ง ${items.length} รายการ)`;
+  activeItem = r;
   document.getElementById('reject-reason').value = '';
   document.getElementById('reject-modal').classList.add('is-open');
 }
-
 function closeModals() {
   document.getElementById('approve-modal').classList.remove('is-open');
   document.getElementById('reject-modal').classList.remove('is-open');
-  activeItems = [];
+  activeItem = null;
 }
 
 document.getElementById('approve-cancel').addEventListener('click', closeModals);
@@ -301,16 +197,13 @@ document.getElementById('reject-cancel').addEventListener('click', closeModals);
 });
 
 document.getElementById('approve-confirm').addEventListener('click', async (e) => {
-  if (activeItems.length === 0) return;
+  if (!activeItem) return;
   const btn = e.currentTarget;
   const unitId = document.getElementById('approve-unit').value || null;
   btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
   try {
-    for (const item of activeItems) {
-      await db.approveItem(item.item_id, unitId);
-    }
-    const names = activeItems.length === 1 ? activeItems[0].full_name : `${activeItems.length} รายการ`;
-    showToast(`อนุมัติคำขอของ ${names} เรียบร้อยแล้ว`);
+    await db.approveItem(activeItem.item_id, unitId);
+    showToast(`อนุมัติคำขอของ ${activeItem.full_name} เรียบร้อยแล้ว`);
     closeModals();
     await renderTable();
   } catch (err) {
@@ -321,16 +214,13 @@ document.getElementById('approve-confirm').addEventListener('click', async (e) =
 });
 
 document.getElementById('reject-confirm').addEventListener('click', async (e) => {
-  if (activeItems.length === 0) return;
+  if (!activeItem) return;
   const btn = e.currentTarget;
   const reason = document.getElementById('reject-reason').value;
   btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
   try {
-    for (const item of activeItems) {
-      await db.rejectItem(item.item_id, reason);
-    }
-    const names = activeItems.length === 1 ? activeItems[0].full_name : `${activeItems.length} รายการ`;
-    showToast(`ปฏิเสธคำขอของ ${names} แล้ว`);
+    await db.rejectItem(activeItem.item_id, reason);
+    showToast(`ปฏิเสธคำขอของ ${activeItem.full_name} แล้ว`);
     closeModals();
     await renderTable();
   } catch (err) {
