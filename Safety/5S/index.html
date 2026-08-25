@@ -81,6 +81,25 @@
   .photo-preview { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
   .photo-preview img { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
   .photo-thumb { text-align: center; }
+  .photo-img-wrap { position: relative; display: inline-block; }
+  .photo-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--warn);
+    color: #fff;
+    border: 2px solid var(--card);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
   .photo-size { font-size: 10px; color: var(--muted); margin-top: 2px; max-width: 60px; }
   .photo-status { font-size: 13px; color: var(--muted); }
   button.primary {
@@ -182,16 +201,16 @@
     <label for="audit-date">วันที่ตรวจ</label>
     <input type="date" id="audit-date">
 
-    <label for="leader-code">หัวหน้าทีมตรวจสอบ</label>
-    <input type="text" id="leader-code" placeholder="กรอกรหัสพนักงาน">
+    <label for="leader-code">หัวหน้าทีมตรวจสอบ (กรอกรหัสพนักงาน)</label>
+    <input type="text" id="leader-code" placeholder="เช่น EMP001">
     <div id="leader-name" class="employee-result"></div>
 
-    <label for="owner-code">เจ้าของพื้นที่ที่รับผิดชอบ</label>
-    <input type="text" id="owner-code" placeholder="กรอกรหัสพนักงาน">
+    <label for="owner-code">เจ้าของพื้นที่ที่รับผิดชอบ (กรอกรหัสพนักงาน)</label>
+    <input type="text" id="owner-code" placeholder="เช่น EMP001">
     <div id="owner-name" class="employee-result"></div>
 
     <label for="inspector-code">กรรมการที่ร่วมตรวจ (กรอกรหัสพนักงานแล้วกด Enter เพื่อเพิ่ม)</label>
-    <input type="text" id="inspector-code" placeholder="กรอกรหัสพนักงาน แล้วกด Enter">
+    <input type="text" id="inspector-code" placeholder="เช่น EMP001 แล้วกด Enter">
     <div id="inspector-chips" class="chip-list"></div>
 
     <button class="primary" id="load-items-btn" style="margin-top:16px;">โหลดหัวข้อประเมิน</button>
@@ -498,7 +517,7 @@ document.getElementById("load-items-btn").addEventListener("click", async () => 
 
   state.checklistItems = items;
   state.scores = {};
-  items.forEach(i => { state.scores[i.id] = { score: i.max_score, problem_detail: "", files: [] }; });
+  items.forEach(i => { state.scores[i.id] = { score: i.max_score, problem_detail: "", files: [], filesMeta: [] }; });
 
   renderItems();
   document.getElementById("step-items").classList.remove("hidden");
@@ -558,32 +577,59 @@ function renderItems() {
       const itemId = input.dataset.item;
       const preview = container.querySelector(`.photo-preview[data-item="${itemId}"]`);
       const rawFiles = Array.from(input.files);
+      if (!rawFiles.length) return;
 
       preview.innerHTML = `<span class="photo-status">กำลังประมวลผลรูป...</span>`;
 
-      const processedFiles = [];
       for (const file of rawFiles) {
         const wasOversized = file.size > MAX_PHOTO_BYTES;
         const finalFile = await compressImageIfNeeded(file);
-        processedFiles.push({ file: finalFile, wasCompressed: wasOversized });
+        state.scores[itemId].filesMeta.push({ file: finalFile, wasCompressed: wasOversized });
       }
+      state.scores[itemId].files = state.scores[itemId].filesMeta.map(m => m.file);
 
-      state.scores[itemId].files = processedFiles.map(p => p.file);
+      // เคลียร์ input เพื่อให้เลือกไฟล์ชื่อเดิมซ้ำได้ (เช่น ถ่ายรูปใหม่ทับที่ลบไปแล้ว)
+      input.value = "";
 
-      preview.innerHTML = "";
-      processedFiles.forEach(({ file, wasCompressed }) => {
-        const wrap = document.createElement("div");
-        wrap.className = "photo-thumb";
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        const label = document.createElement("div");
-        label.className = "photo-size";
-        label.textContent = formatFileSize(file.size) + (wasCompressed ? " (บีบอัดแล้ว)" : "");
-        wrap.appendChild(img);
-        wrap.appendChild(label);
-        preview.appendChild(wrap);
-      });
+      renderPhotoPreview(container, itemId);
     });
+  });
+}
+
+// วาดรูปตัวอย่างของหัวข้อหนึ่ง พร้อมปุ่ม × ลบทีละรูป
+function renderPhotoPreview(container, itemId) {
+  const preview = container.querySelector(`.photo-preview[data-item="${itemId}"]`);
+  const meta = state.scores[itemId].filesMeta;
+
+  preview.innerHTML = "";
+  meta.forEach(({ file, wasCompressed }, index) => {
+    const wrap = document.createElement("div");
+    wrap.className = "photo-thumb";
+
+    const imgWrap = document.createElement("div");
+    imgWrap.className = "photo-img-wrap";
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "photo-remove";
+    removeBtn.textContent = "×";
+    removeBtn.title = "ลบรูปนี้";
+    removeBtn.addEventListener("click", () => {
+      state.scores[itemId].filesMeta.splice(index, 1);
+      state.scores[itemId].files = state.scores[itemId].filesMeta.map(m => m.file);
+      renderPhotoPreview(container, itemId);
+    });
+    imgWrap.appendChild(img);
+    imgWrap.appendChild(removeBtn);
+
+    const label = document.createElement("div");
+    label.className = "photo-size";
+    label.textContent = formatFileSize(file.size) + (wasCompressed ? " (บีบอัดแล้ว)" : "");
+
+    wrap.appendChild(imgWrap);
+    wrap.appendChild(label);
+    preview.appendChild(wrap);
   });
 }
 
