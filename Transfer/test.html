@@ -117,8 +117,9 @@ async function loadRows() {
 
 async function renderTable() {
   const tbody = document.getElementById('req-tbody');
-  tbody.innerHTML = loadingRowHtml(8);
+  tbody.innerHTML = loadingRowHtml(9);
   document.getElementById('req-empty').innerHTML = '';
+  clearSelection(); // ข้อมูลชุดใหม่ ล้างของที่เลือกไว้ก่อนหน้ากันเลือกแถวที่ไม่มีอยู่แล้ว
 
   let rows;
   try {
