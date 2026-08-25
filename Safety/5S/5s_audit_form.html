@@ -252,16 +252,16 @@
 // ตั้งค่าการเชื่อมต่อ — แก้สองค่านี้ก่อนใช้งานจริง
 // หาได้จาก Supabase Dashboard > Project Settings > API
 // ============================================================
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://zsdcjutavrodcvkoolge.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzZGNqdXRhdnJvZGN2a29vbGdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczNTUxOTksImV4cCI6MjEwMjkzMTE5OX0.zdgDFGwXZmUbfx7kYawi1fhm-vdCg_bILO9yFLED-eY";
 
 // ============================================================
 // ตั้งค่าอัปโหลดรูปเข้า Google Drive (ผ่าน Apps Script)
 // นำ URL จากขั้นตอน Deploy Web App มาใส่ตรงนี้ (ลงท้ายด้วย /exec)
 // SECRET ต้องตรงกับค่าที่ตั้งไว้ในโค้ด Apps Script
 // ============================================================
-const DRIVE_UPLOAD_URL = "YOUR_APPS_SCRIPT_EXEC_URL";
-const DRIVE_UPLOAD_SECRET = "YOUR_SECRET_KEY";
+const DRIVE_UPLOAD_URL = "https://script.google.com/macros/s/AKfycbyiFHEr_ATuSDd9CAeQnj77jyw9TZp7pcocOU1cZOzF8QYxQ2_hj7D3tnGLIQXwJHUYJw/exec";
+const DRIVE_UPLOAD_SECRET = "mm169Moo4";
 
 const CONFIGURED = !SUPABASE_URL.startsWith("YOUR_") && !SUPABASE_ANON_KEY.startsWith("YOUR_");
 const DRIVE_CONFIGURED = !DRIVE_UPLOAD_URL.startsWith("YOUR_") && !DRIVE_UPLOAD_SECRET.startsWith("YOUR_");
