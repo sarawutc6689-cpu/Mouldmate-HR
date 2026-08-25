@@ -106,7 +106,8 @@ renderShell('manage', {
   desc: 'ตรวจสอบและดำเนินการกับคำขอยืมตัวพนักงานที่ส่งเข้ามา',
 });
 
-let activeItem = null; // แถวที่กำลังเปิด modal อยู่
+let activeItems = [];          // แถวที่กำลังเปิด modal อยู่ (รองรับทั้งกดทีละแถว และเลือกหลายแถว)
+let selectedIds = new Set();   // item_id ของแถวที่ถูกติ๊กเลือกไว้
 
 async function loadRows() {
   const search = document.getElementById('f-search').value.trim();
