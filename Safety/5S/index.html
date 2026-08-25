@@ -144,6 +144,15 @@
   }
   .summary-box .pct { font-size: 32px; font-weight: 700; color: var(--accent); }
   .summary-box .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  footer {
+    max-width: 640px;
+    margin: 24px auto 0;
+    padding: 16px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+  }
 </style>
 </head>
 <body>
@@ -173,16 +182,16 @@
     <label for="audit-date">วันที่ตรวจ</label>
     <input type="date" id="audit-date">
 
-    <label for="leader-code">หัวหน้าทีมตรวจสอบ</label>
-    <input type="text" id="leader-code" placeholder="กรอกรหัสพนักงาน">
+    <label for="leader-code">หัวหน้าทีมตรวจสอบ (กรอกรหัสพนักงาน)</label>
+    <input type="text" id="leader-code" placeholder="เช่น EMP001">
     <div id="leader-name" class="employee-result"></div>
 
-    <label for="owner-code">เจ้าของพื้นที่ที่รับผิดชอบ</label>
-    <input type="text" id="owner-code" placeholder="กรอกรหัสพนักงาน">
+    <label for="owner-code">เจ้าของพื้นที่ที่รับผิดชอบ (กรอกรหัสพนักงาน)</label>
+    <input type="text" id="owner-code" placeholder="เช่น EMP001">
     <div id="owner-name" class="employee-result"></div>
 
     <label for="inspector-code">กรรมการที่ร่วมตรวจ (กรอกรหัสพนักงานแล้วกด Enter เพื่อเพิ่ม)</label>
-    <input type="text" id="inspector-code" placeholder="กรอกรหัสพนักงาน แล้วกด Enter">
+    <input type="text" id="inspector-code" placeholder="เช่น EMP001 แล้วกด Enter">
     <div id="inspector-chips" class="chip-list"></div>
 
     <button class="primary" id="load-items-btn" style="margin-top:16px;">โหลดหัวข้อประเมิน</button>
@@ -209,6 +218,8 @@
   </div>
 
 </main>
+
+<footer>แบบประเมินโครงการ 5 ส. | ใช้ภายในบริษัทเท่านั้น | พัฒนาโดย Sarawut.C</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
