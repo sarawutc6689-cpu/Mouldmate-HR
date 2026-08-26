@@ -50,10 +50,10 @@
                 <th>รหัสพนักงาน</th>
                 <th>ชื่อ</th>
                 <th>จากแผนก → ไปแผนก</th>
+                <th>หน่วยงานปัจจุบัน</th>
                 <th>วันที่เริ่ม</th>
                 <th>วันที่สิ้นสุด</th>
                 <th>สถานะ</th>
-                <th>หน่วยงานปัจจุบัน</th>
               </tr>
             </thead>
             <tbody id="report-tbody"></tbody>
@@ -141,27 +141,27 @@ async function renderTable() {
       <td class="cell-code">${r.employee_code}</td>
       <td>${r.full_name}</td>
       <td>${flowChipHtml(r.source_department_id, r.destination_department_id)}</td>
+      <td class="cell-muted">${unitName(r.destination_unit_id)}</td>
       <td>${fmtDate(r.start_date)}</td>
       <td>${fmtDate(r.end_date)}</td>
       <td>${badgeHtml(r.item_status)}</td>
-      <td class="cell-muted">${unitName(r.destination_unit_id)}</td>
     </tr>
   `).join('');
 }
 
 document.getElementById('btn-export-csv').addEventListener('click', () => {
   if (currentRows.length === 0) return showToast('ไม่มีข้อมูลให้ export');
-  const headers = ['ลำดับ', 'รหัสพนักงาน', 'ชื่อ', 'จากแผนก', 'ไปแผนก', 'วันที่เริ่ม', 'วันที่สิ้นสุด', 'สถานะ', 'หน่วยงานปัจจุบัน'];
+  const headers = ['ลำดับ', 'รหัสพนักงาน', 'ชื่อ', 'จากแผนก', 'ไปแผนก', 'หน่วยงานปัจจุบัน', 'วันที่เริ่ม', 'วันที่สิ้นสุด', 'สถานะ'];
   const rows = currentRows.map((r, i) => [
     i + 1,
     r.employee_code,
     r.full_name,
     DEPT_CACHE.get(r.source_department_id)?.name || '',
     DEPT_CACHE.get(r.destination_department_id)?.name || '',
+    unitName(r.destination_unit_id),
     r.start_date,
     r.end_date,
     STATUS_LABEL[r.item_status] || r.item_status,
-    unitName(r.destination_unit_id),
   ]);
   const today = new Date().toISOString().slice(0, 10);
   exportCsv(`รายงานโอนย้ายพนักงาน_${today}.csv`, headers, rows);
