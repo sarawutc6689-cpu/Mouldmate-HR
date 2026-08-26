@@ -32,6 +32,7 @@
 
             <div class="field">
               <label class="field-label">เลือกพนักงาน <span class="req">*</span></label>
+              <input type="text" id="employee-search" class="input" placeholder="ค้นหารหัสหรือชื่อพนักงาน..." style="margin-bottom:9px;">
               <div class="list-toolbar">
                 <span class="count" id="select-count">เลือกแล้ว 0 คน</span>
                 <div class="flex gap-8">
@@ -118,6 +119,8 @@ function populateDeptSelects(depts) {
 async function renderEmployeeList() {
   const deptId = document.getElementById('source-dept').value;
   const listEl = document.getElementById('employee-list');
+  const searchEl = document.getElementById('employee-search');
+  searchEl.value = '';
   selectedEmployees.clear();
   updateSelectCount();
 
@@ -144,7 +147,7 @@ async function renderEmployeeList() {
   }
 
   listEl.innerHTML = emps.map(e => `
-    <label class="check-row" data-id="${e.id}">
+    <label class="check-row" data-id="${e.id}" data-search="${(e.full_name + ' ' + e.employee_code).toLowerCase()}">
       <input type="checkbox" value="${e.id}">
       <div class="who"><strong>${e.full_name}</strong><span>${e.employee_code}</span></div>
     </label>
@@ -160,6 +163,31 @@ async function renderEmployeeList() {
   });
 }
 
+function filterEmployeeList() {
+  const term = document.getElementById('employee-search').value.trim().toLowerCase();
+  const rows = document.querySelectorAll('#employee-list .check-row');
+  let visibleCount = 0;
+  rows.forEach(row => {
+    const match = !term || row.dataset.search.includes(term);
+    row.style.display = match ? '' : 'none';
+    if (match) visibleCount++;
+  });
+  const listEl = document.getElementById('employee-list');
+  let noMatchEl = listEl.querySelector('.no-match-msg');
+  if (term && visibleCount === 0) {
+    if (!noMatchEl) {
+      noMatchEl = document.createElement('div');
+      noMatchEl.className = 'no-match-msg';
+      noMatchEl.style.cssText = 'padding:20px 16px; text-align:center; color:var(--color-text-muted); font-size:12.8px;';
+      noMatchEl.textContent = 'ไม่พบพนักงานที่ตรงกับคำค้นหา';
+      listEl.appendChild(noMatchEl);
+    }
+  } else if (noMatchEl) {
+    noMatchEl.remove();
+  }
+}
+document.getElementById('employee-search').addEventListener('input', filterEmployeeList);
+
 function updateSelectCount() {
   document.getElementById('select-count').textContent = `เลือกแล้ว ${selectedEmployees.size} คน`;
 }
@@ -167,8 +195,10 @@ function updateSelectCount() {
 document.getElementById('source-dept').addEventListener('change', renderEmployeeList);
 
 document.getElementById('btn-select-all').addEventListener('click', () => {
-  document.querySelectorAll('#employee-list input[type=checkbox]').forEach(cb => {
-    cb.checked = true; cb.closest('.check-row').classList.add('is-checked'); selectedEmployees.add(cb.value);
+  document.querySelectorAll('#employee-list .check-row').forEach(row => {
+    if (row.style.display === 'none') return; // ข้ามแถวที่ถูกซ่อนไว้จากการค้นหา
+    const cb = row.querySelector('input[type=checkbox]');
+    cb.checked = true; row.classList.add('is-checked'); selectedEmployees.add(cb.value);
   });
   updateSelectCount();
 });
