@@ -142,7 +142,7 @@ async function renderEmployeeList() {
   }
 
   if (emps.length === 0) {
-    listEl.innerHTML = `<div class="empty-state" style="padding:32px 16px;"><strong>ไม่มีพนักงานที่พร้อมโอนย้าย</strong><p>พนักงานทั้งหมดในแผนกนี้กำลังถูกยืมตัวหรือรอดำเนินการอยู่</p></div>`;
+    listEl.innerHTML = `<div class="empty-state" style="padding:32px 16px;"><strong>ไม่พบพนักงานในแผนกนี้</strong><p>ยังไม่มีพนักงานสังกัดแผนกนี้ในระบบ</p></div>`;
     return;
   }
 
@@ -150,6 +150,7 @@ async function renderEmployeeList() {
     <label class="check-row" data-id="${e.id}" data-search="${(e.full_name + ' ' + e.employee_code).toLowerCase()}">
       <input type="checkbox" value="${e.id}">
       <div class="who"><strong>${e.full_name}</strong><span>${e.employee_code}</span></div>
+      ${e.status !== 'normal' ? badgeHtml(e.status) : ''}
     </label>
   `).join('');
 

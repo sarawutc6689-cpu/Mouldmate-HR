@@ -35,7 +35,6 @@
                 <th>หน่วยงานปัจจุบัน</th>
                 <th>วันที่เริ่ม</th>
                 <th>ครบกำหนด</th>
-                <th>สถานะกำหนดเวลา</th>
               </tr>
             </thead>
             <tbody id="status-tbody"></tbody>
@@ -63,15 +62,13 @@ renderShell('status', {
 let allRows = [];
 
 function renderStats(rows) {
-  const overdue = rows.filter(r => daysLeft(r.end_date) < 0).length;
-  const dueSoon = rows.filter(r => { const d = daysLeft(r.end_date); return d >= 0 && d <= 3; }).length;
   const deptsInvolved = new Set(rows.map(r => r.current_department_id)).size;
+  const sourceDeptsInvolved = new Set(rows.map(r => r.home_department_id)).size;
 
   document.getElementById('stat-grid').innerHTML = `
     <div class="stat-card"><div class="num">${rows.length}</div><div class="lbl">กำลังโอนย้ายทั้งหมด</div></div>
-    <div class="stat-card warning"><div class="num">${dueSoon}</div><div class="lbl">ใกล้ครบกำหนด (≤3 วัน)</div></div>
-    <div class="stat-card danger"><div class="num">${overdue}</div><div class="lbl">เกินกำหนดคืนแล้ว</div></div>
     <div class="stat-card accent"><div class="num">${deptsInvolved}</div><div class="lbl">แผนกปลายทางที่เกี่ยวข้อง</div></div>
+    <div class="stat-card accent"><div class="num">${sourceDeptsInvolved}</div><div class="lbl">แผนกต้นสังกัดที่เกี่ยวข้อง</div></div>
   `;
 }
 
