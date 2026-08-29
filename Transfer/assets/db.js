@@ -24,7 +24,6 @@ const db = {
       .from('employees')
       .select('id, employee_code, full_name, home_department_id, status')
       .eq('home_department_id', departmentId)
-      .eq('status', 'normal')
       .order('employee_code');
     if (error) throw error;
     return data;
