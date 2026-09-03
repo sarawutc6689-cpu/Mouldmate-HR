@@ -116,4 +116,39 @@ const db = {
     if (error) throw error;
     return data;
   },
+
+  /* ---------------- หน้าจัดการพนักงาน (แอดมิน) ---------------- */
+  async getEmployeeAdminList({ search = '' } = {}) {
+    let query = sb.from('v_employee_admin_list').select('*');
+    if (search) query = query.or(`employee_code.ilike.%${search}%,full_name.ilike.%${search}%`);
+    const { data, error } = await query.order('employee_code').limit(1000);
+    if (error) throw error;
+    return data;
+  },
+
+  async upsertEmployee({ employeeCode, fullName, homeDeptId, hireDate }) {
+    const { error } = await sb.rpc('admin_upsert_employee', {
+      p_employee_code: employeeCode,
+      p_full_name: fullName,
+      p_home_department_id: homeDeptId,
+      p_hire_date: hireDate || null,
+    });
+    if (error) throw error;
+  },
+
+  async setEmployeeRole(employeeCode, role) {
+    const { error } = await sb.rpc('admin_set_employee_role', {
+      p_employee_code: employeeCode,
+      p_role: role,
+    });
+    if (error) throw error;
+  },
+
+  async setApproverDepartments(employeeCode, departmentIds) {
+    const { error } = await sb.rpc('admin_set_approver_departments', {
+      p_employee_code: employeeCode,
+      p_department_ids: departmentIds,
+    });
+    if (error) throw error;
+  },
 };
