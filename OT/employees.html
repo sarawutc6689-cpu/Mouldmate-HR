@@ -201,7 +201,7 @@ tbody tr:last-child td{border-bottom:none}
             <input type="text" id="newName" placeholder="เช่น นายสมชาย ใจดี" autocomplete="off">
           </div>
           <div class="field">
-            <div class="lbl">ฝ่าย</div>
+            <div class="lbl">ส่วนงาน (Section)</div>
             <input type="text" id="newSection" placeholder="เช่น ขายต่างประเทศ" autocomplete="off">
           </div>
           <div class="field">
@@ -227,7 +227,7 @@ tbody tr:last-child td{border-bottom:none}
         <div class="list-wrap">
           <table>
             <thead>
-              <tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>ฝ่าย</th><th>แผนก</th><th>ตำแหน่ง</th></tr>
+              <tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>ส่วนงาน</th><th>แผนก</th><th>ตำแหน่ง</th></tr>
             </thead>
             <tbody id="listBody">
               <tr><td colspan="5"><div class="dots"><span></span><span></span><span></span></div></td></tr>
@@ -265,11 +265,28 @@ function showAlert(type, msg){
   setTimeout(function(){ el.classList.remove('on'); }, type === 'err' ? 5000 : 3000);
 }
 
+/* จำกัดให้เข้าหน้านี้ได้เฉพาะ manager_code นี้เท่านั้น
+   (การเช็คจริงที่ป้องกันได้แน่นอนอยู่ในฟังก์ชัน add_employee/list_employees
+   ฝั่ง Supabase แล้ว อันนี้แค่กันไม่ให้คนอื่นเห็นหน้าฟอร์มโดยไม่จำเป็น) */
+const ALLOWED_MANAGER_CODE = '104058';
+
 window.onload = async function(){
   showLoading();
   currentManager = await window.OTAuth.requireLogin();
   hideLoading();
   if (!currentManager) return;
+
+  if (currentManager.token !== ALLOWED_MANAGER_CODE) {
+    document.body.innerHTML =
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+      'min-height:100vh;gap:16px;font-family:\'Sarabun\',sans-serif;text-align:center;padding:24px">' +
+      '<div style="font-size:48px">🚫</div>' +
+      '<div style="font-size:18px;font-weight:700;color:#0f172a">ไม่มีสิทธิ์เข้าถึงหน้านี้</div>' +
+      '<div style="font-size:14px;color:#64748b">หน้าจัดการพนักงานจำกัดสิทธิ์เฉพาะผู้ดูแลระบบเท่านั้น</div>' +
+      '<a href="index.html" style="margin-top:8px;padding:10px 24px;background:#1d4ed8;color:#fff;' +
+      'border-radius:7px;text-decoration:none;font-weight:600">กลับหน้าแรก</a></div>';
+    return;
+  }
 
   document.getElementById('hdrUser').textContent =
     (currentManager.department === 'ALL' ? 'ผู้ดูแลระบบ (ทุกแผนก)' : 'แผนก: ' + currentManager.department) +
