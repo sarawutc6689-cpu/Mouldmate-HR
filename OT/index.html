@@ -715,6 +715,39 @@ async function confirmEdit(){
 
 document.getElementById('editModal').addEventListener('click', function(e){ if (e.target === this) closeEditModal(); });
 document.getElementById('deleteModal').addEventListener('click', function(e){ if (e.target === this) closeDeleteModal(); });
+
+  // ============================================================
+// check_before_ot_entry.js (ตัวอย่าง — เอาไปแปะในโค้ดฟอร์มกรอก OT ของ OT-Tracking)
+// เช็คก่อนบันทึก OT ว่าพนักงานคนนี้ถูกบล็อกอยู่หรือไม่ (แสดงข้อความเตือนทันที
+// ไม่ต้องรอ error จาก trigger ฝั่ง database ซึ่งเป็นแค่ด่านสุดท้ายกันพลาด)
+// ============================================================
+
+async function checkTransferBlock(employeeCode) {
+  const { data, error } = await sb // sb = Supabase client ของ OT-Tracking (คนละตัวกับระบบโอนย้าย)
+    .from('transfer_block_status')
+    .select('is_blocked')
+    .eq('employee_code', employeeCode)
+    .maybeSingle();
+
+  if (error) {
+    console.error('เช็คสถานะบล็อกไม่สำเร็จ:', error);
+    return false; // เช็คไม่ได้ ปล่อยผ่านไปก่อน ไม่บล็อกการทำงานทั้งระบบ
+  }
+  return data?.is_blocked === true;
+}
+
+// ตัวอย่างการใช้งานก่อน submit ฟอร์ม OT
+// (ในฟอร์มจริงของ OT-Tracking ตัวแปรนี้คือค่าจากช่อง emp_code)
+async function onSubmitOtForm(empCode) {
+  const blocked = await checkTransferBlock(empCode);
+  if (blocked) {
+    alert('พนักงานรหัส ' + empCode + ' อยู่ระหว่างรอการอนุมัติโอนย้าย ไม่สามารถกรอก OT ได้ในขณะนี้');
+    return; // หยุด ไม่ insert ข้อมูล OT
+  }
+  // ... โค้ด insert เข้าตาราง ot_records ต่อตามปกติ
+}
+
+  
 </script>
 </body>
 </html>
