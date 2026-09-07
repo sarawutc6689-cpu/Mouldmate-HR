@@ -193,20 +193,20 @@ tbody tr:last-child td{border-bottom:none}
           <div class="alert ok" id="alertOk"></div>
 
           <div class="field">
-            <div class="lbl">รหัสพนักงาน</div>
+            <div class="lbl">รหัสพนักงาน *</div>
             <input type="text" id="newCode" placeholder="เช่น 900010" autocomplete="off">
           </div>
           <div class="field">
-            <div class="lbl">ชื่อ-สกุล</div>
+            <div class="lbl">ชื่อ-สกุล *</div>
             <input type="text" id="newName" placeholder="เช่น นายสมชาย ใจดี" autocomplete="off">
-          </div>
-          <div class="field">
-            <div class="lbl">แผนก</div>
-            <select id="newDept"></select>
           </div>
           <div class="field">
             <div class="lbl">ฝ่าย</div>
             <input type="text" id="newSection" placeholder="เช่น ขายต่างประเทศ" autocomplete="off">
+          </div>
+          <div class="field">
+            <div class="lbl">แผนก *</div>
+            <select id="newDept"></select>
           </div>
           <div class="field">
             <div class="lbl">ตำแหน่ง</div>
@@ -227,7 +227,7 @@ tbody tr:last-child td{border-bottom:none}
         <div class="list-wrap">
           <table>
             <thead>
-              <tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>แผนก</th><th>ฝ่าย</th><th>ตำแหน่ง</th></tr>
+              <tr><th>รหัส</th><th>ชื่อ-สกุล</th><th>ฝ่าย</th><th>แผนก</th><th>ตำแหน่ง</th></tr>
             </thead>
             <tbody id="listBody">
               <tr><td colspan="5"><div class="dots"><span></span><span></span><span></span></div></td></tr>
@@ -338,8 +338,8 @@ function renderFilteredList(){
     return '<tr>' +
       '<td class="mono">' + escapeHtml(e.code) + '</td>' +
       '<td>' + escapeHtml(e.name) + '</td>' +
-      '<td><span class="dept-badge">' + escapeHtml(e.department||'—') + '</span></td>' +
       '<td>' + escapeHtml(e.section||'—') + '</td>' +
+      '<td><span class="dept-badge">' + escapeHtml(e.department||'—') + '</span></td>' +
       '<td>' + escapeHtml(e.position||'—') + '</td>' +
     '</tr>';
   }).join('');
