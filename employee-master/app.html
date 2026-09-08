@@ -46,25 +46,25 @@
             </div>
             <div class="field-row">
               <div class="field">
-                <label class="field-label">แผนก <span class="req">*</span></label>
-                <select class="input" id="f-dept" required></select>
-              </div>
-              <div class="field">
-                <label class="field-label">วันที่เริ่มงาน</label>
-                <input type="date" id="f-hire-date" class="input">
-                <div class="field-sub">ใช้ตั้งรหัสผ่านเริ่มต้นในระบบโอนย้ายพนักงาน</div>
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field">
                 <label class="field-label">ฝ่าย/หมวดหมู่ (section)</label>
                 <input type="text" id="f-section" class="input" placeholder="เช่น ผลิต, วิศวกรรม">
                 <div class="field-sub">ใช้โดย OT-Tracking เท่านั้น</div>
               </div>
               <div class="field">
+                <label class="field-label">แผนก <span class="req">*</span></label>
+                <select class="input" id="f-dept" required></select>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
                 <label class="field-label">ตำแหน่ง (position)</label>
                 <input type="text" id="f-position" class="input" placeholder="เช่น หัวหน้างาน, พนักงานฝ่ายผลิต">
                 <div class="field-sub">ใช้โดย OT-Tracking เท่านั้น</div>
+              </div>
+              <div class="field">
+                <label class="field-label">วันที่เริ่มงาน</label>
+                <input type="date" id="f-hire-date" class="input">
+                <div class="field-sub">ใช้ตั้งรหัสผ่านเริ่มต้นในระบบโอนย้ายพนักงาน</div>
               </div>
             </div>
             <div class="flex" style="justify-content:flex-end; gap:10px;">
@@ -85,8 +85,8 @@
               <tr>
                 <th>รหัสพนักงาน</th>
                 <th>ชื่อ</th>
-                <th>แผนก</th>
                 <th>ฝ่าย/หมวดหมู่</th>
+                <th>แผนก</th>
                 <th>ตำแหน่ง</th>
                 <th>วันที่เริ่มงาน</th>
                 <th style="width:80px;">จัดการ</th>
@@ -200,8 +200,8 @@ async function renderTable() {
     <tr>
       <td class="cell-code">${r.employee_code}</td>
       <td>${r.full_name}</td>
-      <td>${r.departments?.name || '-'}</td>
       <td class="cell-muted">${r.section || '-'}</td>
+      <td>${r.departments?.name || '-'}</td>
       <td class="cell-muted">${r.position || '-'}</td>
       <td class="cell-muted">${r.hire_date || '-'}</td>
       <td><button class="btn btn-ghost btn-sm" data-code="${r.employee_code}">แก้ไข</button></td>
