@@ -313,6 +313,13 @@
     flex-shrink:0;
   }
   .modal-close:hover{background:var(--danger-soft); color:var(--danger);}
+
+  .app-footer{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    padding:24px 20px 32px;
+  }
 </style>
 </head>
 <body>
@@ -375,8 +382,8 @@
               <tr>
                 <th>รหัส</th>
                 <th>ชื่อ-นามสกุล</th>
-                <th>แผนก</th>
                 <th>ฝ่าย</th>
+                <th>แผนก</th>
                 <th>ตำแหน่ง</th>
                 <th>วันเริ่มงาน</th>
                 <th></th>
@@ -388,6 +395,10 @@
         <div class="empty-state" id="empty-state" style="display:none;">ไม่พบพนักงานที่ค้นหา</div>
       </section>
     </main>
+
+    <footer class="app-footer">
+      ระบบฐานข้อมูลฝ่ายบุคคล | ใช้ภายในบริษัทเท่านั้น | พัฒนาโดย Sarawut.C
+    </footer>
   </div>
 
   <!-- ============ EMPLOYEE FORM MODAL ============ -->
@@ -429,8 +440,8 @@
         <input id="f-position" required list="position-suggestions" placeholder="เช่น เจ้าหน้าที่ธุรการ">
         <datalist id="position-suggestions"></datalist>
 
-        <label for="f-hiredate">วันเริ่มงาน</label>
-        <input id="f-hiredate" type="date">
+        <label for="f-hiredate">วันเริ่มงาน (พ.ศ.)</label>
+        <input id="f-hiredate" type="text" placeholder="วว/ดด/ปปปป เช่น 01/01/2533" inputmode="numeric">
 
         <div class="form-actions">
           <button type="button" id="cancel-btn" class="btn btn-cancel">ยกเลิก</button>
@@ -457,6 +468,25 @@
   let editingCode = null;    // employee_code currently being edited, or null = adding new
 
   const el = (id) => document.getElementById(id);
+
+  // ---------------- BUDDHIST-ERA DATE HELPERS ----------------
+  // DB stores standard Gregorian dates (yyyy-mm-dd). The UI only
+  // ever shows/accepts Thai Buddhist-era dd/MM/yyyy.
+  function isoToThaiDate(iso){
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-');
+    const be = parseInt(y, 10) + 543;
+    return `${d}/${m}/${be}`;
+  }
+  function thaiToIsoDate(str){
+    if (!str || !str.trim()) return { ok: true, value: null };
+    const match = str.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (!match) return { ok: false };
+    const [, d, m, beYear] = match;
+    const day = parseInt(d, 10), month = parseInt(m, 10), ceYear = parseInt(beYear, 10) - 543;
+    if (month < 1 || month > 12 || day < 1 || day > 31 || ceYear < 1900 || ceYear > 2100) return { ok: false };
+    return { ok: true, value: `${ceYear}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}` };
+  }
 
   function showBanner(message, isError=false){
     const wrap = el('status-banner');
@@ -542,10 +572,10 @@
       <tr>
         <td class="code-cell">${r.employee_code}</td>
         <td>${r.full_name}</td>
-        <td>${r.department_name} <span style="color:var(--ink-soft); font-size:12px;">(${r.department_code})</span></td>
         <td>${r.section_name}</td>
+        <td>${r.department_name} <span style="color:var(--ink-soft); font-size:12px;">(${r.department_code})</span></td>
         <td>${r.position_name}</td>
-        <td>${r.hire_date ?? '-'}</td>
+        <td>${isoToThaiDate(r.hire_date) || '-'}</td>
         <td class="row-actions">
           <button class="link-btn" data-edit="${r.employee_code}">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
@@ -604,7 +634,7 @@
     el('f-section').value = row.section_name;
     el('f-deptcode').value = row.department_code;
     el('f-position').value = row.position_name;
-    el('f-hiredate').value = row.hire_date ?? '';
+    el('f-hiredate').value = isoToThaiDate(row.hire_date);
     el('form-title').textContent = 'แก้ไขข้อมูลพนักงาน: ' + code;
     el('save-btn').textContent = 'บันทึกการแก้ไข';
     openModal();
@@ -646,7 +676,10 @@
     const name = el('f-name').value.trim();
     const departmentCode = el('f-department').value;
     const positionName = el('f-position').value.trim();
-    const hireDate = el('f-hiredate').value || null;
+    const parsedDate = thaiToIsoDate(el('f-hiredate').value);
+
+    if (!parsedDate.ok) { showBanner('รูปแบบวันเริ่มงานไม่ถูกต้อง กรุณากรอกเป็น วว/ดด/ปปปป (พ.ศ.) เช่น 01/01/2533', true); return; }
+    const hireDate = parsedDate.value;
 
     if (!departmentCode) { showBanner('กรุณาเลือกแผนก', true); return; }
 
