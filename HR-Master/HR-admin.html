@@ -321,7 +321,7 @@
   const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let departments = [];      // {department_code, name, section_name}
   let allEmployees = [];     // rows from employees_directory
@@ -344,7 +344,7 @@
     const email = el('login-email').value.trim();
     const password = el('login-password').value;
     el('login-error').style.display = 'none';
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await sb.auth.signInWithPassword({ email, password });
     if (error) {
       el('login-error').textContent = 'เข้าสู่ระบบไม่สำเร็จ: ' + error.message;
       el('login-error').style.display = 'block';
@@ -352,10 +352,10 @@
   });
 
   el('logout-btn').addEventListener('click', async () => {
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
   });
 
-  supabase.auth.onAuthStateChange((_event, session) => {
+  sb.auth.onAuthStateChange((_event, session) => {
     if (session) {
       el('login-screen').style.display = 'none';
       el('app').style.display = 'block';
@@ -369,7 +369,7 @@
 
   // ---------------- LOAD DATA ----------------
   async function loadDepartments(){
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('departments')
       .select('department_code, name, section:sections(name)')
       .order('name');
@@ -385,13 +385,13 @@
   }
 
   async function loadPositionSuggestions(){
-    const { data, error } = await supabase.from('positions').select('name').order('name');
+    const { data, error } = await sb.from('positions').select('name').order('name');
     if (error) return;
     el('position-suggestions').innerHTML = data.map(p => `<option value="${p.name}">`).join('');
   }
 
   async function loadEmployees(){
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('employees_directory')
       .select('*')
       .order('employee_code');
@@ -481,11 +481,11 @@
 
   async function getOrCreatePositionId(name){
     const trimmed = name.trim();
-    const { data: existing, error: findErr } = await supabase
+    const { data: existing, error: findErr } = await sb
       .from('positions').select('position_id').eq('name', trimmed).maybeSingle();
     if (findErr) throw findErr;
     if (existing) return existing.position_id;
-    const { data: created, error: insertErr } = await supabase
+    const { data: created, error: insertErr } = await sb
       .from('positions').insert({ name: trimmed }).select('position_id').single();
     if (insertErr) throw insertErr;
     return created.position_id;
@@ -505,7 +505,7 @@
       const positionId = await getOrCreatePositionId(positionName);
 
       if (editingCode) {
-        const { error } = await supabase
+        const { error } = await sb
           .from('employees')
           .update({
             full_name: name,
@@ -517,7 +517,7 @@
         if (error) throw error;
         showBanner('บันทึกการแก้ไขเรียบร้อย');
       } else {
-        const { error } = await supabase
+        const { error } = await sb
           .from('employees')
           .insert({
             employee_code: code,
@@ -538,7 +538,7 @@
 
   async function deleteEmployee(code){
     if (!confirm(`ยืนยันลบพนักงานรหัส ${code} ออกจากฐานข้อมูลกลาง?`)) return;
-    const { error } = await supabase.from('employees').delete().eq('employee_code', code);
+    const { error } = await sb.from('employees').delete().eq('employee_code', code);
     if (error) { showBanner('ลบไม่สำเร็จ: ' + error.message, true); return; }
     showBanner('ลบพนักงานเรียบร้อย');
     if (editingCode === code) resetForm();
