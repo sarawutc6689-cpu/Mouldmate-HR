@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ฐานข้อมูลพนักงานกลาง — HR Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#202632;
+    --ink-soft:#5B6472;
+    --bg:#EDEFF2;
+    --panel:#FFFFFF;
+    --line:#DADEE4;
+    --accent:#2F6F76;
+    --accent-ink:#FFFFFF;
+    --accent-soft:#E4EFEF;
+    --danger:#9B3B3B;
+    --danger-soft:#F6E9E7;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:15px;
+    line-height:1.5;
+  }
+  h1,h2,h3{
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    margin:0;
+    font-weight:600;
+  }
+
+  /* ---------- login screen ---------- */
+  #login-screen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .login-card{
+    width:100%;
+    max-width:360px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:32px 28px;
+  }
+  .login-card h1{font-size:20px; margin-bottom:6px;}
+  .login-card p{color:var(--ink-soft); font-size:13.5px; margin:0 0 22px;}
+
+  /* ---------- top bar ---------- */
+  #app{display:none;}
+  header{
+    background:var(--panel);
+    border-bottom:1px solid var(--line);
+    padding:16px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  header h1{font-size:18px;}
+  header .who{font-size:13px; color:var(--ink-soft);}
+  .btn-ghost{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:7px 14px;
+    border-radius:8px;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .btn-ghost:hover{border-color:var(--ink-soft); color:var(--ink);}
+
+  main{
+    max-width:1120px;
+    margin:0 auto;
+    padding:28px;
+    display:grid;
+    grid-template-columns:340px 1fr;
+    gap:24px;
+    align-items:start;
+  }
+  @media (max-width:860px){
+    main{grid-template-columns:1fr;}
+  }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+  }
+  .panel h2{font-size:16px; margin-bottom:18px;}
+
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+    margin-top:14px;
+  }
+  label:first-of-type{margin-top:0;}
+  input, select{
+    width:100%;
+    padding:9px 11px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:14px;
+    font-family:inherit;
+    color:var(--ink);
+    background:#fff;
+  }
+  input:focus, select:focus{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+    border-color:var(--accent);
+  }
+  input:disabled{background:#F2F3F5; color:var(--ink-soft);}
+  input[readonly]{background:var(--accent-soft); color:var(--ink);}
+
+  .readonly-pair{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+
+  .form-actions{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+  }
+  .btn{
+    flex:1;
+    padding:10px 14px;
+    border-radius:8px;
+    border:none;
+    font-size:14px;
+    font-weight:600;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--accent); color:var(--accent-ink);}
+  .btn-primary:hover{background:#255c62;}
+  .btn-cancel{background:#F2F3F5; color:var(--ink-soft);}
+  .btn-cancel:hover{color:var(--ink);}
+
+  #login-btn{width:100%; margin-top:20px; background:var(--accent); color:#fff;}
+
+  /* ---------- table side ---------- */
+  .table-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+    gap:12px;
+  }
+  .table-toolbar input{max-width:280px;}
+  .count-tag{font-size:13px; color:var(--ink-soft); white-space:nowrap;}
+
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th{
+    text-align:left;
+    font-weight:600;
+    color:var(--ink-soft);
+    font-size:12.5px;
+    padding:8px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  td{
+    padding:10px;
+    border-bottom:1px solid #EEF0F3;
+    vertical-align:top;
+  }
+  tr:hover td{background:#FAFBFC;}
+  .code-cell{color:var(--accent); font-weight:600;}
+  .row-actions{white-space:nowrap;}
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--accent);
+    font-size:13px;
+    cursor:pointer;
+    padding:0;
+    margin-right:12px;
+    font-family:inherit;
+  }
+  .link-btn.danger{color:var(--danger);}
+  .link-btn:hover{text-decoration:underline;}
+
+  .empty-state{
+    text-align:center;
+    color:var(--ink-soft);
+    padding:40px 0;
+    font-size:14px;
+  }
+
+  #status-banner{
+    display:none;
+    max-width:1120px;
+    margin:0 auto;
+    padding:0 28px;
+  }
+  .banner{
+    padding:11px 16px;
+    border-radius:8px;
+    font-size:13.5px;
+    margin-bottom:0;
+  }
+  .banner.ok{background:var(--accent-soft); color:#1E4B50;}
+  .banner.err{background:var(--danger-soft); color:var(--danger);}
+
+  datalist{}
+</style>
+</head>
+<body>
+
+  <!-- ============ LOGIN ============ -->
+  <div id="login-screen">
+    <div class="login-card">
+      <h1>ฐานข้อมูลพนักงานกลาง</h1>
+      <p>เข้าสู่ระบบด้วยบัญชี HR แอดมิน (สร้างบัญชีไว้ล่วงหน้าใน Supabase Auth)</p>
+      <label for="login-email">อีเมล</label>
+      <input id="login-email" type="email" autocomplete="username" placeholder="you@company.com">
+      <label for="login-password">รหัสผ่าน</label>
+      <input id="login-password" type="password" autocomplete="current-password">
+      <button id="login-btn" class="btn">เข้าสู่ระบบ</button>
+      <p id="login-error" style="color:var(--danger); font-size:13px; margin-top:12px; display:none;"></p>
+    </div>
+  </div>
+
+  <!-- ============ STATUS BANNER ============ -->
+  <div id="status-banner"><div class="banner" id="banner-inner"></div></div>
+
+  <!-- ============ APP ============ -->
+  <div id="app">
+    <header>
+      <h1>ฐานข้อมูลพนักงานกลาง</h1>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <span class="who" id="who-label"></span>
+        <button class="btn-ghost" id="logout-btn">ออกจากระบบ</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- ---------- FORM ---------- -->
+      <section class="panel">
+        <h2 id="form-title">เพิ่มพนักงานใหม่</h2>
+        <form id="employee-form">
+          <label for="f-code">รหัสพนักงาน</label>
+          <input id="f-code" required placeholder="เช่น 900123">
+
+          <label for="f-name">ชื่อ-นามสกุล</label>
+          <input id="f-name" required placeholder="เช่น นายสมชาย ใจดี">
+
+          <label for="f-department">แผนก</label>
+          <select id="f-department" required>
+            <option value="" disabled selected>เลือกแผนก</option>
+          </select>
+
+          <div class="readonly-pair">
+            <div>
+              <label for="f-section">ฝ่าย</label>
+              <input id="f-section" readonly>
+            </div>
+            <div>
+              <label for="f-deptcode">รหัสแผนก</label>
+              <input id="f-deptcode" readonly>
+            </div>
+          </div>
+
+          <label for="f-position">ตำแหน่ง</label>
+          <input id="f-position" required list="position-suggestions" placeholder="เช่น เจ้าหน้าที่ธุรการ">
+          <datalist id="position-suggestions"></datalist>
+
+          <label for="f-hiredate">วันเริ่มงาน</label>
+          <input id="f-hiredate" type="date">
+
+          <div class="form-actions">
+            <button type="button" id="cancel-btn" class="btn btn-cancel" style="display:none;">ยกเลิก</button>
+            <button type="submit" class="btn btn-primary" id="save-btn">บันทึก</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ---------- TABLE ---------- -->
+      <section class="panel">
+        <div class="table-toolbar">
+          <input id="search-box" placeholder="ค้นหารหัส หรือ ชื่อพนักงาน...">
+          <span class="count-tag" id="count-tag"></span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัส</th>
+                <th>ชื่อ-นามสกุล</th>
+                <th>แผนก</th>
+                <th>ฝ่าย</th>
+                <th>ตำแหน่ง</th>
+                <th>วันเริ่มงาน</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="employee-tbody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="empty-state" style="display:none;">ไม่พบพนักงานที่ค้นหา</div>
+      </section>
+    </main>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ============================================================
+  // ใส่ค่าโปรเจค hr-master ของคุณตรงนี้
+  // anon key ฝังในหน้าเว็บได้อย่างปลอดภัย เพราะ RLS เป็นตัวคุมสิทธิ์จริง
+  // ห้ามใส่ service_role key ที่นี่เด็ดขาด
+  // ============================================================
+  const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let departments = [];      // {department_code, name, section_name}
+  let allEmployees = [];     // rows from employees_directory
+  let editingCode = null;    // employee_code currently being edited, or null = adding new
+
+  const el = (id) => document.getElementById(id);
+
+  function showBanner(message, isError=false){
+    const wrap = el('status-banner');
+    const inner = el('banner-inner');
+    inner.textContent = message;
+    inner.className = 'banner ' + (isError ? 'err' : 'ok');
+    wrap.style.display = 'block';
+    clearTimeout(showBanner._t);
+    showBanner._t = setTimeout(() => wrap.style.display = 'none', 3500);
+  }
+
+  // ---------------- AUTH ----------------
+  el('login-btn').addEventListener('click', async () => {
+    const email = el('login-email').value.trim();
+    const password = el('login-password').value;
+    el('login-error').style.display = 'none';
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      el('login-error').textContent = 'เข้าสู่ระบบไม่สำเร็จ: ' + error.message;
+      el('login-error').style.display = 'block';
+    }
+  });
+
+  el('logout-btn').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+  });
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    if (session) {
+      el('login-screen').style.display = 'none';
+      el('app').style.display = 'block';
+      el('who-label').textContent = session.user.email;
+      init();
+    } else {
+      el('login-screen').style.display = 'flex';
+      el('app').style.display = 'none';
+    }
+  });
+
+  // ---------------- LOAD DATA ----------------
+  async function loadDepartments(){
+    const { data, error } = await supabase
+      .from('departments')
+      .select('department_code, name, section:sections(name)')
+      .order('name');
+    if (error) { showBanner('โหลดรายชื่อแผนกไม่สำเร็จ: ' + error.message, true); return; }
+    departments = data.map(d => ({
+      department_code: d.department_code,
+      name: d.name,
+      section_name: d.section ? d.section.name : ''
+    }));
+    const select = el('f-department');
+    select.innerHTML = '<option value="" disabled selected>เลือกแผนก</option>' +
+      departments.map(d => `<option value="${d.department_code}">${d.name}</option>`).join('');
+  }
+
+  async function loadPositionSuggestions(){
+    const { data, error } = await supabase.from('positions').select('name').order('name');
+    if (error) return;
+    el('position-suggestions').innerHTML = data.map(p => `<option value="${p.name}">`).join('');
+  }
+
+  async function loadEmployees(){
+    const { data, error } = await supabase
+      .from('employees_directory')
+      .select('*')
+      .order('employee_code');
+    if (error) { showBanner('โหลดรายชื่อพนักงานไม่สำเร็จ: ' + error.message, true); return; }
+    allEmployees = data;
+    renderTable(allEmployees);
+  }
+
+  function renderTable(rows){
+    const tbody = el('employee-tbody');
+    el('count-tag').textContent = rows.length + ' คน';
+    if (rows.length === 0) {
+      tbody.innerHTML = '';
+      el('empty-state').style.display = 'block';
+      return;
+    }
+    el('empty-state').style.display = 'none';
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td class="code-cell">${r.employee_code}</td>
+        <td>${r.full_name}</td>
+        <td>${r.department_name} <span style="color:var(--ink-soft); font-size:12px;">(${r.department_code})</span></td>
+        <td>${r.section_name}</td>
+        <td>${r.position_name}</td>
+        <td>${r.hire_date ?? '-'}</td>
+        <td class="row-actions">
+          <button class="link-btn" data-edit="${r.employee_code}">แก้ไข</button>
+          <button class="link-btn danger" data-delete="${r.employee_code}">ลบ</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  el('employee-tbody').addEventListener('click', (e) => {
+    const editCode = e.target.getAttribute('data-edit');
+    const delCode = e.target.getAttribute('data-delete');
+    if (editCode) startEdit(editCode);
+    if (delCode) deleteEmployee(delCode);
+  });
+
+  el('search-box').addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    if (!q) { renderTable(allEmployees); return; }
+    renderTable(allEmployees.filter(r =>
+      r.employee_code.toLowerCase().includes(q) || r.full_name.toLowerCase().includes(q)
+    ));
+  });
+
+  // ---------------- DEPARTMENT AUTO-FILL ----------------
+  el('f-department').addEventListener('change', (e) => {
+    const dept = departments.find(d => d.department_code === e.target.value);
+    el('f-section').value = dept ? dept.section_name : '';
+    el('f-deptcode').value = dept ? dept.department_code : '';
+  });
+
+  // ---------------- FORM: ADD / EDIT ----------------
+  function resetForm(){
+    editingCode = null;
+    el('employee-form').reset();
+    el('f-code').disabled = false;
+    el('f-section').value = '';
+    el('f-deptcode').value = '';
+    el('form-title').textContent = 'เพิ่มพนักงานใหม่';
+    el('save-btn').textContent = 'บันทึก';
+    el('cancel-btn').style.display = 'none';
+  }
+
+  function startEdit(code){
+    const row = allEmployees.find(r => r.employee_code === code);
+    if (!row) return;
+    editingCode = code;
+    el('f-code').value = row.employee_code;
+    el('f-code').disabled = true; // รหัสพนักงานเป็น primary key แก้ไม่ได้หลังสร้าง
+    el('f-name').value = row.full_name;
+    el('f-department').value = row.department_code;
+    el('f-section').value = row.section_name;
+    el('f-deptcode').value = row.department_code;
+    el('f-position').value = row.position_name;
+    el('f-hiredate').value = row.hire_date ?? '';
+    el('form-title').textContent = 'แก้ไขข้อมูลพนักงาน: ' + code;
+    el('save-btn').textContent = 'บันทึกการแก้ไข';
+    el('cancel-btn').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  el('cancel-btn').addEventListener('click', resetForm);
+
+  async function getOrCreatePositionId(name){
+    const trimmed = name.trim();
+    const { data: existing, error: findErr } = await supabase
+      .from('positions').select('position_id').eq('name', trimmed).maybeSingle();
+    if (findErr) throw findErr;
+    if (existing) return existing.position_id;
+    const { data: created, error: insertErr } = await supabase
+      .from('positions').insert({ name: trimmed }).select('position_id').single();
+    if (insertErr) throw insertErr;
+    return created.position_id;
+  }
+
+  el('employee-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = el('f-code').value.trim();
+    const name = el('f-name').value.trim();
+    const departmentCode = el('f-department').value;
+    const positionName = el('f-position').value.trim();
+    const hireDate = el('f-hiredate').value || null;
+
+    if (!departmentCode) { showBanner('กรุณาเลือกแผนก', true); return; }
+
+    try {
+      const positionId = await getOrCreatePositionId(positionName);
+
+      if (editingCode) {
+        const { error } = await supabase
+          .from('employees')
+          .update({
+            full_name: name,
+            department_code: departmentCode,
+            position_id: positionId,
+            hire_date: hireDate
+          })
+          .eq('employee_code', editingCode);
+        if (error) throw error;
+        showBanner('บันทึกการแก้ไขเรียบร้อย');
+      } else {
+        const { error } = await supabase
+          .from('employees')
+          .insert({
+            employee_code: code,
+            full_name: name,
+            department_code: departmentCode,
+            position_id: positionId,
+            hire_date: hireDate
+          });
+        if (error) throw error;
+        showBanner('เพิ่มพนักงานใหม่เรียบร้อย');
+      }
+      resetForm();
+      await Promise.all([loadEmployees(), loadPositionSuggestions()]);
+    } catch (err) {
+      showBanner('บันทึกไม่สำเร็จ: ' + err.message, true);
+    }
+  });
+
+  async function deleteEmployee(code){
+    if (!confirm(`ยืนยันลบพนักงานรหัส ${code} ออกจากฐานข้อมูลกลาง?`)) return;
+    const { error } = await supabase.from('employees').delete().eq('employee_code', code);
+    if (error) { showBanner('ลบไม่สำเร็จ: ' + error.message, true); return; }
+    showBanner('ลบพนักงานเรียบร้อย');
+    if (editingCode === code) resetForm();
+    await loadEmployees();
+  }
+
+  // ---------------- INIT ----------------
+  async function init(){
+    await Promise.all([loadDepartments(), loadPositionSuggestions(), loadEmployees()]);
+  }
+</script>
+</body>
+</html>
