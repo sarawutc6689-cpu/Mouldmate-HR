@@ -501,9 +501,7 @@
   // เรียก Edge Function "sync-employees" ที่ deploy ไว้บนโปรเจค Transfer
   // (คนละโปรเจคกับ hr-master) ให้ดึงข้อมูลคนนี้ไปสร้าง/อัปเดตในฝั่ง Transfer เอง
   const TRANSFER_URL = "https://fpsdntchtoxtcpfwkkom.supabase.co";
-  const TRANSFER_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwc2RudGNodG94dGNwZndra29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDM1OTYsImV4cCI6MjEwMjYxOTU5Nn0.B8WZ4jPd2rVrquUCFLH406WG_GBykGs3zINhWrbf9rc
-";
-
+  const TRANSFER_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwc2RudGNodG94dGNwZndra29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDM1OTYsImV4cCI6MjEwMjYxOTU5Nn0.B8WZ4jPd2rVrquUCFLH406WG_GBykGs3zINhWrbf9rc";
   function syncToTransfer(employeeCode){
     fetch(`${TRANSFER_URL}/functions/v1/sync-employees`, {
       method: 'POST',
