@@ -478,8 +478,8 @@
   // anon key ฝังในหน้าเว็บได้อย่างปลอดภัย เพราะ RLS เป็นตัวคุมสิทธิ์จริง
   // ห้ามใส่ service_role key ที่นี่เด็ดขาด
   // ============================================================
-  const SUPABASE_URL = "https://fpsdntchtoxtcpfwkkom.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwc2RudGNodG94dGNwZndra29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDM1OTYsImV4cCI6MjEwMjYxOTU5Nn0.B8WZ4jPd2rVrquUCFLH406WG_GBykGs3zINhWrbf9rc";
+  const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
 
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -500,8 +500,9 @@
   // ---------------- SYNC TO OTHER PROJECTS ----------------
   // เรียก Edge Function "sync-employees" ที่ deploy ไว้บนโปรเจค Transfer
   // (คนละโปรเจคกับ hr-master) ให้ดึงข้อมูลคนนี้ไปสร้าง/อัปเดตในฝั่ง Transfer เอง
-  const TRANSFER_URL = "https://YOUR-TRANSFER-PROJECT-REF.supabase.co";
-  const TRANSFER_ANON_KEY = "YOUR-TRANSFER-ANON-KEY";
+  const TRANSFER_URL = "https://fpsdntchtoxtcpfwkkom.supabase.co";
+  const TRANSFER_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwc2RudGNodG94dGNwZndra29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDM1OTYsImV4cCI6MjEwMjYxOTU5Nn0.B8WZ4jPd2rVrquUCFLH406WG_GBykGs3zINhWrbf9rc
+";
 
   function syncToTransfer(employeeCode){
     fetch(`${TRANSFER_URL}/functions/v1/sync-employees`, {
