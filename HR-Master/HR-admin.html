@@ -345,8 +345,7 @@
         </svg>
       </div>
       <h1>ฐานข้อมูลพนักงานกลาง</h1>
-      <p>เข้าสู่ระบบด้วยบัญชี HR แอดมิน</p>
-      <p>E-Mail : hr@local.com </p>
+      <p>เข้าสู่ระบบด้วยบัญชี HR แอดมิน (สร้างบัญชีไว้ล่วงหน้าใน Supabase Auth)</p>
       <label for="login-email">อีเมล</label>
       <input id="login-email" type="email" autocomplete="username" placeholder="you@company.com">
       <label for="login-password">รหัสผ่าน</label>
@@ -503,6 +502,7 @@
   // (คนละโปรเจคกับ hr-master) ให้ดึงข้อมูลคนนี้ไปสร้าง/อัปเดตในฝั่ง Transfer เอง
   const TRANSFER_URL = "https://fpsdntchtoxtcpfwkkom.supabase.co";
   const TRANSFER_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwc2RudGNodG94dGNwZndra29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDM1OTYsImV4cCI6MjEwMjYxOTU5Nn0.B8WZ4jPd2rVrquUCFLH406WG_GBykGs3zINhWrbf9rc";
+
   function syncToTransfer(employeeCode){
     fetch(`${TRANSFER_URL}/functions/v1/sync-employees`, {
       method: 'POST',
@@ -512,6 +512,20 @@
       },
       body: JSON.stringify({ employee_code: employeeCode })
     }).catch(err => console.warn('sync ไปยัง Transfer ไม่สำเร็จ:', err));
+  }
+
+  const OT_TRACKING_URL = "https://gjmgzjsbgqaaxlpbyykt.supabase.co";
+  const OT_TRACKING_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqbWd6anNiZ3FhYXhscGJ5eWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMjQyMjUsImV4cCI6MjEwMTYwMDIyNX0.wacphD2FPgaaETYc0N-Ze4q9gPr2BaO0MKNo9RBnlm0";
+
+  function syncToOtTracking(employeeCode){
+    fetch(`${OT_TRACKING_URL}/functions/v1/sync-employees`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + OT_TRACKING_ANON_KEY
+      },
+      body: JSON.stringify({ employee_code: employeeCode })
+    }).catch(err => console.warn('sync ไปยัง ot-tracking ไม่สำเร็จ:', err));
   }
 
   let departments = [];      // {department_code, name, section_name}
@@ -768,6 +782,7 @@
         showBanner('บันทึกการแก้ไขเรียบร้อย');
         notifyTelegram({ event: 'update', ...notifyPayload });
         syncToTransfer(editingCode);
+        syncToOtTracking(editingCode);
       } else {
         const { error } = await sb
           .from('employees')
@@ -783,6 +798,7 @@
         showBanner('เพิ่มพนักงานใหม่เรียบร้อย');
         notifyTelegram({ event: 'insert', ...notifyPayload });
         syncToTransfer(code);
+        syncToOtTracking(code);
       }
       resetForm();
       closeModal();
