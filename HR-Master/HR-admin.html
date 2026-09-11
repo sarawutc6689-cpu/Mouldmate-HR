@@ -333,9 +333,9 @@
         </svg>
       </div>
       <h1>ฐานข้อมูลพนักงานกลาง</h1>
-      <p>เข้าสู่ระบบด้วยบัญชี HR แอดมิน </p>
+      <p>เข้าสู่ระบบด้วยบัญชี HR แอดมิน (สร้างบัญชีไว้ล่วงหน้าใน Supabase Auth)</p>
       <label for="login-email">อีเมล</label>
-      <input id="login-email" type="email" autocomplete="username" placeholder="">
+      <input id="login-email" type="email" autocomplete="username" placeholder="you@company.com">
       <label for="login-password">รหัสผ่าน</label>
       <input id="login-password" type="password" autocomplete="current-password">
       <button id="login-btn" class="btn">เข้าสู่ระบบ</button>
@@ -462,6 +462,20 @@
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
 
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ---------------- TELEGRAM NOTIFY ----------------
+  // เรียก Edge Function ของเราเอง ไม่เรียก Telegram ตรงๆ จากเบราว์เซอร์
+  // ถ้าแจ้งเตือนไม่สำเร็จ จะไม่ทำให้การบันทึกข้อมูลล้มเหลวตามไปด้วย
+  function notifyTelegram(payload){
+    fetch(`${SUPABASE_URL}/functions/v1/notify-telegram`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify(payload)
+    }).catch(err => console.warn('แจ้งเตือน Telegram ไม่สำเร็จ:', err));
+  }
 
   let departments = [];      // {department_code, name, section_name}
   let allEmployees = [];     // rows from employees_directory
@@ -685,6 +699,14 @@
 
     try {
       const positionId = await getOrCreatePositionId(positionName);
+      const dept = departments.find(d => d.department_code === departmentCode);
+      const notifyPayload = {
+        employee_code: code,
+        full_name: name,
+        department_name: dept ? dept.name : '',
+        section_name: dept ? dept.section_name : '',
+        position_name: positionName
+      };
 
       if (editingCode) {
         const { error } = await sb
@@ -698,6 +720,7 @@
           .eq('employee_code', editingCode);
         if (error) throw error;
         showBanner('บันทึกการแก้ไขเรียบร้อย');
+        notifyTelegram({ event: 'update', ...notifyPayload });
       } else {
         const { error } = await sb
           .from('employees')
@@ -710,6 +733,7 @@
           });
         if (error) throw error;
         showBanner('เพิ่มพนักงานใหม่เรียบร้อย');
+        notifyTelegram({ event: 'insert', ...notifyPayload });
       }
       resetForm();
       closeModal();
@@ -721,9 +745,20 @@
 
   async function deleteEmployee(code){
     if (!confirm(`ยืนยันลบพนักงานรหัส ${code} ออกจากฐานข้อมูลกลาง?`)) return;
+    const row = allEmployees.find(r => r.employee_code === code);
     const { error } = await sb.from('employees').delete().eq('employee_code', code);
     if (error) { showBanner('ลบไม่สำเร็จ: ' + error.message, true); return; }
     showBanner('ลบพนักงานเรียบร้อย');
+    if (row) {
+      notifyTelegram({
+        event: 'delete',
+        employee_code: row.employee_code,
+        full_name: row.full_name,
+        department_name: row.department_name,
+        section_name: row.section_name,
+        position_name: row.position_name
+      });
+    }
     if (editingCode === code) resetForm();
     await loadEmployees();
   }
