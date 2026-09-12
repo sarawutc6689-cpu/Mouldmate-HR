@@ -515,7 +515,8 @@
   }
 
   const OT_TRACKING_URL = "https://gjmgzjsbgqaaxlpbyykt.supabase.co";
-  const OT_TRACKING_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqbWd6anNiZ3FhYXhscGJ5eWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMjQyMjUsImV4cCI6MjEwMTYwMDIyNX0.wacphD2FPgaaETYc0N-Ze4q9gPr2BaO0MKNo9RBnlm0";
+  const OT_TRACKING_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqbWd6anNiZ3FhYXhscGJ5eWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMjQyMjUsImV4cCI6MjEwMTYwMDIyNX0.wacphD2FPgaaETYc0N-Ze4q9gPr2BaO0MKNo9RBnlm0
+";
 
   function syncToOtTracking(employeeCode){
     fetch(`${OT_TRACKING_URL}/functions/v1/sync-employees`, {
@@ -554,6 +555,20 @@
       },
       body: JSON.stringify({ employee_code: employeeCode })
     }).catch(err => console.warn('sync ไปยังระบบ login user ไม่สำเร็จ:', err));
+  }
+
+  const ITHELPDESK_URL = "https://fuarmmweqxxhczavkvqp.supabase.co";
+  const ITHELPDESK_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE";
+
+  function syncToItHelpdesk(employeeCode){
+    fetch(`${ITHELPDESK_URL}/functions/v1/sync-employees`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + ITHELPDESK_ANON_KEY
+      },
+      body: JSON.stringify({ employee_code: employeeCode })
+    }).catch(err => console.warn('sync ไปยัง ITHelpdesk ไม่สำเร็จ:', err));
   }
 
   let departments = [];      // {department_code, name, section_name}
@@ -813,6 +828,7 @@
         syncToOtTracking(editingCode);
         syncToCarRepair(editingCode);
         syncToLoginUser(editingCode);
+        syncToItHelpdesk(editingCode);
       } else {
         const { error } = await sb
           .from('employees')
@@ -831,6 +847,7 @@
         syncToOtTracking(code);
         syncToCarRepair(code);
         syncToLoginUser(code);
+        syncToItHelpdesk(code);
       }
       resetForm();
       closeModal();
