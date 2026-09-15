@@ -345,7 +345,7 @@
         </svg>
       </div>
       <h1>ฐานข้อมูลพนักงานกลาง</h1>
-      <p>เข้าสู่ระบบด้วยบัญชี HR ADMIN</p>
+      <p>เข้าสู่ระบบด้วยบัญชี HR แอดมิน (สร้างบัญชีไว้ล่วงหน้าใน Supabase Auth)</p>
       <label for="login-email">อีเมล</label>
       <input id="login-email" type="email" autocomplete="username" placeholder="you@company.com">
       <label for="login-password">รหัสผ่าน</label>
@@ -556,8 +556,8 @@
     }).catch(err => console.warn('sync ไปยังระบบ login user ไม่สำเร็จ:', err));
   }
 
-  const ITHELPDESK_URL = "https://fuarmmweqxxhczavkvqp.supabase.co";
-  const ITHELPDESK_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1YXJtbXdlcXh4aGN6YXZrdnFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyMjgzMTcsImV4cCI6MjEwMzgwNDMxN30.n7s4gKOkCvaOSpFSf9FGmWsqi7eAzFe28c_oJWy8NSE";
+  const ITHELPDESK_URL = "https://fnbkcgkuykdabbensvif.supabase.co";
+  const ITHELPDESK_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuYmtjZ2t1eWtkYWJiZW5zdmlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDE0MTQsImV4cCI6MjEwNDg3NzQxNH0.L6x3nqAy2rqcxdtzyTs4MHLPubtBqD3Tnk9e97EfEJE";
 
   function syncToItHelpdesk(employeeCode){
     fetch(`${ITHELPDESK_URL}/functions/v1/sync-employees`, {
@@ -568,6 +568,20 @@
       },
       body: JSON.stringify({ employee_code: employeeCode })
     }).catch(err => console.warn('sync ไปยัง ITHelpdesk ไม่สำเร็จ:', err));
+  }
+
+  const IT_ACCOUNT_REQUEST_URL = "https://YOUR-IT-ACCOUNT-REQUEST-PROJECT-REF.supabase.co";
+  const IT_ACCOUNT_REQUEST_ANON_KEY = "YOUR-IT-ACCOUNT-REQUEST-ANON-KEY";
+
+  function syncToItAccountRequest(employeeCode){
+    fetch(`${IT_ACCOUNT_REQUEST_URL}/functions/v1/sync-employees`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + IT_ACCOUNT_REQUEST_ANON_KEY
+      },
+      body: JSON.stringify({ employee_code: employeeCode })
+    }).catch(err => console.warn('sync ไปยังระบบขอ Username/Password IT ไม่สำเร็จ:', err));
   }
 
   let departments = [];      // {department_code, name, section_name}
@@ -828,6 +842,7 @@
         syncToCarRepair(editingCode);
         syncToLoginUser(editingCode);
         syncToItHelpdesk(editingCode);
+        syncToItAccountRequest(editingCode);
       } else {
         const { error } = await sb
           .from('employees')
@@ -847,6 +862,7 @@
         syncToCarRepair(code);
         syncToLoginUser(code);
         syncToItHelpdesk(code);
+        syncToItAccountRequest(code);
       }
       resetForm();
       closeModal();
