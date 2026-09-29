@@ -6,8 +6,8 @@
  */
 (function () {
   // ---- โปรเจคจองห้อง ----
-  const BOOKING_URL = 'https://ypngvmlqpsykuukdxvyh.supabase.co';
-  const BOOKING_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwbmd2bWxxcHN5a3V1a2R4dnloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2NjIwNTIsImV4cCI6MjEwNjIzODA1Mn0.IzlIo9dnwswli1h8VWM6tzqOBmVAgcZbikdj8Pspf5E';          // anon/publishable key เท่านั้น
+  const BOOKING_URL = 'https://gkrsurhpyvpcwkxrocyr.supabase.co';
+  const BOOKING_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrcnN1cmhweXZwY3dreHJvY3lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2NjQ2MTcsImV4cCI6MjEwNjI0MDYxN30.CxowgwkuG66EiUgeYG772CVgfGfrzjNhmae1xzG3sLc';          // anon/publishable key เท่านั้น
 
   // ---- โปรเจค users (ต้นทางรายชื่อพนักงาน) ----
   const USERS_URL = 'https://ppzdyvomrfiitahxwrwz.supabase.co';
