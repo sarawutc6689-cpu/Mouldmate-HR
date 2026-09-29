@@ -578,6 +578,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
     <script src="supabase-api.js"></script>
+    <script src="ui-dialog.js"></script>
 </head>
 <body>
     <!-- Page Transition Overlay -->
@@ -842,7 +843,7 @@
         }).catch(error => {
             console.error('Error loading data:', error);
             hideLoading();
-            alert('ไม่สามารถโหลดข้อมูลได้ กรุณาลองอีกครั้ง');
+            uiDialog.alert('ไม่สามารถโหลดข้อมูลได้ กรุณาลองอีกครั้ง', 'error');
         });
     }
 
@@ -886,7 +887,7 @@
         const endDate = document.getElementById('endDate').value;
         
         if (!startDate || !endDate) {
-            alert('กรุณาเลือกวันที่เริ่มต้นและสิ้นสุด');
+            uiDialog.alert('กรุณาเลือกวันที่เริ่มต้นและสิ้นสุด', 'warn');
             return;
         }
         

@@ -1015,6 +1015,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
     <script src="supabase-api.js"></script>
+    <script src="ui-dialog.js"></script>
 </head>
 <body>
     <!-- Page Transition Overlay -->
@@ -1209,8 +1210,8 @@
                         <div class="form-group">
                             <label><i class="fas fa-clock"></i> เวลาที่ต้องการจอง</label>
                             <div style="display: flex; gap: 8px;">
-                                <input type="time" id="startTime" class="form-control" required style="flex: 1;">
-                                <input type="time" id="endTime" class="form-control" required style="flex: 1;">
+                                <select id="startTime" class="form-control" required style="flex: 1;"></select>
+                                <select id="endTime" class="form-control" required style="flex: 1;"></select>
                             </div>
                         </div>
 
@@ -1303,6 +1304,20 @@
     </div>
 
     <script>
+        // ==================== เวลาแบบ 24 ชั่วโมง (เลือกทุก 15 นาที) ====================
+        (function fillTimeSelects() {
+            const STEP = 15; // นาที: เปลี่ยนเป็น 5 หรือ 30 ได้
+            ['startTime', 'endTime'].forEach(function(id) {
+                const sel = document.getElementById(id);
+                let html = '<option value="">--:--</option>';
+                for (let m = 0; m < 24 * 60; m += STEP) {
+                    const t = String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+                    html += '<option value="' + t + '">' + t + '</option>';
+                }
+                sel.innerHTML = html;
+            });
+        })();
+
         // ==================== ตัวแปร Global ====================
         let currentRooms = [];
         let currentBookings = [];
@@ -1813,8 +1828,8 @@
             container.innerHTML = html;
         }
 
-        function cancelBooking(bookingId) {
-            if (confirm('ต้องการยกเลิกการจองนี้ใช่หรือไม่?')) {
+        async function cancelBooking(bookingId) {
+            if (await uiDialog.confirm('ต้องการยกเลิกการจองนี้ใช่หรือไม่?', {danger:true, okText:'ยกเลิกการจอง', cancelText:'ไม่ยกเลิก'})) {
                 showLoading();
                 
                 google.script.run

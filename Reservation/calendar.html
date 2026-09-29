@@ -570,6 +570,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
     <script src="supabase-api.js"></script>
+    <script src="ui-dialog.js"></script>
 </head>
 <body>
     <!-- Page Transition Overlay -->
@@ -989,8 +990,8 @@
         }
 
         // Cancel booking from calendar
-        function cancelBookingFromCalendar(bookingId) {
-            if (confirm('ต้องการยกเลิกการจองนี้ใช่หรือไม่?')) {
+        async function cancelBookingFromCalendar(bookingId) {
+            if (await uiDialog.confirm('ต้องการยกเลิกการจองนี้ใช่หรือไม่?', {danger:true, okText:'ยกเลิกการจอง', cancelText:'ไม่ยกเลิก'})) {
                 showLoading();
                 
                 google.script.run
@@ -999,15 +1000,15 @@
                         closeModal();
                         
                         if (result.success) {
-                            alert('ยกเลิกการจองเรียบร้อยแล้ว');
+                            uiDialog.alert('ยกเลิกการจองเรียบร้อยแล้ว', 'success');
                             refreshCalendar();
                         } else {
-                            alert('เกิดข้อผิดพลาด: ' + result.message);
+                            uiDialog.alert('เกิดข้อผิดพลาด: ' + result.message, 'error');
                         }
                     })
                     .withFailureHandler(function(error) {
                         hideLoading();
-                        alert('เกิดข้อผิดพลาด: ' + error);
+                        uiDialog.alert('เกิดข้อผิดพลาด: ' + error, 'error');
                     })
                     .cancelBooking(bookingId);
             }
