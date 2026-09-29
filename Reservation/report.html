@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายงานการจองห้องประชุม</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* ใช้ CSS เดียวกับ dashboard */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar (เหมือนเดิม) */
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .sidebar-header i {
+            font-size: 40px;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f7fafc;
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: #f0f4ff;
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+
+        .nav-item i {
+            width: 24px;
+            font-size: 18px;
+        }
+
+        .nav-item span {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 15px 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .date-display {
+            background: #f7fafc;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 500;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Coming Soon */
+        .coming-soon {
+            background: white;
+            border-radius: 20px;
+            padding: 80px 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .coming-soon i {
+            font-size: 80px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .coming-soon h2 {
+            font-size: 32px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .coming-soon p {
+            font-size: 18px;
+            color: #718096;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar-header h2,
+            .nav-item span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .nav-item {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .nav-item i {
+                width: auto;
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        /* Page Transition Loading */
+        .page-loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #f0f5fa;
+            z-index: 99999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        .page-loading-overlay.active {
+            display: flex;
+        }
+        .page-loading-logo {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #1e4b8a, #2563eb);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            animation: pulse-logo 1.2s ease-in-out infinite;
+        }
+        @keyframes pulse-logo {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37,99,235,0.3); }
+            50% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(37,99,235,0); }
+        }
+        .page-loading-bar {
+            width: 180px;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .page-loading-bar-fill {
+            height: 100%;
+            width: 40%;
+            background: linear-gradient(90deg, #2563eb, #1e4b8a);
+            border-radius: 999px;
+            animation: loading-slide 1s ease-in-out infinite;
+        }
+        @keyframes loading-slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(350%); }
+        }
+        .page-loading-text {
+            font-size: 14px;
+            color: #64748b;
+            font-family: 'Sarabun', sans-serif;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+    <script src="supabase-api.js"></script>
+</head>
+<body>
+    <!-- Page Transition Overlay -->
+    <div class="page-loading-overlay" id="pageLoadingOverlay">
+        <div class="page-loading-logo">
+            <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="page-loading-bar">
+            <div class="page-loading-bar-fill"></div>
+        </div>
+        <div class="page-loading-text">กำลังโหลด...</div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-calendar-alt"></i>
+                <h2>Room Booking</h2>
+            </div>
+            
+             <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-calendar-alt"></i>
+                <h2>Meeting Room</h2>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="dashboard.html?page=dashboard" class="nav-item" id="nav-dashboard">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>ภาพรวม</span>
+                </a>
+                <a href="index.html" class="nav-item" id="nav-index">
+                    <i class="fas fa-door-open"></i>
+                    <span>จองห้องประชุม</span>
+                </a>
+                <a href="calendar.html?page=calendar" class="nav-item" id="nav-calendar">
+                    <i class="fas fa-calendar"></i>
+                    <span>ปฏิทิน</span>
+                </a>
+                
+                <div class="nav-divider"></div>
+                
+                <a href="cancellations.html?page=cancellations" class="nav-item" id="nav-cancellations">
+                    <i class="fas fa-times-circle"></i>
+                    <span>รายการยกเลิก</span>
+                </a>
+            </div>
+
+
+        </div>
+
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>
+                    <i class="fas fa-file-alt" style="margin-right: 10px;"></i>
+                    รายงานการจองห้องประชุม
+                </h1>
+                <div class="date-display" id="currentDate"></div>
+            </div>
+
+            <!-- Coming Soon -->
+            <div class="coming-soon">
+                <i class="fas fa-tools"></i>
+                <h2>กำลังพัฒนา</h2>
+                <p>หน้ารายงานจะมาเร็วๆ นี้</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(page) {
+            // Update active menu
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Navigate
+            const url = new URL(window.location.href);
+            if (page === 'index') {
+                url.searchParams.delete('page');
+            } else {
+                url.searchParams.set('page', page);
+            }
+            window.location.href = url.toString();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Format Thai date
+            const thaiDate = new Date().toLocaleDateString('th-TH', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('currentDate').textContent = thaiDate;
+        });
+
+        // Page transition loading
+        document.querySelectorAll('.nav-item').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && href !== '#') {
+                    e.preventDefault();
+                    document.getElementById('pageLoadingOverlay').classList.add('active');
+                    setTimeout(function() {
+                        window.location.href = href;
+                    }, 100);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
