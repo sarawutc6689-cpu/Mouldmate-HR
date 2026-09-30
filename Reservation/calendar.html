@@ -720,7 +720,7 @@
             setActiveMenu();
             
             // Format Thai date
-            const thaiDate = new Date().toLocaleDateString('th-TH', { 
+            const thaiDate = new Date().toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok', 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
@@ -974,7 +974,7 @@
             }
             
             // เพิ่มปุ่มยกเลิก (เฉพาะการจองที่ยังไม่ผ่าน)
-            const today = new Date().toISOString().split('T')[0];
+            const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
             if (props.date >= today) {
                 html += `
                     <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">

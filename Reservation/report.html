@@ -346,7 +346,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             // Format Thai date
-            const thaiDate = new Date().toLocaleDateString('th-TH', { 
+            const thaiDate = new Date().toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok', 
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 

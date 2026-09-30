@@ -625,7 +625,7 @@
             </div>
             
             <div class="nav-menu">
-                <a href="dashboard.html" class="nav-item" id="nav-dashboard">
+                <a href="dashboard.html?page=dashboard" class="nav-item" id="nav-dashboard">
                     <i class="fas fa-chart-pie"></i>
                     <span>ภาพรวม</span>
                 </a>
@@ -633,14 +633,14 @@
                     <i class="fas fa-door-open"></i>
                     <span>จองห้องประชุม</span>
                 </a>
-                <a href="calendar.html" class="nav-item" id="nav-calendar">
+                <a href="calendar.html?page=calendar" class="nav-item" id="nav-calendar">
                     <i class="fas fa-calendar"></i>
                     <span>ปฏิทิน</span>
                 </a>
                 
                 <div class="nav-divider"></div>
                 
-                <a href="cancellations.html" class="nav-item" id="nav-cancellations">
+                <a href="cancellations.html?page=cancellations" class="nav-item" id="nav-cancellations">
                     <i class="fas fa-times-circle"></i>
                     <span>รายการยกเลิก</span>
                 </a>
@@ -777,7 +777,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             setActiveMenu();
             
-            const thaiDate = new Date().toLocaleDateString('th-TH', { 
+            const thaiDate = new Date().toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok', 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
@@ -789,8 +789,8 @@
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(today.getDate() - 30);
             
-            document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
-            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = thirtyDaysAgo.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+            document.getElementById('endDate').value = today.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
             
             loadData();
         });
