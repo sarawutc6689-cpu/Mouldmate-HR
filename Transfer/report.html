@@ -50,10 +50,11 @@
                 <th>รหัสพนักงาน</th>
                 <th>ชื่อ</th>
                 <th>จากแผนก → ไปแผนก</th>
-                <th>หน่วยงานปัจจุบัน</th>
+                <th>หน่วยงานที่ปฏิบัติ</th>
                 <th>วันที่เริ่ม</th>
                 <th>วันที่สิ้นสุด</th>
                 <th>สถานะ</th>
+                <th>เลขที่คำขอ</th>
               </tr>
             </thead>
             <tbody id="report-tbody"></tbody>
@@ -79,6 +80,11 @@ renderShell('report', {
 });
 
 let currentRows = [];
+let UNIT_MAP = new Map();
+
+function unitName(id) {
+  return (id && UNIT_MAP.get(id)) || '';
+}
 
 function populateDeptFilters(depts) {
   const opts = depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
@@ -108,7 +114,7 @@ function currentFilters() {
 
 async function renderTable() {
   const tbody = document.getElementById('report-tbody');
-  tbody.innerHTML = loadingRowHtml(8);
+  tbody.innerHTML = loadingRowHtml(9);
   document.getElementById('report-empty').innerHTML = '';
 
   let rows;
@@ -141,17 +147,18 @@ async function renderTable() {
       <td class="cell-code">${r.employee_code}</td>
       <td>${r.full_name}</td>
       <td>${flowChipHtml(r.source_department_id, r.destination_department_id)}</td>
-      <td class="cell-muted">${unitName(r.destination_unit_id)}</td>
+      <td>${unitName(r.destination_unit_id) || '-'}</td>
       <td>${fmtDate(r.start_date)}</td>
       <td>${fmtDate(r.end_date)}</td>
       <td>${badgeHtml(r.item_status)}</td>
+      <td class="cell-code">${r.request_no}</td>
     </tr>
   `).join('');
 }
 
 document.getElementById('btn-export-csv').addEventListener('click', () => {
   if (currentRows.length === 0) return showToast('ไม่มีข้อมูลให้ export');
-  const headers = ['ลำดับ', 'รหัสพนักงาน', 'ชื่อ', 'จากแผนก', 'ไปแผนก', 'หน่วยงานปัจจุบัน', 'วันที่เริ่ม', 'วันที่สิ้นสุด', 'สถานะ'];
+  const headers = ['ลำดับ', 'รหัสพนักงาน', 'ชื่อ', 'จากแผนก', 'ไปแผนก', 'หน่วยงานที่ปฏิบัติ', 'วันที่เริ่ม', 'วันที่สิ้นสุด', 'สถานะ', 'เลขที่คำขอ'];
   const rows = currentRows.map((r, i) => [
     i + 1,
     r.employee_code,
@@ -162,6 +169,7 @@ document.getElementById('btn-export-csv').addEventListener('click', () => {
     r.start_date,
     r.end_date,
     STATUS_LABEL[r.item_status] || r.item_status,
+    r.request_no,
   ]);
   const today = new Date().toISOString().slice(0, 10);
   exportCsv(`รายงานโอนย้ายพนักงาน_${today}.csv`, headers, rows);
@@ -181,6 +189,8 @@ document.getElementById('btn-export-pdf').addEventListener('click', () => {
     await requireAuth();
     attachLogout();
     const { depts } = await initLookups();
+    const units = await db.getUnits();
+    UNIT_MAP = new Map(units.map(u => [u.id, u.name]));
     populateDeptFilters(depts);
     await renderTable();
   } catch (err) {
