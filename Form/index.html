@@ -67,12 +67,7 @@ button:disabled{opacity:.5}
     </div>
 
     <h2 style="margin-top:16px">ประวัติการขอออกหนังสือรับรอง</h2>
-    <label class="opt"><input type="radio" name="prev" value="never" checked> ไม่เคย</label>
-    <label class="opt"><input type="radio" name="prev" value="ever"> เคย</label>
-    <div class="grid hide" id="prevBox">
-      <div><label for="prev_date">เมื่อวันที่</label><input type="date" id="prev_date"></div>
-      <div><label for="prev_purpose">เพื่อนำไปใช้เรื่อง</label><input type="text" id="prev_purpose"></div>
-    </div>
+    <div id="history" class="note">กรอกรหัสพนักงานแล้วกด "ค้นหา" เพื่อดูประวัติการขอ</div>
 
     <h2 style="margin-top:16px">รายละเอียดเกี่ยวกับรายได้</h2>
     <label class="opt"><input type="radio" name="salary" value="show"> ให้ระบุเงินเดือนในหนังสือรับรอง</label>
@@ -103,6 +98,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 /* สถานะที่ถือว่า "พ้นสภาพพนักงานแล้ว" (ให้ตรงกับค่าจริงในคอลัมน์ status ของ employees_directory) */
 const RESIGNED_STATUS = ["resigned","terminated","inactive","ลาออก","พ้นสภาพ","ออกแล้ว"];
 let empStatus = null;
+let history = [];
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
@@ -143,8 +139,6 @@ $("use_date").addEventListener("change",()=>{
   if(v && (v<MIN_USE || isOff(v))){ msg(v<MIN_USE?`วันที่ใช้ต้องเป็นวันที่ ${thDate(MIN_USE)} เป็นต้นไป`:(v in HOLIDAYS?`${thDate(v)} เป็นวันหยุด (${HOLIDAYS[v]})`:"ไม่สามารถเลือกวันอาทิตย์ได้"),"err"); $("use_date").value=""; }
 });
 $("slipChk").onchange = e => $("slipBox").classList.toggle("hide",!e.target.checked);
-document.querySelectorAll("[name=prev]").forEach(r => r.onchange = () =>
-  $("prevBox").classList.toggle("hide", document.querySelector("[name=prev]:checked").value!=="ever"));
 
 function applyStatus(status){
   empStatus = status||null;
@@ -158,6 +152,21 @@ function applyStatus(status){
   $("slipBox").classList.toggle("hide", !$("slipChk").checked);
   return gone;
 }
+const SLBL = {pending:"รออนุมัติ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
+function renderHistory(msgText){
+  const box = $("history");
+  if(msgText){ box.className="note"; box.textContent=msgText; return; }
+  if(!history.length){ box.className="note"; box.textContent="ไม่เคยขอหนังสือรับรอง"; return; }
+  box.className="";
+  box.innerHTML = history.map(h=>`<div class="opt" style="display:block;border-bottom:1px solid var(--bd);padding:6px 0">
+    <b>${esc(thDate(h.request_date))}</b> · ${esc((h.cert_types||[]).map(c=>CERT[c]||c).join(", "))}<br>
+    <span class="note">เพื่อ: ${esc(h.purpose||"-")} · ${esc(SLBL[h.status]||h.status)}</span></div>`).join("");
+}
+function clearEmployee(){
+  ["full_name","start_date","position","department","division"].forEach(k=>$(k).value="");
+  history=[]; applyStatus(null);
+  renderHistory('กรอกรหัสพนักงานแล้วกด "ค้นหา" เพื่อดูประวัติการขอ');
+}
 async function lookup(){
   const code = $("emp_code").value.trim();
   if(!code) return msg("กรุณากรอกรหัสพนักงาน","err");
@@ -165,21 +174,25 @@ async function lookup(){
   const {data,error} = await db.rpc("get_employee",{p_code:code});
   if(error) return msg("เกิดข้อผิดพลาด: "+error.message,"err");
   const e = Array.isArray(data)?data[0]:data;
-  if(!e){ ["full_name","start_date","position","department","division"].forEach(k=>$(k).value=""); applyStatus(null); return msg("ไม่พบรหัสพนักงานนี้","err"); }
+  if(!e){ clearEmployee(); return msg("ไม่พบรหัสพนักงานนี้","err"); }
   $("full_name").value = e.full_name||"";
   $("start_date").value = e.start_date||"";
   $("position").value = e.position||"";
   $("department").value = e.department||"";
   $("division").value = e.division||"";
   const gone = applyStatus(e.status);
+  const hr = await db.rpc("get_request_history",{p_code:code});
+  if(hr.error){ history=[]; renderHistory("โหลดประวัติไม่สำเร็จ"); } else { history=hr.data||[]; renderHistory(); }
   msg(gone ? "พบข้อมูลพนักงาน (พ้นสภาพแล้ว – ขอได้เฉพาะหนังสือผ่านงาน)" : "พบข้อมูลพนักงาน (ปัจจุบัน – ขอหนังสือรับรองการทำงาน/เงินเดือน/สลิปได้)","ok");
 }
 $("lookup").onclick = lookup;
+$("emp_code").addEventListener("input",clearEmployee);
 $("emp_code").addEventListener("keydown",e=>{ if(e.key==="Enter"){e.preventDefault();lookup();} });
 
 function collect(){
   const certs=[...document.querySelectorAll("[name=cert]:checked")].map(c=>c.value);
-  const ever=document.querySelector("[name=prev]:checked").value==="ever";
+  const last = history.find(h=>h.status==="approved"||h.status==="done");
+  const ever = !!last;
   return {
     request_date:$("request_date").value, emp_code:$("emp_code").value.trim(),
     full_name:$("full_name").value, start_date:$("start_date").value||null,
@@ -187,8 +200,8 @@ function collect(){
     emp_status:empStatus, cert_types:certs,
     slip_from:certs.includes("slip")?($("slip_from").value||null):null,
     slip_to:certs.includes("slip")?($("slip_to").value||null):null,
-    prev_requested:ever, prev_date:ever?($("prev_date").value||null):null,
-    prev_purpose:ever?$("prev_purpose").value:null,
+    prev_requested:ever, prev_date:ever?last.request_date:null,
+    prev_purpose:ever?last.purpose:null,
     show_salary:document.querySelector("[name=salary]:checked").value==="show",
     purpose:$("purpose").value, use_date:$("use_date").value||null
   };
