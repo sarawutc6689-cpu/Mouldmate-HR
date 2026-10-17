@@ -67,7 +67,7 @@ button:disabled{opacity:.5}
     </div>
 
     <h2 style="margin-top:16px">ประวัติการขอออกหนังสือรับรอง</h2>
-    <div id="history" class="note">กรอกรหัสพนักงานแล้วกด "ค้นหา" เพื่อดูประวัติการขอ</div>
+    <div id="history" class="note">กรอกรหัสพนักงานแล้วกด "ค้นหา" จากนั้นเลือกประเภทหนังสือรับรองเพื่อดูประวัติการขอ</div>
 
     <h2 style="margin-top:16px">รายละเอียดเกี่ยวกับรายได้</h2>
     <label class="opt"><input type="radio" name="salary" value="show"> ให้ระบุเงินเดือนในหนังสือรับรอง</label>
@@ -139,6 +139,7 @@ $("use_date").addEventListener("change",()=>{
   if(v && (v<MIN_USE || isOff(v))){ msg(v<MIN_USE?`วันที่ใช้ต้องเป็นวันที่ ${thDate(MIN_USE)} เป็นต้นไป`:(v in HOLIDAYS?`${thDate(v)} เป็นวันหยุด (${HOLIDAYS[v]})`:"ไม่สามารถเลือกวันอาทิตย์ได้"),"err"); $("use_date").value=""; }
 });
 $("slipChk").onchange = e => $("slipBox").classList.toggle("hide",!e.target.checked);
+document.querySelectorAll("[name=cert]").forEach(c=>c.addEventListener("change",()=>renderHistory()));
 
 function applyStatus(status){
   empStatus = status||null;
@@ -153,19 +154,26 @@ function applyStatus(status){
   return gone;
 }
 const SLBL = {pending:"รออนุมัติ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
+let histReady = false;
 function renderHistory(msgText){
   const box = $("history");
-  if(msgText){ box.className="note"; box.textContent=msgText; return; }
-  if(!history.length){ box.className="note"; box.textContent="ไม่เคยขอหนังสือรับรอง"; return; }
+  const note = t => { box.className="note"; box.textContent=t; };
+  if(msgText) return note(msgText);
+  if(!histReady) return note('กรอกรหัสพนักงานแล้วกด "ค้นหา" จากนั้นเลือกประเภทหนังสือรับรองเพื่อดูประวัติการขอ');
+  const sel=[...document.querySelectorAll("[name=cert]:checked")].map(c=>c.value);
+  if(!sel.length) return note("เลือกประเภทหนังสือรับรองด้านบน เพื่อดูประวัติการขอของประเภทนั้น");
+  const rows=[];
+  history.forEach(h=>sel.forEach(t=>{ if((h.cert_types||[]).includes(t)) rows.push({d:h.request_date,t,s:h.status}); }));
+  if(!rows.length) return note("ไม่เคยขอ"+sel.map(t=>CERT[t]).join(" / "));
   box.className="";
-  box.innerHTML = history.map(h=>`<div class="opt" style="display:block;border-bottom:1px solid var(--bd);padding:6px 0">
-    <b>${esc(thDate(h.request_date))}</b> · ${esc((h.cert_types||[]).map(c=>CERT[c]||c).join(", "))}<br>
-    <span class="note">เพื่อ: ${esc(h.purpose||"-")} · ${esc(SLBL[h.status]||h.status)}</span></div>`).join("");
+  box.innerHTML = `<div class="note" style="display:flex;gap:8px;padding-bottom:4px"><span style="flex:0 0 130px">วันที่ขอ</span><span style="flex:1">ประเภทเอกสาร</span><span style="flex:0 0 100px">สถานะ</span></div>`+
+    rows.map(r=>`<div style="display:flex;gap:8px;border-top:1px solid var(--bd);padding:6px 0">
+      <span style="flex:0 0 130px">${esc(thDate(r.d))}</span><span style="flex:1">${esc(CERT[r.t]||r.t)}</span><span style="flex:0 0 100px">${esc(SLBL[r.s]||r.s)}</span></div>`).join("");
 }
 function clearEmployee(){
   ["full_name","start_date","position","department","division"].forEach(k=>$(k).value="");
-  history=[]; applyStatus(null);
-  renderHistory('กรอกรหัสพนักงานแล้วกด "ค้นหา" เพื่อดูประวัติการขอ');
+  history=[]; histReady=false; applyStatus(null);
+  renderHistory();
 }
 async function lookup(){
   const code = $("emp_code").value.trim();
@@ -182,7 +190,7 @@ async function lookup(){
   $("division").value = e.division||"";
   const gone = applyStatus(e.status);
   const hr = await db.rpc("get_request_history",{p_code:code});
-  if(hr.error){ history=[]; renderHistory("โหลดประวัติไม่สำเร็จ"); } else { history=hr.data||[]; renderHistory(); }
+  if(hr.error){ history=[]; histReady=false; renderHistory("โหลดประวัติไม่สำเร็จ"); } else { history=hr.data||[]; histReady=true; renderHistory(); }
   msg(gone ? "พบข้อมูลพนักงาน (พ้นสภาพแล้ว – ขอได้เฉพาะหนังสือผ่านงาน)" : "พบข้อมูลพนักงาน (ปัจจุบัน – ขอหนังสือรับรองการทำงาน/เงินเดือน/สลิปได้)","ok");
 }
 $("lookup").onclick = lookup;
@@ -191,7 +199,7 @@ $("emp_code").addEventListener("keydown",e=>{ if(e.key==="Enter"){e.preventDefau
 
 function collect(){
   const certs=[...document.querySelectorAll("[name=cert]:checked")].map(c=>c.value);
-  const last = history.find(h=>h.status==="approved"||h.status==="done");
+  const last = history.find(h=>(h.status==="approved"||h.status==="done") && (h.cert_types||[]).some(c=>certs.includes(c)));
   const ever = !!last;
   return {
     request_date:$("request_date").value, emp_code:$("emp_code").value.trim(),
