@@ -30,12 +30,6 @@ button:disabled{opacity:.5}
 .ok{color:var(--ok)}.err{color:var(--err)}
 .note{font-size:.85rem;color:var(--mut)}
 .hide{display:none}
-#print{display:none}
-@media print{
-  body{background:#fff;color:#000}.wrap>*:not(#print){display:none!important}
-  #print{display:block;font-size:14pt;line-height:1.9}
-  #print .u{border-bottom:1px dotted #000;padding:0 6px}
-}
 </style>
 </head>
 <body>
@@ -78,18 +72,16 @@ button:disabled{opacity:.5}
     <h2 style="margin-top:16px">การนำไปใช้</h2>
     <div class="grid">
       <div><label for="purpose">ต้องการนำไปใช้สำหรับ</label><input type="text" id="purpose" required></div>
-      <div><label for="use_date">เพื่อใช้ในวันที่</label><input type="date" id="use_date" required><div class="note" id="useHint"></div></div>
+      <div><label for="use_date">เพื่อใช้ในวันที่</label><input type="date" id="use_date" required></div>
     </div>
     <p class="note">หมายเหตุ: บริษัทไม่ออกหนังสือรับรองที่มีข้อความอันเป็นเท็จ และควรขอล่วงหน้าอย่างน้อย 3 วัน / สลิปเงินเดือนฉบับละ 5 บาท เรียกเก็บในงวดเงินเดือนที่ขอ</p>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
       <button type="submit" id="submitBtn">ส่งคำขอ</button>
-      <button type="button" class="sec" id="printBtn">พิมพ์แบบฟอร์ม</button>
     </div>
   </form>
 </div>
 
-<div id="print"></div>
 
 <script>
 /* ===== ตั้งค่า: ใส่ anon (public) key ของโปรเจกต์ Supabase ===== */
@@ -127,7 +119,6 @@ $("request_date").value = iso(new Date());
 function refreshMin(){
   MIN_USE = earliestUseDate();
   $("use_date").min = MIN_USE;
-  $("useHint").textContent = `เลือกได้ตั้งแต่วันที่ ${thDate(MIN_USE)} เป็นต้นไป (ต้องขอล่วงหน้า 3 วันทำการ ไม่นับวันอาทิตย์/วันหยุด และเลือกวันดังกล่าวไม่ได้)`;
   const v=$("use_date").value; if(v && (v<MIN_USE || isOff(v))) $("use_date").value="";
 }
 refreshMin();
@@ -236,32 +227,6 @@ $("f").addEventListener("submit", async e=>{
   setTimeout(()=>location.reload(),1500);
 });
 
-$("printBtn").onclick = () => {
-  const r = collect(), u = v => `<span class="u">${esc(v)||"&nbsp;".repeat(12)}</span>`;
-  const box = on => on?"[ ✓ ]":"[&nbsp;&nbsp;&nbsp;]";
-  const has = k => r.cert_types.includes(k);
-  $("print").innerHTML = `
-    <h2 style="text-align:center">แบบขอหนังสือรับรอง</h2>
-    <p>วันที่ ${u(thDate(r.request_date))}</p>
-    <p>รหัส ${u(r.emp_code)} ชื่อ - นามสกุล ${u(r.full_name)} วันเริ่มงาน ${u(thDate(r.start_date))} ตำแหน่ง ${u(r.position)}<br>
-       แผนก ${u(r.department)} ฝ่าย ${u(r.division)} ต้องการขอให้บริษัทออกหนังสือรับรองประเภท</p>
-    <p>${box(has("work"))} ${CERT.work} (ยังมีสภาพเป็นพนักงาน)<br>
-       ${box(has("salary"))} ${CERT.salary} (ยังมีสภาพเป็นพนักงาน)<br>
-       ${box(has("pass"))} ${CERT.pass} (พ้นสภาพพนักงานแล้ว)<br>
-       ${box(has("slip"))} ${CERT.slip} ตั้งแต่เดือน ${u(thMonth(r.slip_from))} ถึง ${u(thMonth(r.slip_to))}</p>
-    <p>ประวัติการขอออกหนังสือรับรอง : ${box(r.prev_requested)} เคย เมื่อวันที่ ${u(thDate(r.prev_date))} เพื่อนำไปใช้เรื่อง ${u(r.prev_purpose)}
-       &nbsp; ${box(!r.prev_requested)} ไม่เคย</p>
-    <p>รายละเอียดเกี่ยวกับรายได้: ${box(r.show_salary)} ให้ระบุเงินเดือน &nbsp; ${box(!r.show_salary)} ไม่ต้องระบุ</p>
-    <p>ต้องการนำไปใช้สำหรับ ${u(r.purpose)} เพื่อใช้ในวันที่ ${u(thDate(r.use_date))}</p>
-    <p style="text-align:right;margin-top:40px">ลงชื่อ ................................................ พนักงาน (ตัวบรรจง)</p>
-    <p style="font-size:11pt">หมายเหตุ 1. บริษัทไม่มีนโยบายออกหนังสือรับรองใด ๆ ที่มีข้อความอันเป็นเท็จ และควรขอล่วงหน้าอย่างน้อย 3 วัน<br>
-       2. สลิปเงินเดือนมีค่าใช้จ่ายฉบับละ 5 บาท โดยจะเรียกเก็บในงวดเงินเดือนที่ขอ</p>
-    <p>ความเห็นของหัวหน้าแผนก : ........................................ ลงชื่อ ............................ วันที่ ....../....../......<br>
-       ความเห็นของผู้จัดการฝ่าย : ........................................ ลงชื่อ ............................ วันที่ ....../....../......</p>
-    <p>ความเห็นฝ่ายบุคคลและธุรการ: [&nbsp;&nbsp;&nbsp;] อนุมัติ &nbsp; [&nbsp;&nbsp;&nbsp;] ไม่อนุมัติ เนื่องจาก ......................................<br>
-       ลงชื่อ ........................................... ว.ด.ป. ...........</p>`;
-  window.print();
-};
 </script>
 </body>
 </html>
