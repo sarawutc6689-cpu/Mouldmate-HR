@@ -100,6 +100,10 @@ const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
 /* ================================================================ */
 
+/* สถานะที่ถือว่า "พ้นสภาพพนักงานแล้ว" (ให้ตรงกับค่าจริงในคอลัมน์ status ของ employees_directory) */
+const RESIGNED_STATUS = ["resigned","terminated","inactive","ลาออก","พ้นสภาพ","ออกแล้ว"];
+let empStatus = null;
+
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
 const MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
@@ -115,6 +119,18 @@ $("slipChk").onchange = e => $("slipBox").classList.toggle("hide",!e.target.chec
 document.querySelectorAll("[name=prev]").forEach(r => r.onchange = () =>
   $("prevBox").classList.toggle("hide", document.querySelector("[name=prev]:checked").value!=="ever"));
 
+function applyStatus(status){
+  empStatus = status||null;
+  const gone = !!status && RESIGNED_STATUS.includes(String(status).trim().toLowerCase());
+  document.querySelectorAll("[name=cert]").forEach(c=>{
+    const allowed = !status ? true : gone ? c.value==="pass" : c.value!=="pass";
+    c.disabled = !allowed;
+    if(!allowed) c.checked=false;
+    if(gone && c.value==="pass") c.checked=true;
+  });
+  $("slipBox").classList.toggle("hide", !$("slipChk").checked);
+  return gone;
+}
 async function lookup(){
   const code = $("emp_code").value.trim();
   if(!code) return msg("กรุณากรอกรหัสพนักงาน","err");
@@ -122,13 +138,14 @@ async function lookup(){
   const {data,error} = await db.rpc("get_employee",{p_code:code});
   if(error) return msg("เกิดข้อผิดพลาด: "+error.message,"err");
   const e = Array.isArray(data)?data[0]:data;
-  if(!e){ ["full_name","start_date","position","department","division"].forEach(k=>$(k).value=""); return msg("ไม่พบรหัสพนักงานนี้","err"); }
+  if(!e){ ["full_name","start_date","position","department","division"].forEach(k=>$(k).value=""); applyStatus(null); return msg("ไม่พบรหัสพนักงานนี้","err"); }
   $("full_name").value = e.full_name||"";
   $("start_date").value = e.start_date||"";
   $("position").value = e.position||"";
   $("department").value = e.department||"";
   $("division").value = e.division||"";
-  msg("พบข้อมูลพนักงาน","ok");
+  const gone = applyStatus(e.status);
+  msg(gone ? "พบข้อมูลพนักงาน (พ้นสภาพแล้ว – ขอได้เฉพาะหนังสือผ่านงาน)" : "พบข้อมูลพนักงาน (ปัจจุบัน – ขอหนังสือรับรองการทำงาน/เงินเดือน/สลิปได้)","ok");
 }
 $("lookup").onclick = lookup;
 $("emp_code").addEventListener("keydown",e=>{ if(e.key==="Enter"){e.preventDefault();lookup();} });
@@ -140,7 +157,7 @@ function collect(){
     request_date:$("request_date").value, emp_code:$("emp_code").value.trim(),
     full_name:$("full_name").value, start_date:$("start_date").value||null,
     position:$("position").value, department:$("department").value, division:$("division").value,
-    cert_types:certs,
+    emp_status:empStatus, cert_types:certs,
     slip_from:certs.includes("slip")?($("slip_from").value||null):null,
     slip_to:certs.includes("slip")?($("slip_to").value||null):null,
     prev_requested:ever, prev_date:ever?($("prev_date").value||null):null,
