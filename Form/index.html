@@ -115,22 +115,32 @@ const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">"
 const msg = (t,c) => { $("msg").className=c||""; $("msg").textContent=t; };
 
 const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-const isSun = s => new Date(s+"T00:00:00").getDay()===0;
-/* วันที่เร็วที่สุดที่ใช้ได้ = วันถัดจาก "3 วันทำการ" นับจากวันนี้ (เว้นวันอาทิตย์) */
+let HOLIDAYS = {};   // { "YYYY-MM-DD": "ชื่อวันหยุด" } โหลดจากตาราง holidays
+const isOff = s => new Date(s+"T00:00:00").getDay()===0 || s in HOLIDAYS;
+/* วันที่เร็วที่สุดที่ใช้ได้ = วันถัดจาก "3 วันทำการ" นับจากวันนี้ (เว้นวันอาทิตย์และวันหยุดในตาราง holidays) */
 function earliestUseDate(){
   const d=new Date(); let n=0;
-  while(n<3){ d.setDate(d.getDate()+1); if(d.getDay()!==0) n++; }
-  d.setDate(d.getDate()+1);
-  if(d.getDay()===0) d.setDate(d.getDate()+1);
+  while(n<3){ d.setDate(d.getDate()+1); if(!isOff(iso(d))) n++; }
+  do { d.setDate(d.getDate()+1); } while(isOff(iso(d)));
   return iso(d);
 }
-const MIN_USE = earliestUseDate();
+let MIN_USE = earliestUseDate();
 $("request_date").value = iso(new Date());
-$("use_date").min = MIN_USE;
-$("useHint").textContent = `เลือกได้ตั้งแต่วันที่ ${thDate(MIN_USE)} เป็นต้นไป (ต้องขอล่วงหน้า 3 วันทำการ ไม่นับวันอาทิตย์ และเลือกวันอาทิตย์ไม่ได้)`;
+function refreshMin(){
+  MIN_USE = earliestUseDate();
+  $("use_date").min = MIN_USE;
+  $("useHint").textContent = `เลือกได้ตั้งแต่วันที่ ${thDate(MIN_USE)} เป็นต้นไป (ต้องขอล่วงหน้า 3 วันทำการ ไม่นับวันอาทิตย์/วันหยุด และเลือกวันดังกล่าวไม่ได้)`;
+  const v=$("use_date").value; if(v && (v<MIN_USE || isOff(v))) $("use_date").value="";
+}
+refreshMin();
+db.from("holidays").select("holiday_date,name").gte("holiday_date",iso(new Date())).then(({data,error})=>{
+  if(error||!data) return;   // อ่านวันหยุดไม่ได้ → ใช้เฉพาะกฎวันอาทิตย์
+  HOLIDAYS = Object.fromEntries(data.map(h=>[h.holiday_date,h.name]));
+  refreshMin();
+});
 $("use_date").addEventListener("change",()=>{
   const v=$("use_date").value;
-  if(v && (v<MIN_USE || isSun(v))){ msg(v<MIN_USE?`วันที่ใช้ต้องเป็นวันที่ ${thDate(MIN_USE)} เป็นต้นไป`:"ไม่สามารถเลือกวันอาทิตย์ได้","err"); $("use_date").value=""; }
+  if(v && (v<MIN_USE || isOff(v))){ msg(v<MIN_USE?`วันที่ใช้ต้องเป็นวันที่ ${thDate(MIN_USE)} เป็นต้นไป`:(v in HOLIDAYS?`${thDate(v)} เป็นวันหยุด (${HOLIDAYS[v]})`:"ไม่สามารถเลือกวันอาทิตย์ได้"),"err"); $("use_date").value=""; }
 });
 $("slipChk").onchange = e => $("slipBox").classList.toggle("hide",!e.target.checked);
 document.querySelectorAll("[name=prev]").forEach(r => r.onchange = () =>
@@ -188,7 +198,7 @@ $("f").addEventListener("submit", async e=>{
   e.preventDefault();
   if(!$("full_name").value) return msg("กรุณาค้นหารหัสพนักงานก่อนส่ง","err");
   const r = collect();
-  if(!r.use_date || r.use_date<MIN_USE || isSun(r.use_date)) return msg(`กรุณาเลือกวันที่ใช้ตั้งแต่ ${thDate(MIN_USE)} เป็นต้นไป (ไม่ใช่วันอาทิตย์)`,"err");
+  if(!r.use_date || r.use_date<MIN_USE || isOff(r.use_date)) return msg(`กรุณาเลือกวันที่ใช้ตั้งแต่ ${thDate(MIN_USE)} เป็นต้นไป (ไม่ใช่วันอาทิตย์/วันหยุด)`,"err");
   if(!r.cert_types.length) return msg("กรุณาเลือกประเภทหนังสือรับรองอย่างน้อย 1 รายการ","err");
   $("submitBtn").disabled=true; msg("กำลังบันทึก...");
   const {error} = await db.from("certificate_requests").insert(r);
