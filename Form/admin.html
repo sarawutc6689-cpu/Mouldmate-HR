@@ -49,7 +49,7 @@ button.go{background:var(--ok);border-color:var(--ok)}
       <button class="sec chip" data-s="approved">อนุมัติแล้ว</button>
       <button class="sec chip" data-s="rejected">ไม่อนุมัติ</button>
       <button class="sec chip" data-s="done">ออกเอกสารแล้ว</button>
-      <input id="q" type="text" placeholder="ค้นหารหัส / ชื่อ">
+      <input id="q" type="text" placeholder="ค้นหารหัส / ชื่อ / เลขที่เอกสาร">
       <button class="sec" id="reload">รีเฟรช</button>
     </div>
     <div id="list"></div>
@@ -84,12 +84,13 @@ async function load(){
 }
 function render(){
   const q=$("q").value.trim().toLowerCase();
-  const rs=rows.filter(r=>(!filt||r.status===filt)&&(!q||(r.emp_code+" "+r.full_name).toLowerCase().includes(q)));
+  const rs=rows.filter(r=>(!filt||r.status===filt)&&(!q||(r.emp_code+" "+r.full_name+" "+JSON.stringify(r.doc_numbers||{})).toLowerCase().includes(q)));
   $("list").innerHTML = rs.map(r=>`
     <div class="card">
       <div class="top"><b>#${r.id} ${esc(r.emp_code)} ${esc(r.full_name)}</b><span class="tag ${r.status}">${ST[r.status]||r.status}</span></div>
       <div class="mut">${esc(r.position)} · ${esc(r.department)} · ${esc(r.division)} · เริ่มงาน ${d(r.start_date)}${r.emp_status?` · สถานะพนักงาน: ${esc(r.emp_status)}`:""}</div>
       <div>ประเภท: ${(r.cert_types||[]).map(c=>CT[c]||c).join(", ")}${r.slip_from?` (${esc(r.slip_from)} – ${esc(r.slip_to)})`:""}</div>
+      ${r.doc_numbers?`<div>เลขที่เอกสาร: ${Object.entries(r.doc_numbers).map(([k,v])=>`${CT[k]||k} <b>${esc(v)}</b>`).join(" · ")}</div>`:""}
       <div>ระบุเงินเดือน: ${r.show_salary?"ใช่":"ไม่"} · ใช้เพื่อ: ${esc(r.purpose)} · วันที่ใช้: ${d(r.use_date)}</div>
       <div class="mut">ขอเมื่อ ${d(r.request_date)}${r.prev_requested?` · เคยขอ ${d(r.prev_date)} (${esc(r.prev_purpose)})`:" · ไม่เคยขอ"}</div>
       ${r.decided_by?`<div class="mut">ผู้ดำเนินการ: ${esc(r.decided_by)} · ${d(r.decided_at)}${r.reject_reason?` · เหตุผล: ${esc(r.reject_reason)}`:""}</div>`:""}
