@@ -129,7 +129,7 @@ $("request_date").value = iso(new Date());
 function refreshMin(){
   MIN_USE = earliestUseDate();
   $("use_date").min = MIN_USE;
-  $("useHint").textContent = `เลือกได้ตั้งแต่วันที่ ${thDate(MIN_USE)} เป็นต้นไป (ต้องขอล่วงหน้า 3 วันทำการ ไม่นับวันอาทิตย์/วันหยุด และเลือกวันดังกล่าวไม่ได้)`;
+  $("useHint").textContent = `เลือกได้ตั้งแต่วันที่ ${thDate(MIN_USE)} เป็นต้นไป`;
   const v=$("use_date").value; if(v && (v<MIN_USE || isOff(v))) $("use_date").value="";
 }
 refreshMin();
