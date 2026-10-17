@@ -69,9 +69,11 @@ button:disabled{opacity:.5}
     <h2 style="margin-top:16px">ประวัติการขอออกหนังสือรับรอง</h2>
     <div id="history" class="note">กรอกรหัสพนักงานแล้วกด "ค้นหา" จากนั้นเลือกประเภทหนังสือรับรองเพื่อดูประวัติการขอ</div>
 
-    <h2 style="margin-top:16px">รายละเอียดเกี่ยวกับรายได้</h2>
-    <label class="opt"><input type="radio" name="salary" value="show"> ให้ระบุเงินเดือนในหนังสือรับรอง</label>
-    <label class="opt"><input type="radio" name="salary" value="hide" checked> ไม่ต้องระบุ</label>
+    <div id="incomeBox" class="hide">
+      <h2 style="margin-top:16px">รายละเอียดเกี่ยวกับรายได้</h2>
+      <label class="opt"><input type="radio" name="salary" value="show"> ให้ระบุเงินเดือนในหนังสือรับรอง</label>
+      <label class="opt"><input type="radio" name="salary" value="hide" checked> ไม่ต้องระบุ</label>
+    </div>
 
     <h2 style="margin-top:16px">การนำไปใช้</h2>
     <div class="grid">
@@ -139,7 +141,7 @@ $("use_date").addEventListener("change",()=>{
   if(v && (v<MIN_USE || isOff(v))){ msg(v<MIN_USE?`วันที่ใช้ต้องเป็นวันที่ ${thDate(MIN_USE)} เป็นต้นไป`:(v in HOLIDAYS?`${thDate(v)} เป็นวันหยุด (${HOLIDAYS[v]})`:"ไม่สามารถเลือกวันอาทิตย์ได้"),"err"); $("use_date").value=""; }
 });
 $("slipChk").onchange = e => $("slipBox").classList.toggle("hide",!e.target.checked);
-document.querySelectorAll("[name=cert]").forEach(c=>c.addEventListener("change",()=>renderHistory()));
+document.querySelectorAll("[name=cert]").forEach(c=>c.addEventListener("change",()=>{ toggleIncome(); renderHistory(); }));
 
 function applyStatus(status){
   empStatus = status||null;
@@ -151,9 +153,15 @@ function applyStatus(status){
     if(gone && c.value==="pass") c.checked=true;
   });
   $("slipBox").classList.toggle("hide", !$("slipChk").checked);
+  toggleIncome();
   return gone;
 }
 const SLBL = {pending:"รออนุมัติ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
+function toggleIncome(){
+  const on = document.querySelector('[name=cert][value=salary]').checked;
+  $("incomeBox").classList.toggle("hide", !on);
+  if(!on) document.querySelector('[name=salary][value=hide]').checked = true;
+}
 let histReady = false;
 function renderHistory(msgText){
   const box = $("history");
@@ -210,7 +218,7 @@ function collect(){
     slip_to:certs.includes("slip")?($("slip_to").value||null):null,
     prev_requested:ever, prev_date:ever?last.request_date:null,
     prev_purpose:ever?last.purpose:null,
-    show_salary:document.querySelector("[name=salary]:checked").value==="show",
+    show_salary:certs.includes("salary") && document.querySelector("[name=salary]:checked").value==="show",
     purpose:$("purpose").value, use_date:$("use_date").value||null
   };
 }
