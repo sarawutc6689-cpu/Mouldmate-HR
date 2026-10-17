@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>จัดการแผนก (departments)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --ink:#1c2a26; --muted:#66756f; --line:#d9e0dd;
+  --accent:#0f6b5c; --accent-ink:#ffffff; --danger:#b3382c; --ok:#1d7a4a; --off:#8a948f;
+  --row:#f8faf9;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121917; --surface:#1a2320; --ink:#e6eeea; --muted:#8fa099; --line:#2b3733;
+    --accent:#3fb59e; --accent-ink:#06211b; --danger:#ef7a6c; --ok:#5ccf91; --off:#7d8a85; --row:#1e2825;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Thai",system-ui,sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding:28px 16px 60px}
+h1{font-size:22px;margin:0 0 4px;font-weight:600}
+.sub{color:var(--muted);margin:0 0 20px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px}
+.cfg{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input:disabled{opacity:.6}
+button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+button.danger{color:var(--danger);border-color:var(--danger);background:transparent}
+button.small{padding:5px 10px;font-size:13px}
+.bar{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.bar input{flex:1;min-width:180px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:13px}
+tbody tr:nth-child(even){background:var(--row)}
+td.code{font-weight:600}
+td.act{text-align:right}
+td.act button{margin-left:6px}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:13px;border:1px solid currentColor;cursor:pointer;background:transparent}
+.badge.on{color:var(--ok)} .badge.off{color:var(--off)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+dialog{border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:20px;width:min(420px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h2{margin:0 0 14px;font-size:18px}
+.field{margin-bottom:12px}
+.chk{display:flex;align-items:center;gap:8px}
+.chk input{width:auto}
+.chk label{margin:0;color:var(--ink)}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:6px;display:none;max-width:90vw;z-index:10}
+#toast.err{background:var(--danger);color:#fff}
+@media(max-width:640px){.cfg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>จัดการแผนก</h1>
+  <p class="sub">ตาราง <b>public.departments</b> — เพิ่ม แก้ไข ลบ และเปิด/ปิดการใช้งาน</p>
+
+  <div class="panel">
+    <div class="bar">
+      <input id="q" placeholder="ค้นหารหัสแผนก ชื่อ หรือ section_id">
+      <button class="primary" id="add">เพิ่มแผนก</button>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>department_code</th><th>name</th><th>section_id</th><th>is_active</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="empty" id="empty">กำลังโหลดข้อมูล...</div>
+    </div>
+  </div>
+</div>
+
+<dialog id="dlg">
+  <form method="dialog" id="form">
+    <h2 id="dlgTitle">เพิ่มแผนก</h2>
+    <div class="field"><label for="f_code">department_code</label><input id="f_code" required></div>
+    <div class="field"><label for="f_name">name</label><input id="f_name" required></div>
+    <div class="field"><label for="f_section">section_id</label><input id="f_section"></div>
+    <div class="field chk"><input type="checkbox" id="f_active" checked><label for="f_active">เปิดใช้งาน (is_active)</label></div>
+    <div class="actions">
+      <button type="button" id="cancel">ยกเลิก</button>
+      <button type="submit" class="primary">บันทึก</button>
+    </div>
+  </form>
+</dialog>
+<div id="toast"></div>
+
+<script>
+const TABLE = 'departments';
+// ===== ตั้งค่า Supabase: แก้ตรงนี้ =====
+const SUPABASE_URL = 'https://ppzdyvomrfiitahxwrwz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0';
+// =====================================
+let data = [], editingCode = null;
+const base = SUPABASE_URL.replace(/\/+$/, ''), key = SUPABASE_KEY;
+const $ = id => document.getElementById(id);
+
+function toast(msg, err){
+  const t = $('toast'); t.textContent = msg; t.className = err ? 'err' : ''; t.style.display = 'block';
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = 'none', 3500);
+}
+
+async function api(method, query = '', body){
+  const res = await fetch(`${base}/rest/v1/${TABLE}${query}`, {
+    method,
+    headers: {
+      apikey: key, Authorization: `Bearer ${key}`,
+      'Content-Type': 'application/json', Prefer: 'return=representation'
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const text = await res.text();
+  const json = text ? JSON.parse(text) : null;
+  if (!res.ok) throw new Error(json?.message || res.statusText);
+  return json;
+}
+
+async function load(){
+  try {
+    data = await api('GET', '?select=*&order=department_code.asc');
+    render();
+  } catch(e){ toast('โหลดข้อมูลไม่สำเร็จ: ' + e.message, true); }
+}
+
+function render(){
+  const q = $('q').value.trim().toLowerCase();
+  const list = data.filter(r => !q || [r.department_code, r.name, r.section_id].some(v => String(v ?? '').toLowerCase().includes(q)));
+  const tb = $('rows'); tb.innerHTML = '';
+  $('empty').style.display = list.length ? 'none' : 'block';
+  $('empty').textContent = data.length ? 'ไม่พบรายการที่ตรงกับคำค้นหา' : 'ยังไม่มีแผนก กด “เพิ่มแผนก” เพื่อเริ่มต้น';
+  list.forEach(r => {
+    const tr = document.createElement('tr');
+    const cell = (txt, cls) => { const td = document.createElement('td'); td.textContent = txt ?? ''; if (cls) td.className = cls; return td; };
+    tr.append(cell(r.department_code, 'code'), cell(r.name), cell(r.section_id));
+    const tdA = document.createElement('td');
+    const b = document.createElement('button');
+    b.className = 'badge ' + (r.is_active ? 'on' : 'off');
+    b.textContent = r.is_active ? 'ใช้งาน' : 'ปิด';
+    b.title = 'คลิกเพื่อสลับสถานะ';
+    b.onclick = () => toggle(r);
+    tdA.append(b); tr.append(tdA);
+    const tdB = document.createElement('td'); tdB.className = 'act';
+    const e = document.createElement('button'); e.className = 'small'; e.textContent = 'แก้ไข'; e.onclick = () => openForm(r);
+    const d = document.createElement('button'); d.className = 'small danger'; d.textContent = 'ลบ'; d.onclick = () => remove(r);
+    tdB.append(e, d); tr.append(tdB);
+    tb.append(tr);
+  });
+}
+
+function openForm(r){
+  editingCode = r ? r.department_code : null;
+  $('dlgTitle').textContent = r ? 'แก้ไขแผนก' : 'เพิ่มแผนก';
+  $('f_code').value = r?.department_code ?? '';
+  $('f_code').disabled = !!r;
+  $('f_name').value = r?.name ?? '';
+  $('f_section').value = r?.section_id ?? '';
+  $('f_active').checked = r ? !!r.is_active : true;
+  $('dlg').showModal();
+}
+
+$('form').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const row = {
+    name: $('f_name').value.trim(),
+    section_id: $('f_section').value.trim() || null,
+    is_active: $('f_active').checked
+  };
+  try {
+    if (editingCode !== null){
+      await api('PATCH', `?department_code=eq.${encodeURIComponent(editingCode)}`, row);
+      toast('บันทึกการแก้ไขแล้ว');
+    } else {
+      row.department_code = $('f_code').value.trim();
+      await api('POST', '', row);
+      toast('เพิ่มแผนกแล้ว');
+    }
+    $('dlg').close(); load();
+  } catch(e){ toast('บันทึกไม่สำเร็จ: ' + e.message, true); }
+});
+
+async function toggle(r){
+  try { await api('PATCH', `?department_code=eq.${encodeURIComponent(r.department_code)}`, { is_active: !r.is_active }); load(); }
+  catch(e){ toast('เปลี่ยนสถานะไม่สำเร็จ: ' + e.message, true); }
+}
+
+async function remove(r){
+  if (!confirm(`ลบแผนก ${r.department_code} (${r.name}) ใช่หรือไม่?`)) return;
+  try { await api('DELETE', `?department_code=eq.${encodeURIComponent(r.department_code)}`); toast('ลบแล้ว'); load(); }
+  catch(e){ toast('ลบไม่สำเร็จ: ' + e.message, true); }
+}
+
+$('add').onclick = () => openForm(null);
+$('cancel').onclick = () => $('dlg').close();
+$('q').oninput = render;
+load();
+</script>
+</body>
+</html>
