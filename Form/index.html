@@ -157,10 +157,11 @@ $("f").addEventListener("submit", async e=>{
   if(!r.cert_types.length) return msg("กรุณาเลือกประเภทหนังสือรับรองอย่างน้อย 1 รายการ","err");
   $("submitBtn").disabled=true; msg("กำลังบันทึก...");
   const {error} = await db.from("certificate_requests").insert(r);
-  $("submitBtn").disabled=false;
-  if(error) return msg("บันทึกไม่สำเร็จ: "+error.message,"err");
-  msg("ส่งคำขอเรียบร้อยแล้ว","ok");
+  if(error){ $("submitBtn").disabled=false; return msg("บันทึกไม่สำเร็จ: "+error.message,"err"); }
+  msg("ส่งคำขอเรียบร้อยแล้ว (ปุ่มส่งจะเปิดอีกครั้งเมื่อมีการแก้ไขข้อมูล)","ok");
 });
+$("f").addEventListener("input",()=>{ $("submitBtn").disabled=false; });
+$("f").addEventListener("change",()=>{ $("submitBtn").disabled=false; });
 
 $("printBtn").onclick = () => {
   const r = collect(), u = v => `<span class="u">${esc(v)||"&nbsp;".repeat(12)}</span>`;
