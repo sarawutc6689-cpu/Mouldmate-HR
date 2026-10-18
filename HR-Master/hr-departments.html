@@ -236,7 +236,6 @@
                 <th>รหัสแผนก</th>
                 <th>ชื่อแผนก</th>
                 <th>ฝ่าย</th>
-                <th class="num">พนักงาน</th>
                 <th>สถานะ</th>
                 <th></th>
               </tr>
@@ -388,7 +387,6 @@
         <td><span class="code-cell">${esc(d.department_code)}</span></td>
         <td>${esc(d.name)}</td>
         <td>${esc(sectionName(d.section_id))}</td>
-        <td class="num">${empCount[d.department_code] || 0}</td>
         <td><span class="badge ${d.is_active ? 'badge-on' : 'badge-off'}">${d.is_active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}</span></td>
         <td class="row-actions">
           <button class="link-btn" data-edit="${esc(d.department_code)}">แก้ไข</button>
