@@ -51,8 +51,8 @@ button:disabled{opacity:.5}
     <div id="msg"></div>
 
     <h2 style="margin-top:16px">ประเภทหนังสือรับรอง (เลือกได้มากกว่า 1)</h2>
-    <label class="opt"><input type="checkbox" name="cert" value="work"> หนังสือรับรองการทำงาน (ยังมีสภาพเป็นพนักงาน ไม่ระบุเงินเดือน)</label>
-    <label class="opt"><input type="checkbox" name="cert" value="salary"> หนังสือรับรองเงินเดือน (ยังมีสภาพเป็นพนักงาน ระบุเงินเดือน)</label>
+    <label class="opt"><input type="checkbox" name="cert" value="work"> หนังสือรับรองการทำงาน (ยังมีสภาพเป็นพนักงาน)</label>
+    <label class="opt"><input type="checkbox" name="cert" value="salary"> หนังสือรับรองเงินเดือน (ยังมีสภาพเป็นพนักงาน)</label>
     <label class="opt"><input type="checkbox" name="cert" value="pass"> หนังสือผ่านงาน (พ้นสภาพพนักงานแล้ว)</label>
     <label class="opt"><input type="checkbox" name="cert" value="slip" id="slipChk"> สลิปเงินเดือน</label>
     <div class="grid hide" id="slipBox">
@@ -66,7 +66,7 @@ button:disabled{opacity:.5}
     <div id="incomeBox" class="hide">
       <h2 style="margin-top:16px">รายละเอียดเกี่ยวกับรายได้</h2>
       <label class="opt"><input type="radio" name="salary" value="show"> ให้ระบุเงินเดือนในหนังสือรับรอง</label>
-      
+      <label class="opt"><input type="radio" name="salary" value="hide" checked> ไม่ต้องระบุ</label>
     </div>
 
     <h2 style="margin-top:16px">การนำไปใช้</h2>
@@ -147,7 +147,7 @@ function applyStatus(status){
   toggleIncome();
   return gone;
 }
-const SLBL = {pending:"รออนุมัติ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
+const SLBL = {mgr_pending:"รอผู้จัดการฝ่ายอนุมัติ",mgr_rejected:"ผู้จัดการไม่อนุมัติ",pending:"รอ HR อนุมัติ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
 function toggleIncome(){
   const on = document.querySelector('[name=cert][value=salary]').checked;
   $("incomeBox").classList.toggle("hide", !on);
