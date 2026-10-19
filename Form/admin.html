@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>HR – คำขอหนังสือรับรอง</title>
+<title>เจ้าหน้าที่บุคคล – พิมพ์หนังสือรับรอง</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
 :root{--bg:#f4f5f7;--card:#fff;--tx:#1d2330;--mut:#667085;--bd:#d0d5dd;--pri:#1f5fbf;--ok:#067647;--err:#b42318;--warn:#b54708}
@@ -33,7 +33,7 @@ label{display:block;font-size:.9rem;color:var(--mut);margin:8px 0 2px}
 </head>
 <body>
 <div class="wrap">
-  <h2>HR – คำขอหนังสือรับรอง</h2>
+  <h2>เจ้าหน้าที่บุคคล – พิมพ์หนังสือรับรอง</h2>
 
   <div id="login" class="card" style="max-width:380px">
     <p><input id="em" type="text" placeholder="อีเมล HR" autocomplete="username"></p>
@@ -45,12 +45,8 @@ label{display:block;font-size:.9rem;color:var(--mut);margin:8px 0 2px}
   <div id="app" class="hide">
     <div class="top"><span class="mut" id="who"></span><span><a href="holidays.html" style="color:var(--pri)">จัดการวันหยุด</a> &nbsp; <button class="sec" id="out">ออกจากระบบ</button></span></div>
     <div class="bar" style="margin-top:10px">
-      <button class="sec chip on" data-s="">ทั้งหมด</button>
-      <button class="sec chip" data-s="pending">รออนุมัติ</button>
-      <button class="sec chip" data-s="approved">อนุมัติแล้ว</button>
-      <button class="sec chip" data-s="rejected">ไม่อนุมัติ</button>
-      <button class="sec chip" data-s="done">ออกเอกสารแล้ว</button>
       <input id="q" type="text" placeholder="ค้นหารหัส / ชื่อ / เลขที่เอกสาร">
+      <label class="mut" style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="useSig" checked style="width:auto"> แนบลายเซ็นตอนพิมพ์</label>
       <button class="sec" id="reload">รีเฟรช</button>
     </div>
     <div id="list"></div>
@@ -74,7 +70,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
-const ST = {mgr_pending:"รอผู้จัดการฝ่าย",mgr_rejected:"ผู้จัดการไม่อนุมัติ",pending:"รออนุมัติ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
+const ST = {mgr_pending:"รอผู้จัดการฝ่าย",mgr_rejected:"ผู้จัดการไม่อนุมัติ",pending:"รออนุมัติ",approved:"พร้อมพิมพ์",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
 const CT = {work:"หนังสือรับรองการทำงาน",salary:"หนังสือรับรองเงินเดือน",pass:"หนังสือผ่านงาน",slip:"สลิปเงินเดือน"};
 const MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -106,26 +102,12 @@ function render(){
       <div>ระบุเงินเดือน: ${r.show_salary?"ใช่":"ไม่"} · ใช้เพื่อ: ${esc(r.purpose)} · วันที่ใช้: ${d(r.use_date)}</div>
       <div class="mut">ขอเมื่อ ${d(r.request_date)}${r.prev_requested?` · เคยขอ ${d(r.prev_date)} (${esc(r.prev_purpose)})`:" · ไม่เคยขอ"}</div>
       ${r.mgr_decided_by?`<div class="mut">ผู้จัดการฝ่ายอนุมัติ: ${esc(r.mgr_decided_by)} · ${d(r.mgr_decided_at)}</div>`:""}
-      ${r.decided_by?`<div class="mut">ผู้ดำเนินการ: ${esc(r.decided_by)} · ${d(r.decided_at)}${r.reject_reason?` · เหตุผล: ${esc(r.reject_reason)}`:""}</div>`:""}
+      ${r.decided_by?`<div class="mut">ผู้จัดการบุคคล: ${esc(r.decided_by)} · ${d(r.decided_at)}${r.reject_reason?` · เหตุผล: ${esc(r.reject_reason)}`:""}</div>`:""}
       <div class="act">
         ${(r.status==="approved"||r.status==="done")?PRINTABLE.filter(([k])=>(r.cert_types||[]).includes(k)).map(([k,l])=>`<button class="sec" data-p="${r.id}" data-t="${k}">พิมพ์${l}</button>`).join(""):""}
-        ${r.status==="pending"?`<button class="go" data-a="approved" data-id="${r.id}">อนุมัติ</button><button class="no" data-a="rejected" data-id="${r.id}">ไม่อนุมัติ</button>`:""}
-        ${r.status==="approved"?`<button data-a="done" data-id="${r.id}">ออกเอกสารแล้ว</button><button class="sec" data-a="pending" data-id="${r.id}">ย้อนกลับ</button>`:""}
-        ${r.status==="rejected"||r.status==="done"?`<button class="sec" data-a="pending" data-id="${r.id}">ย้อนกลับเป็นรออนุมัติ</button>`:""}
       </div>
     </div>`).join("") || '<p class="mut">ไม่พบรายการ</p>';
 }
-$("list").addEventListener("click", async e=>{
-  const b=e.target.closest("button[data-a]"); if(!b) return;
-  const st=b.dataset.a; let reason=null;
-  if(st==="rejected"){ reason=prompt("เหตุผลที่ไม่อนุมัติ:"); if(reason===null) return; }
-  b.disabled=true;
-  const {error}=await db.from("certificate_requests").update({status:st,decided_by:me,decided_at:new Date().toISOString(),reject_reason:reason}).eq("id",b.dataset.id);
-  if(error){ alert("บันทึกไม่สำเร็จ: "+error.message); b.disabled=false; return; }
-  load();
-});
-document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
-  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); c.classList.add("on"); filt=c.dataset.s; render(); });
 $("q").oninput=render; $("reload").onclick=load;
 $("out").onclick=async()=>{ await db.auth.signOut(); show(null); };
 $("loginBtn").onclick=async()=>{
@@ -168,10 +150,23 @@ const LAYOUT = {
           verb:"เคยปฏิบัติงานที่ บริษัท"}
 };
 
-function printCert(type, r, x){
+/* ลายเซ็นเก็บใน Supabase Storage (bucket ส่วนตัว "signatures") อ่านได้เฉพาะ HR ที่ล็อกอิน ไม่ฝังในไฟล์ HTML */
+let SIG_CACHE;
+async function loadSignature(){
+  if(SIG_CACHE !== undefined) return SIG_CACHE;
+  try{
+    const {data,error} = await db.storage.from("signatures").download("hr-manager.png");
+    if(error || !data) throw error || new Error("no file");
+    SIG_CACHE = await new Promise((res,rej)=>{ const f=new FileReader(); f.onload=()=>res(f.result); f.onerror=rej; f.readAsDataURL(data); });
+  }catch(e){ SIG_CACHE = null; }
+  return SIG_CACHE;
+}
+
+async function printCert(type, r, x){
   const L = LAYOUT[type];
-  const w = window.open("", "_blank");
+  const w = window.open("", "_blank");   // เปิดทันทีตอนกดปุ่ม กันเบราว์เซอร์บล็อก pop-up
   if(!w) return alert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต pop-up สำหรับหน้านี้");
+  const sig = ($("useSig") && $("useSig").checked) ? await loadSignature() : null;
   const no = (r.doc_numbers && r.doc_numbers[type]) || "";
   const issue = dl(r.decided_at || new Date());
   const a = (l,t,extra,txt) => `<div class="a" style="left:${l}pt;top:${t}pt;${extra||""}">${txt}</div>`;
@@ -212,6 +207,7 @@ ${extraLine}
 ${a(L.stmt.l,L.stmt.t,"","บริษัทฯ ขอรับรองว่าข้อความในหนังสือฉบับนี้เป็นความจริงทุกประการ")}
 ${a(L.issue.l,L.issue.t,"",`ออกให้ ณ วันที่ ${esc(issue)}`)}
 ${a(L.sig.c-130,L.sig.t,"width:260pt;text-align:center","( …………………………………….. )")}
+${sig?`<div class="a" style="left:${L.sig.c-130}pt;top:${L.sig.t-31}pt;width:260pt;text-align:center;line-height:0"><img src="${sig}" style="height:46pt"></div>`:""}
 ${a(L.sig.c-130,L.sig2,"width:260pt;text-align:center","ผู้จัดการฝ่ายทรัพยากรบุคคลและธุรการ")}
 ${a(94,L.foot[0],`font-size:${L.fs}pt`,"ฝ่ายทรัพยากรบุคคลและธุรการ")}
 ${a(94,L.foot[1],`font-size:${L.fs}pt`,"หมายเหตุ : ถ้าหนังสือฉบับนี้มีรอยลบขูดขีดฆ่าแก้ไขถือว่าหนังสือฉบับนี้เป็นโมฆะ")}
