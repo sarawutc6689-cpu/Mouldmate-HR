@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ผู้จัดการบุคคล – อนุมัติคำขอหนังสือรับรอง</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#1d2330;--mut:#667085;--bd:#d0d5dd;--pri:#1f5fbf;--ok:#067647;--err:#b42318;--warn:#b54708}
+@media (prefers-color-scheme:dark){:root{--bg:#14171c;--card:#1d2128;--tx:#e8eaee;--mut:#9aa3b2;--bd:#3a414d;--pri:#6ea2f5;--ok:#47cd89;--err:#f97066;--warn:#fdb022}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Sarabun","Noto Sans Thai",system-ui,sans-serif;line-height:1.55}
+.wrap{max-width:960px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:12px}
+input{width:100%;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font:inherit}
+button{font:inherit;padding:7px 14px;border-radius:8px;border:1px solid var(--pri);background:var(--pri);color:#fff;cursor:pointer}
+button.sec{background:transparent;color:var(--pri)}
+button.no{background:var(--err);border-color:var(--err)}
+button.go{background:var(--ok);border-color:var(--ok)}
+button:disabled{opacity:.5}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.bar input{flex:1;min-width:180px;width:auto}
+.chip.on{background:var(--pri);color:#fff}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{display:inline-block;padding:1px 10px;border-radius:99px;font-size:.85rem;border:1px solid currentColor}
+.mgr_pending{color:var(--warn)}.pending{color:var(--warn)}.approved{color:var(--pri)}.mgr_rejected,.rejected{color:var(--err)}.done{color:var(--ok)}
+.mut{color:var(--mut);font-size:.9rem}
+.act{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.hide{display:none}
+#err{color:var(--err);min-height:1.4em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>ผู้จัดการบุคคล – อนุมัติคำขอหนังสือรับรอง</h2>
+
+  <div id="login" class="card" style="max-width:380px">
+    <p><input id="em" type="text" placeholder="อีเมลผู้จัดการบุคคล" autocomplete="username"></p>
+    <p><input id="pw" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"></p>
+    <button id="loginBtn">เข้าสู่ระบบ</button>
+    <div id="err"></div>
+  </div>
+
+  <div id="app" class="hide">
+    <div class="top"><span class="mut" id="who"></span><button class="sec" id="out">ออกจากระบบ</button></div>
+    <div class="bar">
+      <button class="sec chip on" data-s="pending" id="cWait">รออนุมัติ</button>
+      <button class="sec chip" data-s="approved">อนุมัติแล้ว</button>
+      <button class="sec chip" data-s="rejected">ไม่อนุมัติ</button>
+      <button class="sec chip" data-s="">ทั้งหมด</button>
+      <input id="q" type="text" placeholder="ค้นหารหัส / ชื่อ / ฝ่าย">
+      <button class="sec" id="reload">รีเฟรช</button>
+    </div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+const ST = {mgr_pending:"รอผู้จัดการฝ่าย",mgr_rejected:"ผู้จัดการฝ่ายไม่อนุมัติ",pending:"รอผู้จัดการบุคคล",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
+const CT = {work:"หนังสือรับรองการทำงาน",salary:"หนังสือรับรองเงินเดือน",pass:"หนังสือผ่านงาน",slip:"สลิปเงินเดือน"};
+const MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const d = s => { if(!s) return "-"; const x=new Date(typeof s==="string"&&s.length===10?s+"T00:00:00":s); return isNaN(x)?s:`${x.getDate()} ${MONTHS[x.getMonth()]} ${x.getFullYear()+543}`; };
+let rows=[], filt="pending", me="";
+
+async function show(session){
+  $("login").classList.toggle("hide",!!session);
+  $("app").classList.toggle("hide",!session);
+  if(!session) return;
+  me = session.user.email; $("who").textContent = "เข้าสู่ระบบ: "+me;
+  load();
+}
+async function load(){
+  const {data,error}=await db.from("certificate_requests").select("*").order("created_at",{ascending:false}).limit(500);
+  if(error){ $("list").innerHTML=`<p class="mut">โหลดไม่สำเร็จ: ${esc(error.message)}</p>`; return; }
+  rows=data; render();
+}
+function render(){
+  const q=$("q").value.trim().toLowerCase();
+  $("cWait").textContent=`รออนุมัติ (${rows.filter(r=>r.status==="pending").length})`;
+  const rs=rows.filter(r=>(!filt||r.status===filt)&&(!q||(r.emp_code+" "+r.full_name+" "+(r.division||"")+" "+(r.department||"")).toLowerCase().includes(q)));
+  $("list").innerHTML = rs.map(r=>`
+    <div class="card">
+      <div class="top"><b>#${r.id} ${esc(r.emp_code)} ${esc(r.full_name)}</b><span class="tag ${r.status}">${ST[r.status]||r.status}</span></div>
+      <div class="mut">${esc(r.position)} · ${esc(r.department)} · ${esc(r.division)} · เริ่มงาน ${d(r.start_date)}${r.emp_status?` · สถานะพนักงาน: ${esc(r.emp_status)}`:""}</div>
+      <div>ประเภท: ${(r.cert_types||[]).map(c=>CT[c]||c).join(", ")}${r.slip_from?` (${esc(r.slip_from)} – ${esc(r.slip_to)})`:""}</div>
+      <div>ใช้เพื่อ: ${esc(r.purpose)} · วันที่ใช้: ${d(r.use_date)}${(r.cert_types||[]).includes("salary")?` · ระบุเงินเดือน: ${r.show_salary?"ใช่":"ไม่"}`:""}</div>
+      <div class="mut">ขอเมื่อ ${d(r.request_date)}${r.prev_requested?` · เคยขอ ${d(r.prev_date)} (${esc(r.prev_purpose)})`:" · ไม่เคยขอ"}</div>
+      ${r.mgr_decided_by?`<div class="mut">ผู้จัดการฝ่ายอนุมัติ: ${esc(r.mgr_decided_by)} · ${d(r.mgr_decided_at)}</div>`:""}
+      ${r.decided_by?`<div class="mut">ผู้จัดการบุคคล: ${esc(r.decided_by)} · ${d(r.decided_at)}${r.reject_reason?` · เหตุผล: ${esc(r.reject_reason)}`:""}</div>`:""}
+      <div class="act">
+        ${r.status==="pending"?`<button class="go" data-a="approved" data-from="pending" data-id="${r.id}">อนุมัติ</button><button class="no" data-a="rejected" data-from="pending" data-id="${r.id}">ไม่อนุมัติ</button>`:""}
+        ${(r.status==="approved"||r.status==="rejected")?`<button class="sec" data-a="pending" data-from="${r.status}" data-id="${r.id}">ย้อนกลับเป็นรออนุมัติ</button>`:""}
+      </div>
+    </div>`).join("") || '<p class="mut">ไม่พบรายการ</p>';
+}
+$("list").addEventListener("click", async e=>{
+  const b=e.target.closest("button[data-a]"); if(!b) return;
+  const st=b.dataset.a, from=b.dataset.from; let reason=null;
+  if(st==="rejected"){
+    reason=prompt("เหตุผลที่ไม่อนุมัติ (จำเป็น):");
+    if(reason===null) return;
+    reason=reason.trim(); if(!reason) return alert("กรุณากรอกเหตุผล");
+  } else if(st==="approved" && !confirm("อนุมัติคำขอนี้?")) return;
+  else if(st==="pending" && !confirm("ย้อนกลับเป็นรออนุมัติ?")) return;
+  b.disabled=true;
+  const upd = st==="pending"
+    ? {status:st,decided_by:null,decided_at:null,reject_reason:null}
+    : {status:st,decided_by:me,decided_at:new Date().toISOString(),reject_reason:reason};
+  const {data,error}=await db.from("certificate_requests").update(upd).eq("id",b.dataset.id).eq("status",from).select("id");
+  if(error||!data||!data.length){ alert("ดำเนินการไม่สำเร็จ"+(error?": "+error.message:" (คำขอนี้อาจถูกดำเนินการไปแล้ว หรือไม่มีสิทธิ์)")); b.disabled=false; return load(); }
+  load();
+});
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); c.classList.add("on"); filt=c.dataset.s; render(); });
+$("q").oninput=render; $("reload").onclick=load;
+$("out").onclick=async()=>{ await db.auth.signOut(); show(null); };
+$("loginBtn").onclick=async()=>{
+  $("err").textContent="";
+  const {data,error}=await db.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});
+  if(error) return $("err").textContent="เข้าสู่ระบบไม่สำเร็จ: "+error.message;
+  show(data.session);
+};
+$("pw").addEventListener("keydown",e=>{ if(e.key==="Enter") $("loginBtn").click(); });
+db.auth.getSession().then(({data})=>show(data.session));
+</script>
+</body>
+</html>
