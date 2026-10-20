@@ -118,7 +118,8 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
       <div class="divlist" id="divList"></div>
       <div id="msg"></div>
       <button id="save">บันทึก</button>
-     
+      <p class="mut">• คนเดียวดูแลหลายฝ่ายได้ เลือกหลายฝ่ายแล้วกดบันทึก (ถ้ามีอยู่แล้วจะอัปเดตข้อมูลให้)<br>
+      • ลบฝ่ายออกใช้ปุ่ม ✕ ด้านล่าง &nbsp;• ต้องสร้างบัญชีล็อกอินที่ Supabase > Authentication > Users ด้วยอีเมลเดียวกันก่อน (หน้านี้สร้างบัญชีให้ไม่ได้)</p>
     </div>
 
     <div class="bar"><input id="q" type="text" placeholder="ค้นหาอีเมล / รหัสพนักงาน / ฝ่าย"><button class="sec" id="reload">รีเฟรช</button></div>
@@ -136,6 +137,17 @@ const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ตรวจสิทธิ์หลังเข้าสู่ระบบ: บัญชีที่ไม่มีสิทธิ์ในหน้านี้จะถูกออกจากระบบทันที (ต้องรัน setup10.sql ก่อน) */
+const NEED_ROLE="hr_manager", DENY_MSG="บัญชีนี้ไม่มีสิทธิ์เข้าหน้านี้ (สำหรับผู้จัดการบุคคลเท่านั้น)";
+let ROLE_ERR="";
+async function roleOk(){
+  try{
+    const {data,error}=await db.rpc("my_roles");
+    if(error){ ROLE_ERR="ตรวจสอบสิทธิ์ไม่สำเร็จ: "+error.message; return false; }
+    return !!(data && data[NEED_ROLE]);
+  }catch(e){ ROLE_ERR="ตรวจสอบสิทธิ์ไม่สำเร็จ"; return false; }
+}
 const $ = id => document.getElementById(id);
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 /* ===== กล่องโต้ตอบตามธีม: uiConfirm / uiPrompt / uiAlert (คืนค่า Promise) ===== */
@@ -170,8 +182,11 @@ let rows=[], divs=[], picked=new Set();
 const msg=(t,c)=>{ $("msg").className=c||""; $("msg").textContent=t; };
 
 async function show(session){
+  let denied=false;
+  if(session && !(await roleOk())){ await db.auth.signOut(); session=null; denied=true; }
   $("login").classList.toggle("hide",!!session);
   $("app").classList.toggle("hide",!session);
+  if(denied){ $("err").textContent=ROLE_ERR||DENY_MSG; ROLE_ERR=""; }
   if(!session) return;
   $("who").textContent="เข้าสู่ระบบ: "+session.user.email;
   const r=await db.rpc("list_divisions");
