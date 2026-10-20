@@ -124,6 +124,17 @@ const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ตรวจสิทธิ์หลังเข้าสู่ระบบ: บัญชีที่ไม่มีสิทธิ์ในหน้านี้จะถูกออกจากระบบทันที (ต้องรัน setup10.sql ก่อน) */
+const NEED_ROLE="hr_manager", DENY_MSG="บัญชีนี้ไม่มีสิทธิ์เข้าหน้านี้ (สำหรับผู้จัดการบุคคลเท่านั้น)";
+let ROLE_ERR="";
+async function roleOk(){
+  try{
+    const {data,error}=await db.rpc("my_roles");
+    if(error){ ROLE_ERR="ตรวจสอบสิทธิ์ไม่สำเร็จ: "+error.message; return false; }
+    return !!(data && data[NEED_ROLE]);
+  }catch(e){ ROLE_ERR="ตรวจสอบสิทธิ์ไม่สำเร็จ"; return false; }
+}
 const $ = id => document.getElementById(id);
 /* ===== กล่องโต้ตอบตามธีม: uiConfirm / uiPrompt / uiAlert (คืนค่า Promise) ===== */
 function uiModal(o){
@@ -161,8 +172,11 @@ const d = s => { if(!s) return "-"; const x=new Date(s); return isNaN(x)?s:`${x.
 let rows=[], filt="pending", me="";
 
 async function show(session){
+  let denied=false;
+  if(session && !(await roleOk())){ await db.auth.signOut(); session=null; denied=true; }
   $("login").classList.toggle("hide",!!session);
   $("app").classList.toggle("hide",!session);
+  if(denied){ $("err").textContent=ROLE_ERR||DENY_MSG; ROLE_ERR=""; }
   if(!session) return;
   me = session.user.email; $("who").textContent = "เข้าสู่ระบบ: "+me;
   load();
