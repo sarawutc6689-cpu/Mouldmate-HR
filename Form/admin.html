@@ -120,8 +120,8 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
 </dialog>
 
 <footer class="site-footer">
-  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย <b>Sarawut.C</b></div>
-  <div class="cp">© <span id="cpYear">2026</span> Sarawut.C. สงวนลิขสิทธิ์ · All rights reserved.</div>
+  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย Sarawut.C</div>
+  <div class="cp">© <span id="cpYear">2026</span> สงวนลิขสิทธิ์ · All rights reserved.</div>
 </footer>
 <script>document.getElementById("cpYear").textContent=new Date().getFullYear();</script>
 
@@ -130,6 +130,17 @@ const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ตรวจสิทธิ์หลังเข้าสู่ระบบ: บัญชีที่ไม่มีสิทธิ์ในหน้านี้จะถูกออกจากระบบทันที (ต้องรัน setup10.sql ก่อน) */
+const NEED_ROLE="hr", DENY_MSG="บัญชีนี้ไม่มีสิทธิ์เข้าหน้านี้ (สำหรับเจ้าหน้าที่บุคคลและผู้จัดการบุคคลเท่านั้น)";
+let ROLE_ERR="";
+async function roleOk(){
+  try{
+    const {data,error}=await db.rpc("my_roles");
+    if(error){ ROLE_ERR="ตรวจสอบสิทธิ์ไม่สำเร็จ: "+error.message; return false; }
+    return !!(data && data[NEED_ROLE]);
+  }catch(e){ ROLE_ERR="ตรวจสอบสิทธิ์ไม่สำเร็จ"; return false; }
+}
 const $ = id => document.getElementById(id);
 /* ===== กล่องโต้ตอบตามธีม: uiConfirm / uiPrompt / uiAlert (คืนค่า Promise) ===== */
 function uiModal(o){
@@ -167,8 +178,11 @@ const d = s => { if(!s) return "-"; const x=new Date(s); return isNaN(x)?s:`${x.
 let rows=[], filt="", me="";
 
 async function show(session){
+  let denied=false;
+  if(session && !(await roleOk())){ await db.auth.signOut(); session=null; denied=true; }
   $("login").classList.toggle("hide",!!session);
   $("app").classList.toggle("hide",!session);
+  if(denied){ $("err").textContent=ROLE_ERR||DENY_MSG; ROLE_ERR=""; }
   if(!session) return;
   me = session.user.email; $("who").textContent = "เข้าสู่ระบบ: "+me;
   load();
