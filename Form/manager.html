@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -30,6 +29,43 @@ button:disabled{opacity:.5}
 .hide{display:none}
 #err{color:var(--err);min-height:1.4em}
 </style>
+<meta name="theme-color" content="#2563eb">
+<style id="theme">
+/* ===== ธีมฟ้า-ขาว (ใช้ร่วมทุกหน้า) ===== */
+:root{--bg:#eef4ff;--glow:#cfe3ff;--card:#fff;--tx:#0f1f3d;--mut:#5b6b86;--bd:#d6e3fa;--pri:#1d6fe8;--pri2:#0ea5e9;--prisoft:#eaf2ff;--ok:#0a7d4f;--err:#c0392b;--warn:#b45309;--shadow:0 6px 24px rgba(29,111,232,.10)}
+@media (prefers-color-scheme:dark){:root{--bg:#0a1428;--glow:rgba(56,189,248,.14);--card:#111f3b;--tx:#e8f0ff;--mut:#9db0d0;--bd:#25375e;--pri:#5aa2ff;--pri2:#38bdf8;--prisoft:#16284a;--ok:#4ade80;--err:#ff8a80;--warn:#fbbf24;--shadow:0 6px 24px rgba(0,0,0,.35)}}
+html{background:var(--bg)}
+body{background:radial-gradient(1100px 460px at 50% -140px,var(--glow) 0%,transparent 70%),var(--bg);min-height:100vh;display:flex;flex-direction:column}
+.wrap{flex:1;width:100%;padding:20px 16px}
+.wrap>h1,.wrap>h2{background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 45%,#0ea5e9 100%);color:#fff;padding:18px 22px;border-radius:18px;box-shadow:0 10px 28px rgba(37,99,235,.28);margin:0 0 18px;font-size:1.4rem;font-weight:700}
+.wrap>h1{text-align:center}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--shadow)}
+.card h2{color:var(--pri);border-left:4px solid var(--pri2);padding-left:10px}
+input[type=text],input[type=date],input[type=month],input[type=password],input[type=number],select,textarea{border:1.5px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(29,111,232,.18)}
+input[readonly]{background:var(--prisoft)}
+input[type=checkbox],input[type=radio]{accent-color:var(--pri)}
+button{background:linear-gradient(135deg,var(--pri),var(--pri2));border:none;color:#fff;border-radius:10px;font-weight:600;box-shadow:0 4px 12px rgba(29,111,232,.25);transition:transform .12s,box-shadow .12s}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 16px rgba(29,111,232,.32)}
+button.sec{background:var(--card);color:var(--pri);border:1.5px solid var(--pri);box-shadow:none}
+button.sec:hover:not(:disabled){background:var(--prisoft)}
+button.go{background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none}
+button.no{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;border:none}
+.chip{border-radius:999px;padding:6px 16px}
+.chip.on{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-color:transparent}
+.tag{font-weight:600;background:var(--card)}
+.opt{padding:8px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);cursor:pointer;transition:background .12s,border-color .12s}
+.opt:hover{background:var(--prisoft)}
+.opt:has(input:checked){border-color:var(--pri);background:var(--prisoft)}
+.opt:has(input:disabled){opacity:.5;cursor:not-allowed}
+a{color:var(--pri)}
+dialog{border-radius:16px!important;box-shadow:0 20px 50px rgba(15,31,61,.35)}
+dialog::backdrop{background:rgba(10,20,40,.45)}
+.site-footer{margin-top:24px;padding:18px 16px;text-align:center;font-size:.85rem;color:var(--mut);border-top:1px solid var(--bd);background:linear-gradient(180deg,transparent,var(--prisoft))}
+.site-footer b{color:var(--pri)}
+.site-footer .sep{opacity:.5;margin:0 6px}
+.site-footer .cp{margin-top:4px;font-size:.8rem}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -53,13 +89,19 @@ button:disabled{opacity:.5}
   </div>
 </div>
 
+<footer class="site-footer">
+  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย <b>Sarawut.C</b></div>
+  <div class="cp">© <span id="cpYear">2026</span> Sarawut.C. สงวนลิขสิทธิ์ · All rights reserved.</div>
+</footer>
+<script>document.getElementById("cpYear").textContent=new Date().getFullYear();</script>
+
 <script>
 const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
-const ST = {mgr_pending:"รอผู้จัดการอนุมัติ",mgr_rejected:"ผู้จัดการไม่อนุมัติ",pending:"ส่งต่อ HR แล้ว",approved:"HR อนุมัติแล้ว",rejected:"HR ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
+const ST = {mgr_pending:"รอผู้จัดการอนุมัติ",mgr_rejected:"ผู้จัดการไม่อนุมัติ",pending:"ส่งต่อผู้จัดการบุคคลแล้ว",approved:"ผู้จัดการบุคคลอนุมัติแล้ว",rejected:"ผู้จัดการบุคคลไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
 const CT = {work:"หนังสือรับรองการทำงาน",salary:"หนังสือรับรองเงินเดือน",pass:"หนังสือผ่านงาน",slip:"สลิปเงินเดือน"};
 const MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -91,14 +133,14 @@ function render(){
       <div>ใช้เพื่อ: ${esc(r.purpose)} · วันที่ใช้: ${d(r.use_date)}${(r.cert_types||[]).includes("salary")?` · ระบุเงินเดือน: ${r.show_salary?"ใช่":"ไม่"}`:""}</div>
       <div class="mut">ขอเมื่อ ${d(r.request_date)}${r.prev_requested?` · เคยขอ ${d(r.prev_date)}`:" · ไม่เคยขอ"}</div>
       ${r.mgr_decided_by?`<div class="mut">ตัดสินโดย ${esc(r.mgr_decided_by)} · ${d(r.mgr_decided_at)}${r.mgr_reject_reason?` · เหตุผล: ${esc(r.mgr_reject_reason)}`:""}</div>`:""}
-      ${r.status==="mgr_pending"?`<div class="act"><button class="go" data-a="pending" data-id="${r.id}">อนุมัติ (ส่งต่อ HR)</button><button class="no" data-a="mgr_rejected" data-id="${r.id}">ไม่อนุมัติ</button></div>`:""}
+      ${r.status==="mgr_pending"?`<div class="act"><button class="go" data-a="pending" data-id="${r.id}">อนุมัติ (ส่งต่อผู้จัดการบุคคล)</button><button class="no" data-a="mgr_rejected" data-id="${r.id}">ไม่อนุมัติ</button></div>`:""}
     </div>`).join("") || `<p class="mut">${tab==="wait"?"ไม่มีคำขอที่รอพิจารณา":"ยังไม่มีคำขอของฝ่ายนี้"}</p>`;
 }
 $("list").addEventListener("click", async e=>{
   const b=e.target.closest("button[data-a]"); if(!b) return;
   const st=b.dataset.a; let reason=null;
   if(st==="mgr_rejected"){ reason=prompt("เหตุผลที่ไม่อนุมัติ:"); if(reason===null) return; }
-  else if(!confirm("อนุมัติคำขอนี้และส่งต่อให้ HR?")) return;
+  else if(!confirm("อนุมัติคำขอนี้และส่งต่อให้ผู้จัดการบุคคล?")) return;
   b.disabled=true;
   const {data,error}=await db.from("certificate_requests").update({status:st,mgr_reject_reason:reason}).eq("id",b.dataset.id).eq("status","mgr_pending").select("id");
   if(error||!data||!data.length){ alert("ดำเนินการไม่สำเร็จ"+(error?": "+error.message:" (คำขอนี้อาจถูกดำเนินการไปแล้ว หรือไม่ใช่ฝ่ายของคุณ)")); b.disabled=false; return load(); }
