@@ -83,6 +83,11 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
 .ui-act{display:flex;gap:10px;margin-top:6px}
 .ui-act button{flex:1;padding:10px}
 @keyframes uiPop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+/* ส่วนหัวแสดงฝ่ายที่ดูแล: พับรายชื่อได้ ไม่ให้ยาวล้นหน้า */
+#who{flex:1;min-width:0}
+#who details{margin-top:4px}
+#who summary{cursor:pointer;color:var(--pri);font-weight:600}
+#who details>div{max-height:150px;overflow:auto;margin-top:6px;padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--prisoft);line-height:1.7}
 </style>
 </head>
 <body>
@@ -108,8 +113,8 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
 </div>
 
 <footer class="site-footer">
-  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย Sarawut.C</div>
-  <div class="cp">© <span id="cpYear">2026</span> สงวนลิขสิทธิ์ · All rights reserved.</div>
+  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย <b>Sarawut.C</b></div>
+  <div class="cp">© <span id="cpYear">2026</span> Sarawut.C. สงวนลิขสิทธิ์ · All rights reserved.</div>
 </footer>
 <script>document.getElementById("cpYear").textContent=new Date().getFullYear();</script>
 
@@ -163,7 +168,7 @@ const CT = {work:"หนังสือรับรองการทำงา�
 const MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const d = s => { if(!s) return "-"; const x=new Date(typeof s==="string"&&s.length===10?s+"T00:00:00":s); return isNaN(x)?s:`${x.getDate()} ${MONTHS[x.getMonth()]} ${x.getFullYear()+543}`; };
-let rows=[], tab="wait";
+let rows=[], tab="wait", myDivs=new Set();
 
 async function show(session){
   let denied=false;
@@ -172,14 +177,20 @@ async function show(session){
   $("app").classList.toggle("hide",!session);
   if(denied){ $("err").textContent=ROLE_ERR||DENY_MSG; ROLE_ERR=""; }
   if(!session) return;
-  const {data}=await db.from("managers").select("division_name,division_code");
-  $("who").textContent = session.user.email + (data&&data.length ? " · ฝ่าย: "+data.map(m=>m.division_name||m.division_code).join(", ") : " · (ยังไม่ได้ผูกกับฝ่ายใด)");
+  // ผู้ใช้ที่เป็นผู้จัดการบุคคลด้วยจะอ่านตาราง managers ได้ทั้งหมด จึงต้องกรองเฉพาะแถวของอีเมลตัวเอง
+  const {data:all}=await db.from("managers").select("email,division_name,division_code");
+  const mine=(all||[]).filter(m=>(m.email||"").toLowerCase()===session.user.email.toLowerCase());
+  myDivs=new Set(mine.map(m=>m.division_code));
+  const names=mine.map(m=>m.division_name||m.division_code);
+  $("who").innerHTML = esc(session.user.email) + (names.length
+    ? ` · ดูแล ${names.length} ฝ่าย<details><summary>ดูรายชื่อฝ่าย</summary><div>${names.map(esc).join(" · ")}</div></details>`
+    : " · (ยังไม่ได้ผูกกับฝ่ายใด)");
   load();
 }
 async function load(){
   const {data,error}=await db.from("certificate_requests").select("*").order("created_at",{ascending:false}).limit(300);
   if(error){ $("list").innerHTML=`<p class="mut">โหลดไม่สำเร็จ: ${esc(error.message)}</p>`; return; }
-  rows=data; render();
+  rows=data.filter(r=>myDivs.has(r.division_code)); render();
 }
 function render(){
   const wait=rows.filter(r=>r.status==="mgr_pending").length;
