@@ -13,22 +13,64 @@
 body{margin:0;background:var(--bg);color:var(--tx);font-family:"Sarabun","Noto Sans Thai",system-ui,sans-serif;line-height:1.55}
 .wrap{max-width:960px;margin:0 auto;padding:16px}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:12px}
-input{width:100%;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font:inherit}
+input,select{width:100%;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font:inherit}
 button{font:inherit;padding:7px 14px;border-radius:8px;border:1px solid var(--pri);background:var(--pri);color:#fff;cursor:pointer}
 button.sec{background:transparent;color:var(--pri)}
 button.no{background:var(--err);border-color:var(--err)}
 button.go{background:var(--ok);border-color:var(--ok)}
-button:disabled{opacity:.5}
-.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 .bar input{flex:1;min-width:180px;width:auto}
 .chip.on{background:var(--pri);color:#fff}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .tag{display:inline-block;padding:1px 10px;border-radius:99px;font-size:.85rem;border:1px solid currentColor}
-.mgr_pending{color:var(--warn)}.pending{color:var(--warn)}.approved{color:var(--pri)}.mgr_rejected,.rejected{color:var(--err)}.done{color:var(--ok)}
+.pending{color:var(--warn)}.approved{color:var(--pri)}.rejected{color:var(--err)}.done{color:var(--ok)}
 .mut{color:var(--mut);font-size:.9rem}
 .act{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .hide{display:none}
+label{display:block;font-size:.9rem;color:var(--mut);margin:8px 0 2px}
 #err{color:var(--err);min-height:1.4em}
+</style>
+<meta name="theme-color" content="#2563eb">
+<style id="theme">
+/* ===== ธีมฟ้า-ขาว (ใช้ร่วมทุกหน้า) ===== */
+:root{--bg:#eef4ff;--glow:#cfe3ff;--card:#fff;--tx:#0f1f3d;--mut:#5b6b86;--bd:#d6e3fa;--pri:#1d6fe8;--pri2:#0ea5e9;--prisoft:#eaf2ff;--ok:#0a7d4f;--err:#c0392b;--warn:#b45309;--shadow:0 6px 24px rgba(29,111,232,.10)}
+@media (prefers-color-scheme:dark){:root{--bg:#0a1428;--glow:rgba(56,189,248,.14);--card:#111f3b;--tx:#e8f0ff;--mut:#9db0d0;--bd:#25375e;--pri:#5aa2ff;--pri2:#38bdf8;--prisoft:#16284a;--ok:#4ade80;--err:#ff8a80;--warn:#fbbf24;--shadow:0 6px 24px rgba(0,0,0,.35)}}
+html{background:var(--bg)}
+body{background:radial-gradient(1100px 460px at 50% -140px,var(--glow) 0%,transparent 70%),var(--bg);min-height:100vh;display:flex;flex-direction:column}
+.wrap{flex:1;width:100%;padding:20px 16px}
+.wrap>h1,.wrap>h2{background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 45%,#0ea5e9 100%);color:#fff;padding:18px 22px;border-radius:18px;box-shadow:0 10px 28px rgba(37,99,235,.28);margin:0 0 18px;font-size:1.4rem;font-weight:700}
+.wrap>h1{text-align:center}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--shadow)}
+.card h2{color:var(--pri);border-left:4px solid var(--pri2);padding-left:10px}
+input[type=text],input[type=date],input[type=month],input[type=password],input[type=number],select,textarea{border:1.5px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(29,111,232,.18)}
+input[readonly]{background:var(--prisoft)}
+input[type=checkbox],input[type=radio]{accent-color:var(--pri)}
+button{background:linear-gradient(135deg,var(--pri),var(--pri2));border:none;color:#fff;border-radius:10px;font-weight:600;box-shadow:0 4px 12px rgba(29,111,232,.25);transition:transform .12s,box-shadow .12s}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 16px rgba(29,111,232,.32)}
+button.sec{background:var(--card);color:var(--pri);border:1.5px solid var(--pri);box-shadow:none}
+button.sec:hover:not(:disabled){background:var(--prisoft)}
+button.go{background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none}
+button.no{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;border:none}
+.chip{border-radius:999px;padding:6px 16px}
+.chip.on{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-color:transparent}
+.tag{font-weight:600;background:var(--card)}
+.opt{padding:8px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);cursor:pointer;transition:background .12s,border-color .12s}
+.opt:hover{background:var(--prisoft)}
+.opt:has(input:checked){border-color:var(--pri);background:var(--prisoft)}
+.opt:has(input:disabled){opacity:.5;cursor:not-allowed}
+a{color:var(--pri)}
+dialog{border-radius:16px!important;box-shadow:0 20px 50px rgba(15,31,61,.35)}
+dialog::backdrop{background:rgba(10,20,40,.45)}
+.site-footer{margin-top:24px;padding:18px 16px;text-align:center;font-size:.85rem;color:var(--mut);border-top:1px solid var(--bd);background:linear-gradient(180deg,transparent,var(--prisoft))}
+.site-footer b{color:var(--pri)}
+.site-footer .sep{opacity:.5;margin:0 6px}
+.site-footer .cp{margin-top:4px;font-size:.8rem}
+/* กล่องเข้าสู่ระบบ: จัดกึ่งกลางหน้า */
+#login{margin:7vh auto 0;max-width:380px;width:100%;padding:26px 24px}
+#login p{margin:0 0 12px}
+#login button{width:100%;padding:11px}
+#login #err{text-align:center}
 </style>
 </head>
 <body>
@@ -36,25 +78,33 @@ button:disabled{opacity:.5}
   <h2>ผู้จัดการบุคคล – อนุมัติคำขอหนังสือรับรอง</h2>
 
   <div id="login" class="card" style="max-width:380px">
-    <p><input id="em" type="text" placeholder="อีเมลผู้จัดการบุคคล" autocomplete="username"></p>
+    <p><input id="em" type="text" placeholder="อีเมล HR" autocomplete="username"></p>
     <p><input id="pw" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"></p>
     <button id="loginBtn">เข้าสู่ระบบ</button>
     <div id="err"></div>
   </div>
 
   <div id="app" class="hide">
-    <div class="top"><span class="mut" id="who"></span><button class="sec" id="out">ออกจากระบบ</button></div>
-    <div class="bar">
-      <button class="sec chip on" data-s="pending" id="cWait">รออนุมัติ</button>
+    <div class="top"><span class="mut" id="who"></span><span><a href="holidays.html" style="color:var(--pri)">จัดการวันหยุด</a> &nbsp; <button class="sec" id="out">ออกจากระบบ</button></span></div>
+    <div class="bar" style="margin-top:10px">
+      <button class="sec chip" data-s="">ทั้งหมด</button>
+      <button class="sec chip on" data-s="pending">รออนุมัติ</button>
       <button class="sec chip" data-s="approved">อนุมัติแล้ว</button>
       <button class="sec chip" data-s="rejected">ไม่อนุมัติ</button>
-      <button class="sec chip" data-s="">ทั้งหมด</button>
-      <input id="q" type="text" placeholder="ค้นหารหัส / ชื่อ / ฝ่าย">
+      <input id="q" type="text" placeholder="ค้นหารหัส / ชื่อ / เลขที่เอกสาร">
       <button class="sec" id="reload">รีเฟรช</button>
     </div>
     <div id="list"></div>
   </div>
 </div>
+
+
+
+<footer class="site-footer">
+  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย <b>Sarawut.C</b></div>
+  <div class="cp">© <span id="cpYear">2026</span> Sarawut.C. สงวนลิขสิทธิ์ · All rights reserved.</div>
+</footer>
+<script>document.getElementById("cpYear").textContent=new Date().getFullYear();</script>
 
 <script>
 const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
@@ -62,11 +112,11 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
-const ST = {mgr_pending:"รอผู้จัดการฝ่าย",mgr_rejected:"ผู้จัดการฝ่ายไม่อนุมัติ",pending:"รอผู้จัดการบุคคล",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
+const ST = {mgr_pending:"รอผู้จัดการฝ่าย",mgr_rejected:"ผู้จัดการไม่อนุมัติ",pending:"รออนุมัติ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
 const CT = {work:"หนังสือรับรองการทำงาน",salary:"หนังสือรับรองเงินเดือน",pass:"หนังสือผ่านงาน",slip:"สลิปเงินเดือน"};
 const MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
 const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const d = s => { if(!s) return "-"; const x=new Date(typeof s==="string"&&s.length===10?s+"T00:00:00":s); return isNaN(x)?s:`${x.getDate()} ${MONTHS[x.getMonth()]} ${x.getFullYear()+543}`; };
+const d = s => { if(!s) return "-"; const x=new Date(s); return isNaN(x)?s:`${x.getDate()} ${MONTHS[x.getMonth()]} ${x.getFullYear()+543}`; };
 let rows=[], filt="pending", me="";
 
 async function show(session){
@@ -77,44 +127,37 @@ async function show(session){
   load();
 }
 async function load(){
-  const {data,error}=await db.from("certificate_requests").select("*").order("created_at",{ascending:false}).limit(500);
+  const {data,error} = await db.from("certificate_requests").select("*").order("created_at",{ascending:false}).limit(500);
   if(error){ $("list").innerHTML=`<p class="mut">โหลดไม่สำเร็จ: ${esc(error.message)}</p>`; return; }
   rows=data; render();
+  if(!rows.length) $("list").innerHTML='<p class="mut">ยังไม่มีคำขอ (หรือบัญชีนี้ไม่มีสิทธิ์ HR)</p>';
 }
 function render(){
   const q=$("q").value.trim().toLowerCase();
-  $("cWait").textContent=`รออนุมัติ (${rows.filter(r=>r.status==="pending").length})`;
-  const rs=rows.filter(r=>(!filt||r.status===filt)&&(!q||(r.emp_code+" "+r.full_name+" "+(r.division||"")+" "+(r.department||"")).toLowerCase().includes(q)));
+  const rs=rows.filter(r=>(!filt||r.status===filt)&&(!q||(r.emp_code+" "+r.full_name+" "+JSON.stringify(r.doc_numbers||{})).toLowerCase().includes(q)));
   $("list").innerHTML = rs.map(r=>`
     <div class="card">
       <div class="top"><b>#${r.id} ${esc(r.emp_code)} ${esc(r.full_name)}</b><span class="tag ${r.status}">${ST[r.status]||r.status}</span></div>
       <div class="mut">${esc(r.position)} · ${esc(r.department)} · ${esc(r.division)} · เริ่มงาน ${d(r.start_date)}${r.emp_status?` · สถานะพนักงาน: ${esc(r.emp_status)}`:""}</div>
       <div>ประเภท: ${(r.cert_types||[]).map(c=>CT[c]||c).join(", ")}${r.slip_from?` (${esc(r.slip_from)} – ${esc(r.slip_to)})`:""}</div>
-      <div>ใช้เพื่อ: ${esc(r.purpose)} · วันที่ใช้: ${d(r.use_date)}${(r.cert_types||[]).includes("salary")?` · ระบุเงินเดือน: ${r.show_salary?"ใช่":"ไม่"}`:""}</div>
+      ${r.doc_numbers?`<div>เลขที่เอกสาร: ${Object.entries(r.doc_numbers).map(([k,v])=>`${CT[k]||k} <b>${esc(v)}</b>`).join(" · ")}</div>`:""}
+      <div>ระบุเงินเดือน: ${r.show_salary?"ใช่":"ไม่"} · ใช้เพื่อ: ${esc(r.purpose)} · วันที่ใช้: ${d(r.use_date)}</div>
       <div class="mut">ขอเมื่อ ${d(r.request_date)}${r.prev_requested?` · เคยขอ ${d(r.prev_date)} (${esc(r.prev_purpose)})`:" · ไม่เคยขอ"}</div>
       ${r.mgr_decided_by?`<div class="mut">ผู้จัดการฝ่ายอนุมัติ: ${esc(r.mgr_decided_by)} · ${d(r.mgr_decided_at)}</div>`:""}
       ${r.decided_by?`<div class="mut">ผู้จัดการบุคคล: ${esc(r.decided_by)} · ${d(r.decided_at)}${r.reject_reason?` · เหตุผล: ${esc(r.reject_reason)}`:""}</div>`:""}
       <div class="act">
-        ${r.status==="pending"?`<button class="go" data-a="approved" data-from="pending" data-id="${r.id}">อนุมัติ</button><button class="no" data-a="rejected" data-from="pending" data-id="${r.id}">ไม่อนุมัติ</button>`:""}
-        ${(r.status==="approved"||r.status==="rejected")?`<button class="sec" data-a="pending" data-from="${r.status}" data-id="${r.id}">ย้อนกลับเป็นรออนุมัติ</button>`:""}
+        ${r.status==="pending"?`<button class="go" data-a="approved" data-id="${r.id}">อนุมัติ</button><button class="no" data-a="rejected" data-id="${r.id}">ไม่อนุมัติ</button>`:""}
+        ${r.status==="approved"||r.status==="rejected"?`<button class="sec" data-a="pending" data-id="${r.id}">ย้อนกลับเป็นรออนุมัติ</button>`:""}
       </div>
     </div>`).join("") || '<p class="mut">ไม่พบรายการ</p>';
 }
 $("list").addEventListener("click", async e=>{
   const b=e.target.closest("button[data-a]"); if(!b) return;
-  const st=b.dataset.a, from=b.dataset.from; let reason=null;
-  if(st==="rejected"){
-    reason=prompt("เหตุผลที่ไม่อนุมัติ (จำเป็น):");
-    if(reason===null) return;
-    reason=reason.trim(); if(!reason) return alert("กรุณากรอกเหตุผล");
-  } else if(st==="approved" && !confirm("อนุมัติคำขอนี้?")) return;
-  else if(st==="pending" && !confirm("ย้อนกลับเป็นรออนุมัติ?")) return;
+  const st=b.dataset.a; let reason=null;
+  if(st==="rejected"){ reason=prompt("เหตุผลที่ไม่อนุมัติ:"); if(reason===null) return; }
   b.disabled=true;
-  const upd = st==="pending"
-    ? {status:st,decided_by:null,decided_at:null,reject_reason:null}
-    : {status:st,decided_by:me,decided_at:new Date().toISOString(),reject_reason:reason};
-  const {data,error}=await db.from("certificate_requests").update(upd).eq("id",b.dataset.id).eq("status",from).select("id");
-  if(error||!data||!data.length){ alert("ดำเนินการไม่สำเร็จ"+(error?": "+error.message:" (คำขอนี้อาจถูกดำเนินการไปแล้ว หรือไม่มีสิทธิ์)")); b.disabled=false; return load(); }
+  const {error}=await db.from("certificate_requests").update({status:st,decided_by:me,decided_at:new Date().toISOString(),reject_reason:reason}).eq("id",b.dataset.id);
+  if(error){ alert("บันทึกไม่สำเร็จ: "+error.message); b.disabled=false; return; }
   load();
 });
 document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
@@ -128,6 +171,7 @@ $("loginBtn").onclick=async()=>{
   show(data.session);
 };
 $("pw").addEventListener("keydown",e=>{ if(e.key==="Enter") $("loginBtn").click(); });
+
 db.auth.getSession().then(({data})=>show(data.session));
 </script>
 </body>
