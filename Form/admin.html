@@ -71,6 +71,19 @@ dialog::backdrop{background:rgba(10,20,40,.45)}
 #login p{margin:0 0 12px}
 #login button{width:100%;padding:11px}
 #login #err{text-align:center}
+/* กล่องโต้ตอบตามธีม (แทน confirm/prompt/alert ของเบราว์เซอร์) */
+dialog.ui-modal{border:none;border-radius:20px;padding:0;max-width:min(420px,92vw);width:100%;background:var(--card);color:var(--tx);box-shadow:0 24px 60px rgba(15,31,61,.35);animation:uiPop .16s ease-out}
+dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)}
+.ui-box{padding:26px 24px 20px;text-align:center}
+.ui-icon{width:54px;height:54px;margin:0 auto 12px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--pri),var(--pri2));box-shadow:0 6px 16px rgba(29,111,232,.3)}
+.ui-icon.danger{background:linear-gradient(135deg,#dc2626,#f87171);box-shadow:0 6px 16px rgba(220,38,38,.3)}
+.ui-title{font-weight:700;font-size:1.1rem;margin-bottom:6px}
+.ui-msg{color:var(--mut);margin-bottom:12px;white-space:pre-line}
+.ui-in{width:100%;font:inherit;padding:9px 10px;border:1.5px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);resize:vertical;text-align:left}
+.ui-err{color:var(--err);min-height:1.2em;font-size:.9rem}
+.ui-act{display:flex;gap:10px;margin-top:6px}
+.ui-act button{flex:1;padding:10px}
+@keyframes uiPop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -118,6 +131,34 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
+/* ===== กล่องโต้ตอบตามธีม: uiConfirm / uiPrompt / uiAlert (คืนค่า Promise) ===== */
+function uiModal(o){
+  o=Object.assign({title:"",message:"",input:false,placeholder:"",okText:"ตกลง",cancelText:"ยกเลิก",danger:false,showCancel:true},o||{});
+  return new Promise(resolve=>{
+    const dlg=document.createElement("dialog"); dlg.className="ui-modal";
+    dlg.innerHTML=`<div class="ui-box"><div class="ui-icon${o.danger?" danger":""}">${o.danger?"!":"?"}</div>
+      <div class="ui-title">${esc(o.title)}</div><div class="ui-msg">${esc(o.message)}</div>
+      ${o.input?`<textarea class="ui-in" rows="3" placeholder="${esc(o.placeholder)}"></textarea>`:""}
+      <div class="ui-err"></div>
+      <div class="ui-act">${o.showCancel?`<button type="button" class="sec" data-r="cancel">${esc(o.cancelText)}</button>`:""}<button type="button" class="${o.danger?"no":""}" data-r="ok">${esc(o.okText)}</button></div></div>`;
+    let done=false;
+    const finish=v=>{ if(done) return; done=true; dlg.close(); dlg.remove(); resolve(v); };
+    const none=o.input?null:false;
+    dlg.addEventListener("cancel",e=>{ e.preventDefault(); finish(none); });
+    dlg.addEventListener("click",e=>{
+      if(e.target===dlg) return finish(none);                     // คลิกพื้นหลัง = ยกเลิก
+      const b=e.target.closest("button[data-r]"); if(!b) return;
+      if(b.dataset.r==="cancel") return finish(none);
+      finish(o.input?dlg.querySelector(".ui-in").value.trim():true);
+    });
+    document.body.appendChild(dlg); dlg.showModal();
+    const f=dlg.querySelector(".ui-in")||dlg.querySelector('[data-r="ok"]'); f.focus();
+  });
+}
+const uiConfirm=(message,o)=>uiModal(Object.assign({title:"ยืนยันการดำเนินการ",message},o||{}));
+const uiPrompt=(message,o)=>uiModal(Object.assign({title:"กรอกข้อมูล",message,input:true},o||{}));
+const uiAlert=(message,o)=>uiModal(Object.assign({title:"แจ้งเตือน",message,showCancel:false,danger:true},o||{}));
+
 const ST = {mgr_pending:"รอผู้จัดการฝ่าย",mgr_rejected:"ผู้จัดการไม่อนุมัติ",pending:"รออนุมัติ",approved:"พร้อมพิมพ์",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
 const CT = {work:"หนังสือรับรองการทำงาน",salary:"หนังสือรับรองเงินเดือน",pass:"หนังสือผ่านงาน",slip:"สลิปเงินเดือน"};
 const MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
@@ -213,7 +254,7 @@ async function loadSignature(){
 async function printCert(type, r, x){
   const L = LAYOUT[type];
   const w = window.open("", "_blank");   // เปิดทันทีตอนกดปุ่ม กันเบราว์เซอร์บล็อก pop-up
-  if(!w) return alert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต pop-up สำหรับหน้านี้");
+  if(!w) return uiAlert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต pop-up สำหรับหน้านี้แล้วลองใหม่",{title:"พิมพ์ไม่ได้"});
   const sig = ($("useSig") && $("useSig").checked) ? await loadSignature() : null;
   const no = (r.doc_numbers && r.doc_numbers[type]) || "";
   const issue = dl(r.decided_at || new Date());
