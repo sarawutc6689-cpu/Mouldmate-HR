@@ -31,6 +31,43 @@ button:disabled{opacity:.5}
 .note{font-size:.85rem;color:var(--mut)}
 .hide{display:none}
 </style>
+<meta name="theme-color" content="#2563eb">
+<style id="theme">
+/* ===== ธีมฟ้า-ขาว (ใช้ร่วมทุกหน้า) ===== */
+:root{--bg:#eef4ff;--glow:#cfe3ff;--card:#fff;--tx:#0f1f3d;--mut:#5b6b86;--bd:#d6e3fa;--pri:#1d6fe8;--pri2:#0ea5e9;--prisoft:#eaf2ff;--ok:#0a7d4f;--err:#c0392b;--warn:#b45309;--shadow:0 6px 24px rgba(29,111,232,.10)}
+@media (prefers-color-scheme:dark){:root{--bg:#0a1428;--glow:rgba(56,189,248,.14);--card:#111f3b;--tx:#e8f0ff;--mut:#9db0d0;--bd:#25375e;--pri:#5aa2ff;--pri2:#38bdf8;--prisoft:#16284a;--ok:#4ade80;--err:#ff8a80;--warn:#fbbf24;--shadow:0 6px 24px rgba(0,0,0,.35)}}
+html{background:var(--bg)}
+body{background:radial-gradient(1100px 460px at 50% -140px,var(--glow) 0%,transparent 70%),var(--bg);min-height:100vh;display:flex;flex-direction:column}
+.wrap{flex:1;width:100%;padding:20px 16px}
+.wrap>h1,.wrap>h2{background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 45%,#0ea5e9 100%);color:#fff;padding:18px 22px;border-radius:18px;box-shadow:0 10px 28px rgba(37,99,235,.28);margin:0 0 18px;font-size:1.4rem;font-weight:700}
+.wrap>h1{text-align:center}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--shadow)}
+.card h2{color:var(--pri);border-left:4px solid var(--pri2);padding-left:10px}
+input[type=text],input[type=date],input[type=month],input[type=password],input[type=number],select,textarea{border:1.5px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(29,111,232,.18)}
+input[readonly]{background:var(--prisoft)}
+input[type=checkbox],input[type=radio]{accent-color:var(--pri)}
+button{background:linear-gradient(135deg,var(--pri),var(--pri2));border:none;color:#fff;border-radius:10px;font-weight:600;box-shadow:0 4px 12px rgba(29,111,232,.25);transition:transform .12s,box-shadow .12s}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 16px rgba(29,111,232,.32)}
+button.sec{background:var(--card);color:var(--pri);border:1.5px solid var(--pri);box-shadow:none}
+button.sec:hover:not(:disabled){background:var(--prisoft)}
+button.go{background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none}
+button.no{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;border:none}
+.chip{border-radius:999px;padding:6px 16px}
+.chip.on{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-color:transparent}
+.tag{font-weight:600;background:var(--card)}
+.opt{padding:8px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);cursor:pointer;transition:background .12s,border-color .12s}
+.opt:hover{background:var(--prisoft)}
+.opt:has(input:checked){border-color:var(--pri);background:var(--prisoft)}
+.opt:has(input:disabled){opacity:.5;cursor:not-allowed}
+a{color:var(--pri)}
+dialog{border-radius:16px!important;box-shadow:0 20px 50px rgba(15,31,61,.35)}
+dialog::backdrop{background:rgba(10,20,40,.45)}
+.site-footer{margin-top:24px;padding:18px 16px;text-align:center;font-size:.85rem;color:var(--mut);border-top:1px solid var(--bd);background:linear-gradient(180deg,transparent,var(--prisoft))}
+.site-footer b{color:var(--pri)}
+.site-footer .sep{opacity:.5;margin:0 6px}
+.site-footer .cp{margin-top:4px;font-size:.8rem}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -65,8 +102,7 @@ button:disabled{opacity:.5}
 
     <div id="incomeBox" class="hide">
       <h2 style="margin-top:16px">รายละเอียดเกี่ยวกับรายได้</h2>
-      <label class="opt"><input type="radio" name="salary" value="show"> ให้ระบุเงินเดือนในหนังสือรับรอง</label>
-    
+      <label class="opt"><input type="radio" name="salary" value="show" checked> ให้ระบุเงินเดือนในหนังสือรับรอง</label>
     </div>
 
     <h2 style="margin-top:16px">การนำไปใช้</h2>
@@ -82,6 +118,12 @@ button:disabled{opacity:.5}
   </form>
 </div>
 
+
+<footer class="site-footer">
+  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย <b>Sarawut.C</b></div>
+  <div class="cp">© <span id="cpYear">2026</span> Sarawut.C. สงวนลิขสิทธิ์ · All rights reserved.</div>
+</footer>
+<script>document.getElementById("cpYear").textContent=new Date().getFullYear();</script>
 
 <script>
 /* ===== ตั้งค่า: ใส่ anon (public) key ของโปรเจกต์ Supabase ===== */
@@ -147,11 +189,10 @@ function applyStatus(status){
   toggleIncome();
   return gone;
 }
-const SLBL = {mgr_pending:"รอผู้จัดการฝ่ายอนุมัติ",mgr_rejected:"ผู้จัดการไม่อนุมัติ",pending:"รอ HR อนุมัติ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
+const SLBL = {mgr_pending:"รอผู้จัดการฝ่ายอนุมัติ",mgr_rejected:"ผู้จัดการไม่อนุมัติ",pending:"รอผู้จัดการบุคคลอนุมัติ",approved:"อนุมัติแล้ว",rejected:"ผู้จัดการบุคคลไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
 function toggleIncome(){
   const on = document.querySelector('[name=cert][value=salary]').checked;
   $("incomeBox").classList.toggle("hide", !on);
-  if(!on) document.querySelector('[name=salary][value=hide]').checked = true;
 }
 let histReady = false;
 function renderHistory(msgText){
@@ -209,7 +250,7 @@ function collect(){
     slip_to:certs.includes("slip")?($("slip_to").value||null):null,
     prev_requested:ever, prev_date:ever?last.request_date:null,
     prev_purpose:ever?last.purpose:null,
-    show_salary:certs.includes("salary") && document.querySelector("[name=salary]:checked").value==="show",
+    show_salary:certs.includes("salary"),
     purpose:$("purpose").value, use_date:$("use_date").value||null
   };
 }
