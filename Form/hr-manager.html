@@ -91,14 +91,14 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
   <h2>ผู้จัดการบุคคล – อนุมัติคำขอหนังสือรับรอง</h2>
 
   <div id="login" class="card" style="max-width:380px">
-    <p><input id="em" type="text" placeholder="อีเมล" autocomplete="username"></p>
+    <p><input id="em" type="text" placeholder="อีเมล HR" autocomplete="username"></p>
     <p><input id="pw" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"></p>
     <button id="loginBtn">เข้าสู่ระบบ</button>
     <div id="err"></div>
   </div>
 
   <div id="app" class="hide">
-    <div class="top"><span class="mut" id="who"></span><span><a href="holidays.html" style="color:var(--pri)">จัดการวันหยุด</a> &nbsp; <button class="sec" id="out">ออกจากระบบ</button></span></div>
+    <div class="top"><span class="mut" id="who"></span><span><a href="managers-admin.html" style="color:var(--pri)">จัดการผู้จัดการฝ่าย</a> &nbsp; <a href="holidays.html" style="color:var(--pri)">จัดการวันหยุด</a> &nbsp; <button class="sec" id="out">ออกจากระบบ</button></span></div>
     <div class="bar" style="margin-top:10px">
       <button class="sec chip" data-s="">ทั้งหมด</button>
       <button class="sec chip on" data-s="pending">รออนุมัติ</button>
@@ -114,8 +114,8 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
 
 
 <footer class="site-footer">
-  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย Sarawut.C</div>
-  <div class="cp">© <span id="cpYear">2026</span> สงวนลิขสิทธิ์ · All rights reserved.</div>
+  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย <b>Sarawut.C</b></div>
+  <div class="cp">© <span id="cpYear">2026</span> Sarawut.C. สงวนลิขสิทธิ์ · All rights reserved.</div>
 </footer>
 <script>document.getElementById("cpYear").textContent=new Date().getFullYear();</script>
 
