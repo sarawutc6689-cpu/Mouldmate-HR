@@ -120,8 +120,8 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
 </dialog>
 
 <footer class="site-footer">
-  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย <b>Sarawut.C</b></div>
-  <div class="cp">© <span id="cpYear">2026</span> Sarawut.C. สงวนลิขสิทธิ์ · All rights reserved.</div>
+  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย Sarawut.C</div>
+  <div class="cp">© <span id="cpYear">2026</span> สงวนลิขสิทธิ์ · All rights reserved.</div>
 </footer>
 <script>document.getElementById("cpYear").textContent=new Date().getFullYear();</script>
 
@@ -272,7 +272,7 @@ async function printCert(type, r, x){
 <style>
 @page{size:612pt 792pt;margin:0}
 html,body{margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-body{width:612pt;height:792pt;position:relative;overflow:hidden;font-family:"Sarabun","TH Sarabun New","Noto Sans Thai",sans-serif;font-size:14pt;color:#000}
+body{width:612pt;height:792pt;position:relative;overflow:hidden;font-family:"Adobe Thai","AdobeThai","Sarabun","TH Sarabun New","Noto Sans Thai",sans-serif;font-size:13.17pt;color:#000}
 .a{position:absolute;line-height:15pt;white-space:nowrap}
 .h{position:absolute;font-size:7.5pt;line-height:11pt;white-space:nowrap}
 </style></head><body>
@@ -285,7 +285,7 @@ body{width:612pt;height:792pt;position:relative;overflow:hidden;font-family:"Sar
 <div class="h" style="left:357pt;top:40pt"><b>Factory:</b> 169 Moo 4, Huaibong-talan Rd.,</div>
 <div class="h" style="left:357pt;top:52pt">Roengrang, Saohai, Saraburi 18160 Thailand</div>
 <div class="h" style="left:357pt;top:63pt">Tel: +66 (0) 36 28 1300-1 | Fax: +66 (0) 36 28 1302</div>
-${no?`<div class="a" style="right:85pt;top:84pt;font-size:11pt">เลขที่ ${esc(no)}</div>`:""}
+${no?`<div class="a" style="right:85pt;top:84pt">เลขที่ ${esc(no)}</div>`:""}
 ${a(0,104,"width:612pt;text-align:center;font-weight:700",L.title)}
 ${a(L.p.l,L.p.t,`width:${L.p.w}pt;white-space:normal;line-height:${L.p.lh}pt;text-indent:${L.p.ind}pt`,`หนังสือฉบับนี้ออกให้เพื่อรับรองว่า <b>${esc(r.full_name)}</b> ${L.verb} โมลด์เมท จำกัด โดยมีรายละเอียดดังต่อไปนี้`)}
 ${row(L.rows[0],"วันเริ่มงาน",dl(r.start_date))}
@@ -298,8 +298,8 @@ ${a(L.issue.l,L.issue.t,"",`ออกให้ ณ วันที่ ${esc(issu
 ${a(L.sig.c-130,L.sig.t,"width:260pt;text-align:center","( …………………………………….. )")}
 ${sig?`<div class="a" style="left:${L.sig.c-130}pt;top:${L.sig.t-31}pt;width:260pt;text-align:center;line-height:0"><img src="${sig}" style="height:46pt"></div>`:""}
 ${a(L.sig.c-130,L.sig2,"width:260pt;text-align:center","ผู้จัดการฝ่ายทรัพยากรบุคคลและธุรการ")}
-${a(94,L.foot[0],`font-size:${L.fs}pt`,"ฝ่ายทรัพยากรบุคคลและธุรการ")}
-${a(94,L.foot[1],`font-size:${L.fs}pt`,"หมายเหตุ : ถ้าหนังสือฉบับนี้มีรอยลบขูดขีดฆ่าแก้ไขถือว่าหนังสือฉบับนี้เป็นโมฆะ")}
+${a(94,L.foot[0],`font-size:13.17pt`,"ฝ่ายทรัพยากรบุคคลและธุรการ")}
+${a(94,L.foot[1],`font-size:13.17pt`,"หมายเหตุ : ถ้าหนังสือฉบับนี้มีรอยลบขูดขีดฆ่าแก้ไขถือว่าหนังสือฉบับนี้เป็นโมฆะ")}
 <script>window.onload=()=>{(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(()=>window.print(),400));};<\/script>
 </body></html>`);
   w.document.close();
