@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>จัดการผู้จัดการฝ่าย</title>
+<title>ผู้จัดการบุคคล – อนุมัติคำขอหนังสือรับรอง</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
 :root{--bg:#f4f5f7;--card:#fff;--tx:#1d2330;--mut:#667085;--bd:#d0d5dd;--pri:#1f5fbf;--ok:#067647;--err:#b42318;--warn:#b54708}
@@ -30,6 +30,7 @@ button.go{background:var(--ok);border-color:var(--ok)}
 label{display:block;font-size:.9rem;color:var(--mut);margin:8px 0 2px}
 #err{color:var(--err);min-height:1.4em}
 </style>
+<meta name="theme-color" content="#2563eb">
 <style id="theme">
 /* ===== ธีมฟ้า-ขาว (ใช้ร่วมทุกหน้า) ===== */
 :root{--bg:#eef4ff;--glow:#cfe3ff;--card:#fff;--tx:#0f1f3d;--mut:#5b6b86;--bd:#d6e3fa;--pri:#1d6fe8;--pri2:#0ea5e9;--prisoft:#eaf2ff;--ok:#0a7d4f;--err:#c0392b;--warn:#b45309;--shadow:0 6px 24px rgba(29,111,232,.10)}
@@ -84,48 +85,34 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
 .ui-act button{flex:1;padding:10px}
 @keyframes uiPop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
 </style>
-<style>
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:600px){.g2{grid-template-columns:1fr}}
-.divlist{max-height:220px;overflow:auto;border:1.5px solid var(--bd);border-radius:10px;padding:6px;margin-top:6px}
-.divlist label.opt{margin:4px 0;font-size:.95rem;color:var(--tx)}
-.dv{display:inline-flex;gap:6px;align-items:center;background:var(--prisoft);border:1px solid var(--bd);border-radius:999px;padding:2px 4px 2px 12px;margin:3px 4px 3px 0;font-size:.9rem}
-.dv button{padding:0 8px;line-height:22px;border-radius:999px;box-shadow:none;background:transparent;color:var(--err);border:none}
-#msg{min-height:1.4em;margin:8px 0}.good{color:var(--ok)}.bad{color:var(--err)}
-</style>
 </head>
 <body>
 <div class="wrap">
-  <h2>จัดการผู้จัดการฝ่าย</h2>
+  <h2>ผู้จัดการบุคคล – อนุมัติคำขอหนังสือรับรอง</h2>
 
   <div id="login" class="card" style="max-width:380px">
-    <p><input id="em" type="text" placeholder="อีเมลผู้จัดการบุคคล" autocomplete="username"></p>
+    <p><input id="em" type="text" placeholder="อีเมล HR" autocomplete="username"></p>
     <p><input id="pw" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"></p>
     <button id="loginBtn">เข้าสู่ระบบ</button>
     <div id="err"></div>
   </div>
 
   <div id="app" class="hide">
-    <div class="top"><span class="mut" id="who"></span><span><a href="hr-manager.html">← กลับหน้าอนุมัติ</a> &nbsp; <button class="sec" id="out">ออกจากระบบ</button></span></div>
-
-    <div class="card" style="margin-top:12px">
-      <h2>เพิ่ม / แก้ไขผู้จัดการฝ่าย</h2>
-      <div class="g2">
-        <div><label for="fEmail">อีเมลที่ใช้ล็อกอิน</label><input id="fEmail" type="text" placeholder="name@mouldmate.com"></div>
-        <div><label for="fEmp">รหัสพนักงานของผู้จัดการ</label><input id="fEmp" type="text"><div class="mut" id="empHint"></div></div>
-      </div>
-      <label for="divq">ฝ่ายที่ดูแล (เลือกได้หลายฝ่าย)</label>
-      <input id="divq" type="text" placeholder="ค้นหารหัสหรือชื่อฝ่าย">
-      <div class="divlist" id="divList"></div>
-      <div id="msg"></div>
-      <button id="save">บันทึก</button>
-      <p class="mut">• คนเดียวดูแลหลายฝ่ายได้ เลือกหลายฝ่ายแล้วกดบันทึก (ถ้ามีอยู่แล้วจะอัปเดตข้อมูลให้)<br>
-      • ลบฝ่ายออกใช้ปุ่ม ✕ ด้านล่าง &nbsp;• ต้องสร้างบัญชีล็อกอินที่ Supabase > Authentication > Users ด้วยอีเมลเดียวกันก่อน (หน้านี้สร้างบัญชีให้ไม่ได้)</p>
+    <div class="top"><span class="mut" id="who"></span><span><a href="managers-admin.html" style="color:var(--pri)">จัดการผู้จัดการฝ่าย</a> &nbsp; <a href="holidays.html" style="color:var(--pri)">จัดการวันหยุด</a> &nbsp; <button class="sec" id="out">ออกจากระบบ</button></span></div>
+    <div class="bar" style="margin-top:10px">
+      <button class="sec chip" data-s="">ทั้งหมด</button>
+      <button class="sec chip on" data-s="pending">รออนุมัติ</button>
+      <button class="sec chip" data-s="approved">อนุมัติแล้ว</button>
+      <button class="sec chip" data-s="rejected">ไม่อนุมัติ</button>
+      <input id="q" type="text" placeholder="ค้นหารหัส / ชื่อ / เลขที่เอกสาร">
+      <button class="sec" id="reload">รีเฟรช</button>
     </div>
-
-    <div class="bar"><input id="q" type="text" placeholder="ค้นหาอีเมล / รหัสพนักงาน / ฝ่าย"><button class="sec" id="reload">รีเฟรช</button></div>
     <div id="list"></div>
   </div>
 </div>
+
+
+
 <footer class="site-footer">
   <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย <b>Sarawut.C</b></div>
   <div class="cp">© <span id="cpYear">2026</span> Sarawut.C. สงวนลิขสิทธิ์ · All rights reserved.</div>
@@ -138,7 +125,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
-const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 /* ===== กล่องโต้ตอบตามธีม: uiConfirm / uiPrompt / uiAlert (คืนค่า Promise) ===== */
 function uiModal(o){
   o=Object.assign({title:"",message:"",input:false,placeholder:"",okText:"ตกลง",cancelText:"ยกเลิก",danger:false,showCancel:true},o||{});
@@ -167,74 +153,60 @@ const uiConfirm=(message,o)=>uiModal(Object.assign({title:"ยืนยันก
 const uiPrompt=(message,o)=>uiModal(Object.assign({title:"กรอกข้อมูล",message,input:true},o||{}));
 const uiAlert=(message,o)=>uiModal(Object.assign({title:"แจ้งเตือน",message,showCancel:false,danger:true},o||{}));
 
-let rows=[], divs=[], picked=new Set();
-const msg=(t,c)=>{ $("msg").className=c||""; $("msg").textContent=t; };
+const ST = {mgr_pending:"รอผู้จัดการฝ่าย",mgr_rejected:"ผู้จัดการไม่อนุมัติ",pending:"รออนุมัติ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",done:"ออกเอกสารแล้ว"};
+const CT = {work:"หนังสือรับรองการทำงาน",salary:"หนังสือรับรองเงินเดือน",pass:"หนังสือผ่านงาน",slip:"สลิปเงินเดือน"};
+const MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const d = s => { if(!s) return "-"; const x=new Date(s); return isNaN(x)?s:`${x.getDate()} ${MONTHS[x.getMonth()]} ${x.getFullYear()+543}`; };
+let rows=[], filt="pending", me="";
 
 async function show(session){
   $("login").classList.toggle("hide",!!session);
   $("app").classList.toggle("hide",!session);
   if(!session) return;
-  $("who").textContent="เข้าสู่ระบบ: "+session.user.email;
-  const r=await db.rpc("list_divisions");
-  if(r.error) msg("โหลดรายชื่อฝ่ายไม่สำเร็จ (บัญชีนี้ต้องเป็นผู้จัดการบุคคล): "+r.error.message,"bad"); else divs=r.data||[];
-  renderDivs(); load();
+  me = session.user.email; $("who").textContent = "เข้าสู่ระบบ: "+me;
+  load();
 }
-function renderDivs(){
-  const q=$("divq").value.trim().toLowerCase();
-  $("divList").innerHTML = divs.filter(d=>!q||(d.division_code+" "+d.division_name).toLowerCase().includes(q))
-    .map(d=>`<label class="opt"><input type="checkbox" data-c="${esc(d.division_code)}" ${picked.has(d.division_code)?"checked":""}> ${esc(d.division_code)} · ${esc(d.division_name)}</label>`).join("") || '<div class="mut" style="padding:6px">ไม่พบฝ่าย</div>';
-}
-$("divq").oninput=renderDivs;
-$("divList").addEventListener("change",e=>{ const c=e.target.dataset.c; if(!c) return; e.target.checked?picked.add(c):picked.delete(c); });
-
-$("fEmp").addEventListener("change",async()=>{
-  const code=$("fEmp").value.trim(); $("empHint").textContent=""; if(!code) return;
-  const {data}=await db.rpc("get_employee",{p_code:code}); const e=Array.isArray(data)?data[0]:data;
-  $("empHint").textContent = e ? `✓ ${e.full_name} · ${e.position||""}` : "ไม่พบรหัสพนักงานนี้";
-});
-
 async function load(){
-  const {data,error}=await db.from("managers").select("*").order("email");
+  const {data,error} = await db.from("certificate_requests").select("*").order("created_at",{ascending:false}).limit(500);
   if(error){ $("list").innerHTML=`<p class="mut">โหลดไม่สำเร็จ: ${esc(error.message)}</p>`; return; }
   rows=data; render();
+  if(!rows.length) $("list").innerHTML='<p class="mut">ยังไม่มีคำขอ (หรือบัญชีนี้ไม่มีสิทธิ์ HR)</p>';
 }
 function render(){
-  const q=$("q").value.trim().toLowerCase(), by={};
-  rows.forEach(r=>{ (by[r.email.toLowerCase()] ||= []).push(r); });
-  const html=Object.entries(by).filter(([e,rs])=>!q||(e+" "+rs.map(r=>r.emp_code+" "+r.division_code+" "+r.division_name).join(" ")).toLowerCase().includes(q))
-   .map(([e,rs])=>`<div class="card"><div class="top"><b>${esc(e)}</b><span class="mut">รหัสพนักงาน: ${esc(rs[0].emp_code||"-")} · ${rs.length} ฝ่าย</span></div>
-     <div style="margin-top:6px">${rs.map(r=>`<span class="dv">${esc(r.division_code)} · ${esc(r.division_name||"")}<button title="ลบ" data-e="${esc(r.email)}" data-d="${esc(r.division_code)}">✕</button></span>`).join("")}</div>
-     <div class="act"><button class="sec" data-edit="${esc(e)}">แก้ไข / เพิ่มฝ่าย</button></div></div>`).join("");
-  $("list").innerHTML = html || '<p class="mut">ยังไม่มีผู้จัดการฝ่ายในระบบ</p>';
+  const q=$("q").value.trim().toLowerCase();
+  const rs=rows.filter(r=>(!filt||r.status===filt)&&(!q||(r.emp_code+" "+r.full_name+" "+JSON.stringify(r.doc_numbers||{})).toLowerCase().includes(q)));
+  $("list").innerHTML = rs.map(r=>`
+    <div class="card">
+      <div class="top"><b>#${r.id} ${esc(r.emp_code)} ${esc(r.full_name)}</b><span class="tag ${r.status}">${ST[r.status]||r.status}</span></div>
+      <div class="mut">${esc(r.position)} · ${esc(r.department)} · ${esc(r.division)} · เริ่มงาน ${d(r.start_date)}${r.emp_status?` · สถานะพนักงาน: ${esc(r.emp_status)}`:""}</div>
+      <div>ประเภท: ${(r.cert_types||[]).map(c=>CT[c]||c).join(", ")}${r.slip_from?` (${esc(r.slip_from)} – ${esc(r.slip_to)})`:""}</div>
+      ${r.doc_numbers?`<div>เลขที่เอกสาร: ${Object.entries(r.doc_numbers).map(([k,v])=>`${CT[k]||k} <b>${esc(v)}</b>`).join(" · ")}</div>`:""}
+      <div>ระบุเงินเดือน: ${r.show_salary?"ใช่":"ไม่"} · ใช้เพื่อ: ${esc(r.purpose)} · วันที่ใช้: ${d(r.use_date)}</div>
+      <div class="mut">ขอเมื่อ ${d(r.request_date)}${r.prev_requested?` · เคยขอ ${d(r.prev_date)} (${esc(r.prev_purpose)})`:" · ไม่เคยขอ"}</div>
+      ${r.mgr_decided_by?`<div class="mut">ผู้จัดการฝ่ายอนุมัติ: ${esc(r.mgr_decided_by)} · ${d(r.mgr_decided_at)}</div>`:""}
+      ${r.decided_by?`<div class="mut">ผู้จัดการบุคคล: ${esc(r.decided_by)} · ${d(r.decided_at)}${r.reject_reason?` · เหตุผล: ${esc(r.reject_reason)}`:""}</div>`:""}
+      <div class="act">
+        ${r.status==="pending"?`<button class="go" data-a="approved" data-id="${r.id}">อนุมัติ</button><button class="no" data-a="rejected" data-id="${r.id}">ไม่อนุมัติ</button>`:""}
+        ${r.status==="approved"||r.status==="rejected"?`<button class="sec" data-a="pending" data-id="${r.id}">ย้อนกลับเป็นรออนุมัติ</button>`:""}
+      </div>
+    </div>`).join("") || '<p class="mut">ไม่พบรายการ</p>';
 }
-$("q").oninput=render; $("reload").onclick=load;
-
-$("list").addEventListener("click",async e=>{
-  const ed=e.target.closest("button[data-edit]");
-  if(ed){ const rs=rows.filter(r=>r.email.toLowerCase()===ed.dataset.edit);
-    $("fEmail").value=ed.dataset.edit; $("fEmp").value=rs[0].emp_code||""; picked=new Set(rs.map(r=>r.division_code)); renderDivs();
-    $("fEmp").dispatchEvent(new Event("change")); window.scrollTo({top:0,behavior:"smooth"}); return; }
-  const b=e.target.closest("button[data-d]"); if(!b) return;
-  if(!await uiConfirm(`ลบฝ่าย ${b.dataset.d} ออกจาก ${b.dataset.e} ใช่หรือไม่?\nคำขอใหม่ของฝ่ายนี้จะไม่ผ่านผู้จัดการคนนี้อีก`,{title:"ลบผู้จัดการฝ่าย",okText:"ลบ",danger:true})) return;
-  const {error}=await db.from("managers").delete().eq("email",b.dataset.e).eq("division_code",b.dataset.d);
-  if(error) return uiAlert(error.message,{title:"ลบไม่สำเร็จ"});
+$("list").addEventListener("click", async e=>{
+  const b=e.target.closest("button[data-a]"); if(!b) return;
+  const st=b.dataset.a; let reason=null;
+  if(st==="rejected"){
+    const v=await uiPrompt("ระบุเหตุผลที่ไม่อนุมัติคำขอนี้",{title:"ไม่อนุมัติคำขอ",placeholder:"ระบุเหตุผล (ถ้ามี)",okText:"ยืนยันไม่อนุมัติ",danger:true});
+    if(v===null) return; reason=v||null;
+  }
+  b.disabled=true;
+  const {error}=await db.from("certificate_requests").update({status:st,decided_by:me,decided_at:new Date().toISOString(),reject_reason:reason}).eq("id",b.dataset.id);
+  if(error){ await uiAlert(error.message,{title:"บันทึกไม่สำเร็จ"}); b.disabled=false; return; }
   load();
 });
-
-$("save").onclick=async()=>{
-  const email=$("fEmail").value.trim().toLowerCase(), emp=$("fEmp").value.trim();
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return msg("กรุณากรอกอีเมลให้ถูกต้อง","bad");
-  if(!picked.size) return msg("กรุณาเลือกอย่างน้อย 1 ฝ่าย","bad");
-  const name=Object.fromEntries(divs.map(d=>[d.division_code,d.division_name]));
-  const recs=[...picked].map(c=>({email,emp_code:emp||null,division_code:c,division_name:name[c]||null}));
-  $("save").disabled=true;
-  const {error}=await db.from("managers").upsert(recs,{onConflict:"email,division_code"});
-  $("save").disabled=false;
-  if(error) return msg("บันทึกไม่สำเร็จ: "+error.message,"bad");
-  msg(`บันทึกแล้ว ${recs.length} ฝ่าย${emp?"":" (ยังไม่ได้ใส่รหัสพนักงาน: ถ้าผจก.ขอเอกสารเอง คำขอจะยังต้องผ่านผจก.ฝ่ายตัวเอง)"}`,"good");
-  picked=new Set(); $("fEmail").value=""; $("fEmp").value=""; $("empHint").textContent=""; renderDivs(); load();
-};
-
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); c.classList.add("on"); filt=c.dataset.s; render(); });
+$("q").oninput=render; $("reload").onclick=load;
 $("out").onclick=async()=>{ await db.auth.signOut(); show(null); };
 $("loginBtn").onclick=async()=>{
   $("err").textContent="";
@@ -243,6 +215,7 @@ $("loginBtn").onclick=async()=>{
   show(data.session);
 };
 $("pw").addEventListener("keydown",e=>{ if(e.key==="Enter") $("loginBtn").click(); });
+
 db.auth.getSession().then(({data})=>show(data.session));
 </script>
 </body>
