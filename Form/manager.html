@@ -90,7 +90,7 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
   <h2>ผู้จัดการฝ่าย – อนุมัติคำขอหนังสือรับรอง</h2>
 
   <div id="login" class="card" style="max-width:380px">
-    <p><input id="em" type="text" placeholder="อีเมล" autocomplete="username"></p>
+    <p><input id="em" type="text" placeholder="อีเมลผู้จัดการ" autocomplete="username"></p>
     <p><input id="pw" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"></p>
     <button id="loginBtn">เข้าสู่ระบบ</button>
     <div id="err"></div>
@@ -118,6 +118,17 @@ const SUPABASE_URL = "https://ppzdyvomrfiitahxwrwz.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwemR5dm9tcmZpaXRhaHh3cnd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjQ0MjIsImV4cCI6MjEwNDYwMDQyMn0.iArUz6swMfwhFT_1qEvCwK1B3aiCxdWt46_FBjT6_Y0";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ตรวจสิทธิ์หลังเข้าสู่ระบบ: บัญชีที่ไม่มีสิทธิ์ในหน้านี้จะถูกออกจากระบบทันที (ต้องรัน setup10.sql ก่อน) */
+const NEED_ROLE="division_manager", DENY_MSG="บัญชีนี้ไม่ได้เป็นผู้จัดการฝ่ายในระบบ กรุณาติดต่อฝ่ายบุคคล";
+let ROLE_ERR="";
+async function roleOk(){
+  try{
+    const {data,error}=await db.rpc("my_roles");
+    if(error){ ROLE_ERR="ตรวจสอบสิทธิ์ไม่สำเร็จ: "+error.message; return false; }
+    return !!(data && data[NEED_ROLE]);
+  }catch(e){ ROLE_ERR="ตรวจสอบสิทธิ์ไม่สำเร็จ"; return false; }
+}
 const $ = id => document.getElementById(id);
 /* ===== กล่องโต้ตอบตามธีม: uiConfirm / uiPrompt / uiAlert (คืนค่า Promise) ===== */
 function uiModal(o){
@@ -155,8 +166,11 @@ const d = s => { if(!s) return "-"; const x=new Date(typeof s==="string"&&s.leng
 let rows=[], tab="wait";
 
 async function show(session){
+  let denied=false;
+  if(session && !(await roleOk())){ await db.auth.signOut(); session=null; denied=true; }
   $("login").classList.toggle("hide",!!session);
   $("app").classList.toggle("hide",!session);
+  if(denied){ $("err").textContent=ROLE_ERR||DENY_MSG; ROLE_ERR=""; }
   if(!session) return;
   const {data}=await db.from("managers").select("division_name,division_code");
   $("who").textContent = session.user.email + (data&&data.length ? " · ฝ่าย: "+data.map(m=>m.division_name||m.division_code).join(", ") : " · (ยังไม่ได้ผูกกับฝ่ายใด)");
