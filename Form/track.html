@@ -173,7 +173,11 @@ function steps(r){
       :s==="pending"?{t:"ผู้จัดการบุคคลอนุมัติ",c:"current",n:"กำลังรอพิจารณา"}
       :s==="rejected"?{t:"ผู้จัดการบุคคลอนุมัติ",c:"rejected",n:"ไม่อนุมัติ",d:r.decided_at}
       :{t:"ผู้จัดการบุคคลอนุมัติ",c:"done",n:"อนุมัติแล้ว",d:r.decided_at});
-  a.push(s==="done"?{t:"ฝ่ายบุคคลออกเอกสาร",c:"done",n:"ออกเอกสารแล้ว"}
+    const pr=r.printed||{}, need=(r.cert_types||[]).filter(t=>["work","salary","pass"].includes(t));
+  const got=need.filter(t=>pr[t]).length, all=(s==="approved"||s==="done")&&need.length>0&&got===need.length;
+  const last=need.map(t=>pr[t]).filter(Boolean).sort().pop();
+  a.push(s==="done"||all?{t:"ฝ่ายบุคคลออกเอกสาร",c:"done",n:"ออกเอกสารเรียบร้อย",d:last||null}
+      :s==="approved"&&got>0?{t:"ฝ่ายบุคคลออกเอกสาร",c:"current",n:`ออกเอกสารแล้ว ${got}/${need.length} ฉบับ`}
       :s==="approved"?{t:"ฝ่ายบุคคลออกเอกสาร",c:"current",n:"อนุมัติครบแล้ว ฝ่ายบุคคลกำลังดำเนินการออกเอกสาร"}
       :{t:"ฝ่ายบุคคลออกเอกสาร",c:"wait"});
   return a;
@@ -181,7 +185,9 @@ function steps(r){
 const ICON={done:"✓",current:"●",rejected:"✕",skip:"–",wait:""};
 function card(r,mode){
   const [k,txt]=SUMMARY[r.status]||["cur",r.status];
-  const docs=r.doc_numbers?Object.entries(r.doc_numbers).map(([t,v])=>`${esc(CERT[t]||t)}: <b>${esc(v)}</b>`).join("<br>"):"";
+    const pr=r.printed||{};
+  const docs=(r.cert_types||[]).filter(t=>t!=="slip"&&(pr[t]||(r.doc_numbers&&r.doc_numbers[t]))).map(t=>
+    `${esc(CERT[t]||t)}${r.doc_numbers&&r.doc_numbers[t]?`: <b>${esc(r.doc_numbers[t])}</b>`:""}${pr[t]?` · <span style="color:var(--ok)">✓ ออกเอกสารแล้ว ${dt(pr[t],true)}</span>`:""}`).join("<br>");
   return `<div class="card req"><div class="rh"><span class="rid">คำขอ #${r.id}</span><span class="pill ${k}">${esc(txt)}</span></div>
    <div class="chips">${(r.cert_types||[]).map(t=>`<span>${esc(CERT[t]||t)}</span>`).join("")}</div>
    <div class="meta"><span>ขอเมื่อ ${dt(r.request_date)}</span>${r.use_date?`<span>วันที่ต้องการใช้ ${dt(r.use_date)}</span>`:""}${mode!=="emp"?`<span>ผู้ขอ ${esc(r.name_masked)}</span>`:""}</div>
@@ -196,6 +202,11 @@ async function search(){
   const {data,error}=await db.rpc("track_requests",{p_q:q});
   if(error){ $("msg").className="bad"; $("msg").textContent="ค้นหาไม่สำเร็จ: "+error.message; return; }
   if(!data||!data.length){ $("msg").className="bad"; $("msg").textContent="ไม่พบคำขอ ตรวจสอบรหัสพนักงานหรือเลขที่คำขอ (เลขที่คำขอให้ใส่ # นำหน้า เช่น #25) อีกครั้ง"; return; }
+    try{
+    const {data:pr}=await db.rpc("track_printed",{p_ids:data.map(r=>r.id)});
+    const m={}; (pr||[]).forEach(x=>m[x.id]=x.printed||{});
+    data.forEach(r=>r.printed=m[r.id]||{});
+  }catch(e){}
   const mode=data[0].found_by;
   $("msg").textContent = mode==="emp" ? `พบ ${data.length} คำขอของรหัสพนักงาน ${q} (เรียงจากล่าสุด)` : `พบ ${data.length} คำขอ`;
   $("out").innerHTML=data.map(r=>card(r,mode)).join("");
