@@ -210,10 +210,9 @@ let rows=[], filt="", me="";
 
 const isPrinted=(r,k)=>!!(r.printed && r.printed[k]);
 async function markPrinted(r,k){
-  const p=Object.assign({},r.printed||{},{[k]:new Date().toISOString()});
-  const {error}=await db.from("certificate_requests").update({printed:p}).eq("id",r.id);
+  const {data,error}=await db.rpc("mark_cert_printed",{p_id:r.id,p_type:k});
   if(error){ uiAlert("พิมพ์แล้ว แต่บันทึกสถานะไม่สำเร็จ: "+error.message); return; }
-  r.printed=p; render();
+  r.printed=data; render();
 }
 
 async function show(session){
