@@ -104,6 +104,8 @@ button.nb-out:hover:not(:disabled){background:rgba(192,57,43,.1)}
 .bar .fsz input{flex:none;width:74px;min-width:0;padding:7px 8px;text-align:center}
 .bar .fbadge{flex:none;white-space:nowrap;font-size:.8rem;padding:3px 10px;border-radius:999px;background:var(--prisoft);border:1px solid var(--bd);color:var(--pri)}
 .bar button{flex:none}
+button.sec.printed{background:var(--bd);color:var(--mut);border:1.5px solid var(--bd);box-shadow:none}
+button.sec.printed:hover:not(:disabled){background:var(--bd);transform:none}
 </style>
 </head>
 <body>
@@ -206,6 +208,13 @@ const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">"
 const d = s => { if(!s) return "-"; const x=new Date(s); return isNaN(x)?s:`${x.getDate()} ${MONTHS[x.getMonth()]} ${x.getFullYear()+543}`; };
 let rows=[], filt="", me="";
 
+const isPrinted=(r,k)=>!!(r.printed && r.printed[k]);
+async function markPrinted(r,k){
+  const {data,error}=await db.rpc("mark_cert_printed",{p_id:r.id,p_type:k});
+  if(error){ uiAlert("พิมพ์แล้ว แต่บันทึกสถานะไม่สำเร็จ: "+error.message); return; }
+  r.printed=data; render();
+}
+
 async function show(session){
   let denied=false;
   if(session && !(await roleOk())){ await db.auth.signOut(); session=null; denied=true; }
@@ -236,7 +245,9 @@ function render(){
       ${r.mgr_decided_by?`<div class="mut">ผู้จัดการฝ่ายอนุมัติ: ${esc(r.mgr_decided_by)} · ${d(r.mgr_decided_at)}</div>`:""}
       ${r.decided_by?`<div class="mut">ผู้จัดการบุคคล: ${esc(r.decided_by)} · ${d(r.decided_at)}${r.reject_reason?` · เหตุผล: ${esc(r.reject_reason)}`:""}</div>`:""}
       <div class="act">
-        ${(r.status==="approved"||r.status==="done")?PRINTABLE.filter(([k])=>(r.cert_types||[]).includes(k)).map(([k,l])=>`<button class="sec" data-p="${r.id}" data-t="${k}">พิมพ์${l}</button>`).join(""):""}
+       ${(r.status==="approved"||r.status==="done")?PRINTABLE.filter(([k])=>(r.cert_types||[]).includes(k)).map(([k,l])=>isPrinted(r,k)
+  ?`<button class="sec printed" data-p="${r.id}" data-t="${k}" title="พิมพ์เมื่อ ${d(r.printed[k])} (กดเพื่อพิมพ์ซ้ำ)">พิมพ์${l} · ✓ ออกเอกสารเรียบร้อย</button>`
+  :`<button class="sec" data-p="${r.id}" data-t="${k}">พิมพ์${l}</button>`).join(""):""}
       </div>
     </div>`).join("") || '<p class="mut">ไม่พบรายการ</p>';
 }
@@ -369,6 +380,7 @@ ${a(94,L.foot[1],`font-size:${FS}pt`,"หมายเหตุ : ถ้าหน
 <script>window.onload=()=>{(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(()=>window.print(),400));};<\/script>
 </body></html>`);
   w.document.close();
+  markPrinted(r,type);
 }
 
 /* เอกสารที่ต้องกรอกข้อมูลเพิ่ม: เงินเดือน (ถ้าเลือกให้ระบุ) และวันสิ้นสุดการทำงาน (หนังสือผ่านงาน) */
