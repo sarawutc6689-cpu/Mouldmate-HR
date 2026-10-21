@@ -82,6 +82,18 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
 .ui-act{display:flex;gap:10px;margin-top:6px}
 .ui-act button{flex:1;padding:10px}
 @keyframes uiPop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+/* แถบเมนูด้านบน (navbar) */
+.navbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow);margin-bottom:6px}
+.nb-user{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 220px;color:var(--mut);font-size:.9rem}
+.nb-user::before{content:"👤";flex:0 0 36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--prisoft);border:1px solid var(--bd);font-size:1.05rem}
+.nb-user #who{flex:1;min-width:0;word-break:break-word}
+.nb-links{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+a.nb-link{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;text-decoration:none;font-weight:600;font-size:.92rem;color:var(--pri);background:var(--prisoft);border:1px solid transparent;transition:border-color .12s,transform .12s}
+a.nb-link:hover{border-color:var(--pri);transform:translateY(-1px)}
+a.nb-link.home{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff}
+button.nb-out{flex:0 0 auto;white-space:nowrap;padding:8px 16px;border-radius:999px;background:var(--card);color:var(--err);border:1.5px solid var(--err);box-shadow:none;font-weight:600}
+button.nb-out:hover:not(:disabled){background:rgba(192,57,43,.1)}
+@media(max-width:640px){.nb-links{order:3;width:100%}.navbar .nb-out{margin-left:auto}}
 </style>
 </head>
 <body>
@@ -96,7 +108,14 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
   </div>
 
   <div id="app" class="hide">
-    <div class="top"><a href="admin.html">← กลับหน้าคำขอ</a><span><span class="mut" id="who"></span> <button class="sec" id="out">ออกจากระบบ</button></span></div>
+    <div class="navbar">
+      <div class="nb-user"><span id="who"></span></div>
+      <nav class="nb-links">
+        <a class="nb-link home" href="hr-portal.html">🏠 เมนูหลัก</a>
+        <a class="nb-link" href="admin.html">🖨️ พิมพ์หนังสือรับรอง</a>
+      </nav>
+      <button class="nb-out" id="out">🚪 ออกจากระบบ</button>
+    </div>
 
     <div class="card" style="margin-top:12px">
       <b>เพิ่มวันหยุดทีละวัน</b>
