@@ -121,6 +121,8 @@ button.nb-out:hover:not(:disabled){background:rgba(192,57,43,.1)}
     <div class="bar" style="margin-top:10px">
       <input id="q" type="text" placeholder="ค้นหารหัส / ชื่อ / เลขที่เอกสาร">
       <label class="mut" style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="useSig" checked style="width:auto"> แนบลายเซ็นตอนพิมพ์</label>
+      <label class="mut" style="display:flex;gap:6px;align-items:center;margin:0">ขนาดตัวอักษรเอกสาร <input type="number" id="docFs" min="8" max="20" step="0.5" value="13" style="width:76px"> pt</label>
+      <span class="mut" id="fontInfo" style="font-size:.85rem"></span>
       <button class="sec" id="reload">รีเฟรช</button>
     </div>
     <div id="list"></div>
@@ -139,8 +141,8 @@ button.nb-out:hover:not(:disabled){background:rgba(192,57,43,.1)}
 </dialog>
 
 <footer class="site-footer">
-  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย Sarawut.C</div>
-  <div class="cp">© <span id="cpYear">2026</span> สงวนลิขสิทธิ์ · All rights reserved.</div>
+  <div>แบบฟอร์มคำร้องขอเอกสาร<span class="sep">|</span>ใช้สำหรับภายในบริษัทเท่านั้น<span class="sep">|</span>พัฒนาโดย <b>Sarawut.C</b></div>
+  <div class="cp">© <span id="cpYear">2026</span> Sarawut.C. สงวนลิขสิทธิ์ · All rights reserved.</div>
 </footer>
 <script>document.getElementById("cpYear").textContent=new Date().getFullYear();</script>
 
@@ -293,6 +295,14 @@ function hasFont(name){
   }catch(e){ return false; }
 }
 
+/* ขนาดตัวอักษรเอกสาร: ตั้งได้ที่ช่อง "ขนาดตัวอักษรเอกสาร" ในหน้านี้ (ค่าเริ่มต้น 13pt, จำค่าไว้ในเบราว์เซอร์) */
+(function(){
+  const el=$("docFs");
+  try{ const v=localStorage.getItem("docFs"); if(v) el.value=v; }catch(e){}
+  el.addEventListener("change",()=>{ let n=parseFloat(el.value); if(!(n>=8&&n<=20)) n=13; el.value=n; try{ localStorage.setItem("docFs",n); }catch(e){} });
+  $("fontInfo").textContent = hasFont("Adobe Thai") ? "ฟอนต์เอกสาร: Adobe Thai ✓" : "ฟอนต์เอกสาร: Sarabun (เครื่องนี้ไม่พบ Adobe Thai)";
+})();
+
 async function printCert(type, r, x){
   const L = LAYOUT[type];
   const w = window.open("", "_blank");   // เปิดทันทีตอนกดปุ่ม กันเบราว์เซอร์บล็อก pop-up
@@ -300,10 +310,10 @@ async function printCert(type, r, x){
   const sig = ($("useSig") && $("useSig").checked) ? await loadSignature() : null;
   const no = (r.doc_numbers && r.doc_numbers[type]) || "";
   const issue = dl(r.decided_at || new Date());
-  // ฟอนต์เอกสาร: Adobe Thai ขนาด 13pt ตายตัว (ถ้าเครื่องไม่มี Adobe Thai ใช้ Sarabun 12pt แทน ให้ขนาดที่ตามองเห็นใกล้เคียงกัน)
+  // ฟอนต์เอกสาร: Adobe Thai ถ้าเครื่องมี ไม่เช่นนั้นใช้ Sarabun (ขนาดใช้ค่าเดียวกัน)
   const adobe = hasFont("Adobe Thai");
   const FF = adobe ? '"Adobe Thai","Sarabun",sans-serif' : '"Sarabun","TH Sarabun New","Noto Sans Thai",sans-serif';
-  const FS = adobe ? 13 : 12;
+  const FS = (()=>{ const n=parseFloat($("docFs") && $("docFs").value); return n>=8 && n<=20 ? n : 13; })();   // ขนาดตามช่องตั้งค่า (ค่าเริ่มต้น 13pt)
   const a = (l,t,extra,txt) => `<div class="a" style="left:${l}pt;top:${t}pt;${extra||""}">${txt}</div>`;
   const row = (t,label,val) => a(127,t,"",`<span style="display:inline-block;width:66pt">${label}</span><span style="display:inline-block;width:12pt">:</span>${esc(val)}`);
   let extraLine = "";
