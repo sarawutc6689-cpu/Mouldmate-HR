@@ -88,6 +88,18 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
 #who details{margin-top:4px}
 #who summary{cursor:pointer;color:var(--pri);font-weight:600}
 #who details>div{max-height:150px;overflow:auto;margin-top:6px;padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--prisoft);line-height:1.7}
+/* แถบเมนูด้านบน (navbar) */
+.navbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow);margin-bottom:6px}
+.nb-user{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 220px;color:var(--mut);font-size:.9rem}
+.nb-user::before{content:"👤";flex:0 0 36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--prisoft);border:1px solid var(--bd);font-size:1.05rem}
+.nb-user #who{flex:1;min-width:0;word-break:break-word}
+.nb-links{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+a.nb-link{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;text-decoration:none;font-weight:600;font-size:.92rem;color:var(--pri);background:var(--prisoft);border:1px solid transparent;transition:border-color .12s,transform .12s}
+a.nb-link:hover{border-color:var(--pri);transform:translateY(-1px)}
+a.nb-link.home{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff}
+button.nb-out{flex:0 0 auto;white-space:nowrap;padding:8px 16px;border-radius:999px;background:var(--card);color:var(--err);border:1.5px solid var(--err);box-shadow:none;font-weight:600}
+button.nb-out:hover:not(:disabled){background:rgba(192,57,43,.1)}
+@media(max-width:640px){.nb-links{order:3;width:100%}.navbar .nb-out{margin-left:auto}}
 </style>
 </head>
 <body>
@@ -102,7 +114,10 @@ dialog.ui-modal::backdrop{background:rgba(10,20,40,.5);backdrop-filter:blur(3px)
   </div>
 
   <div id="app" class="hide">
-    <div class="top"><span class="mut" id="who"></span><button class="sec" id="out">ออกจากระบบ</button></div>
+    <div class="navbar">
+      <div class="nb-user"><span id="who"></span></div>
+      <button class="nb-out" id="out">🚪 ออกจากระบบ</button>
+    </div>
     <div class="bar">
       <button class="sec chip on" data-s="wait" id="cWait">รอพิจารณา</button>
       <button class="sec chip" data-s="all">ทั้งหมดของฝ่าย</button>
