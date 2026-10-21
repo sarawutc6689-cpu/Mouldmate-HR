@@ -217,8 +217,6 @@ async function markPrinted(r,k){
 }
 
 async function show(session){
-
-async function show(session){
   let denied=false;
   if(session && !(await roleOk())){ await db.auth.signOut(); session=null; denied=true; }
   $("login").classList.toggle("hide",!!session);
